@@ -56,4 +56,11 @@ class CreativeMarketApplicationTests {
         String s = RandomUtil.randomString(15);
         System.out.println("user_"+s);
     }
+
+    @Test
+    void imageTest(){
+        String s = "adc.jpg";
+        String substring = s.substring(s.lastIndexOf("."));
+        System.out.println(substring);
+    }
 }
