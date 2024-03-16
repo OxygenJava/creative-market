@@ -18,7 +18,9 @@ public class webmvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(loginInterceptor).addPathPatterns("/**").order(0);
         registry.addInterceptor(userInterceptor).excludePathPatterns(
                 "/api/user/**",
-                "/api/common/**"
+                "/api/common/**",
+                "/api/crow/**",
+                "/api/crow/team/**"
         ).order(1);
     }
 }
