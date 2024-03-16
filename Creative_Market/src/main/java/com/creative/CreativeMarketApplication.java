@@ -8,7 +8,7 @@ public class CreativeMarketApplication {
 
     public static void main(String[] args) {
 
-        System.out.println("nihao");
+
         SpringApplication.run(CreativeMarketApplication.class, args);
     }
 
