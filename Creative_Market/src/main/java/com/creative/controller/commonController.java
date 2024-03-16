@@ -16,7 +16,9 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,23 +48,18 @@ public class commonController {
 
     //使用base64格式的图片在前端显示需要加上：“data:image/jpeg;base64,”
     @PostMapping("/getSwiperImage")
-    public void encodeImages(HttpServletResponse response) throws IOException {
+    public Result encodeImages() throws IOException {
         // 假设imagePaths为存储图片路径的数组
         String[] imagePaths = {"D:\\img\\hello1.png", "D:\\img\\hello2.png"};
 
-        PrintWriter writer = response.getWriter();
+        List<String> base64ImageList = new ArrayList<>();
         for (int i = 0; i < imagePaths.length; i++) {
             String imagePath = imagePaths[i];
             String base64Image = encodeImageToBase64(imagePath);
-
-            // 输出base64编码后的图片数据，并以特定字符串分隔
-            writer.print(base64Image);
-            if (i < imagePaths.length - 1) {
-                writer.print("&&&");
-            }
+           base64ImageList.add(base64Image);
         }
 
-        writer.close();
+        return Result.success("操作成功",base64ImageList);
     }
 
     private String encodeImageToBase64(String imagePath) throws IOException {
