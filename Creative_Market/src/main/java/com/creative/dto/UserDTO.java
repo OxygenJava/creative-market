@@ -14,4 +14,6 @@ public class UserDTO {
     private LocalDateTime createTime;
     private LocalDateTime lastLoginTime;
     private String address;
+    private Integer fansCount;
+    private Integer FocusCount;
 }

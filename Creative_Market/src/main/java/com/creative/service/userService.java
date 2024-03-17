@@ -3,6 +3,7 @@ package com.creative.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.creative.domain.user;
 import com.creative.dto.*;
+import org.apache.catalina.User;
 
 import java.util.List;
 
@@ -22,4 +23,5 @@ public interface userService extends IService<user> {
     Result forgetPasswordCheckCode(loginByCodeFormDTO formDTO);
 
     Result forgetPasswordResetPassword(resetPasswordFrom passwordFrom);
+    Result showUserInfoById(Integer id);
 }

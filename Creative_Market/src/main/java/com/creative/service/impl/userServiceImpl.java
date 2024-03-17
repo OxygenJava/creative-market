@@ -11,12 +11,15 @@ import com.creative.dto.*;
 import com.creative.mapper.userMapper;
 import com.creative.service.userService;
 import com.creative.utils.RegexUtils;
+import com.creative.utils.imgUtils;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,9 @@ import java.util.concurrent.TimeUnit;
 public class userServiceImpl extends ServiceImpl<userMapper, user> implements userService {
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private userMapper userMapper;
 
     @Override
     public Result sendCode(String phone) {
@@ -258,6 +264,20 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         one.setUpdateTime(LocalDateTime.now());
         updateById(one);
         return Result.success("设置成功");
+    //查询用户信息
+    @Override
+    public Result showUserInfoById(Integer id) {
+        user user = userMapper.selectById(id);
+        String iconImage = user.getIconImage();
+        String s = null;
+        try {
+            s = imgUtils.encodeImageToBase64(iconImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        user.setIconImage(s);
+        return Result.success("查询成功",user);
+
     }
 
 

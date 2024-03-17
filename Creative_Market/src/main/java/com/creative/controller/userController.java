@@ -1,10 +1,12 @@
 package com.creative.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.creative.domain.user;
 import com.creative.dto.*;
 import com.creative.service.userService;
 import com.creative.utils.userHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -93,5 +95,11 @@ public class userController {
     @PostMapping("/forgetPassword/resetPassword")
     public Result forgetPasswordResetPassword(@RequestBody resetPasswordFrom passwordFrom){
         return userService.forgetPasswordResetPassword(passwordFrom);
+    @GetMapping("/showUserInfoById/{id}")
+    public Result showUserInfoById(@PathVariable Integer id){
+        Result result = userService.showUserInfoById(id);
+        user user = (com.creative.domain.user) result.getData();
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        return new  Result(userDTO == null ? Code.GET_ERR : Code.GET_OK,userDTO == null ? "查询失败" : "",userDTO);
     }
 }
