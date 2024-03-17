@@ -7,10 +7,12 @@ import com.creative.mapper.CrowMapper;
 import com.creative.service.CrowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.List;
 
 @Service
+@EnableTransactionManagement
 public class CrowServiceImpl implements CrowService {
 
     @Autowired

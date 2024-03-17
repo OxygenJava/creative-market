@@ -1,6 +1,7 @@
 package com.creative.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
@@ -26,6 +27,14 @@ public class team {
     private Integer uid13;
     private Integer uid14;
     private Integer uid15;
+
+    //uid的位置
+    @TableField(exist = false)
+    private Integer uidlocation;
+
+    //成员id
+    @TableField(exist = false)
+    private Integer uid;
 
 
 }

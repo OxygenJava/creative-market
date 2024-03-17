@@ -20,9 +20,33 @@ public class TeamController {
         return result;
     }
 
+    @GetMapping
+    public Result selectTeam(){
+        Result result = teamService.selectTeam();
+        return result;
+    }
+
     @PutMapping("/update")
     public Result updateTeam(@RequestBody team team){
         Result result = teamService.updateTeam(team);
+        return result;
+    }
+
+    @DeleteMapping("/{id}")
+    public Result deleteTeam(@PathVariable Integer id){
+        Result result = teamService.deleteTeam(id);
+        return result;
+    }
+
+    @PostMapping
+    public Result insertTeam(@RequestBody team team){
+        Result result = teamService.insertTeam(team);
+        return result;
+    }
+
+    @PostMapping("/user")
+    public Result insertTeamUser(@RequestBody team team){
+        Result result = teamService.insertTeamUser(team);
         return result;
     }
 }
