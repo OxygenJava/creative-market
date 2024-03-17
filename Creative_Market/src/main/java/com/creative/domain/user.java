@@ -19,5 +19,6 @@ public class user {
     private LocalDateTime createTime;
     private LocalDateTime lastLoginTime;
     private String address;
+    private LocalDateTime updateTime;
     private Integer state;
 }
