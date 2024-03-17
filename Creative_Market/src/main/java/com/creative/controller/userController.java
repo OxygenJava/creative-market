@@ -53,4 +53,45 @@ public class userController {
     public Result userRegister(@RequestBody userRegisterForm userRegisterForm){
         return userService.userRegister(userRegisterForm);
     }
+
+    /**
+     * 修改密码
+     * 需要token
+     * @param updateForm
+     * @return
+     */
+    @PostMapping("/updatePassword")
+    public Result updatePassword(@RequestBody updatePasswordForm updateForm){
+        return userService.updatePassword(updateForm);
+    }
+
+    /**
+     * 忘记密码发送验证码
+     * @param phone
+     * @return
+     */
+    @GetMapping("/forgetPassword/sendCode/{phone}")
+    public Result forgetPasswordSendCode(@PathVariable String phone){
+        return userService.forgetPasswordSendCode(phone);
+    }
+
+    /**
+     * 忘记密码（校验验证码）
+     * @param formDTO
+     * @return
+     */
+    @PostMapping("/forgetPassword/checkCode")
+    public Result forgetPasswordCheckCode(@RequestBody loginByCodeFormDTO formDTO){
+        return userService.forgetPasswordCheckCode(formDTO);
+    }
+
+    /**
+     * 忘记密码（重设密码）
+     * @param passwordFrom
+     * @return
+     */
+    @PostMapping("/forgetPassword/resetPassword")
+    public Result forgetPasswordResetPassword(@RequestBody resetPasswordFrom passwordFrom){
+        return userService.forgetPasswordResetPassword(passwordFrom);
+    }
 }

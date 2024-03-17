@@ -14,4 +14,12 @@ public interface userService extends IService<user> {
     loginResult loginByPassword(loginByPasswordFormDTO login);
 
     Result userRegister(userRegisterForm userRegisterForm);
+
+    Result updatePassword(updatePasswordForm updateForm);
+
+    Result forgetPasswordSendCode(String phone);
+
+    Result forgetPasswordCheckCode(loginByCodeFormDTO formDTO);
+
+    Result forgetPasswordResetPassword(resetPasswordFrom passwordFrom);
 }
