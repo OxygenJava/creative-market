@@ -264,6 +264,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         one.setUpdateTime(LocalDateTime.now());
         updateById(one);
         return Result.success("设置成功");
+    }
     //查询用户信息
     @Override
     public Result showUserInfoById(Integer id) {
@@ -336,3 +337,4 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         return "user_"+RandomUtil.randomString(15);
     }
 }
+

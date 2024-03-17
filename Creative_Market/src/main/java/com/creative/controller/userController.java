@@ -93,8 +93,9 @@ public class userController {
      * @return
      */
     @PostMapping("/forgetPassword/resetPassword")
-    public Result forgetPasswordResetPassword(@RequestBody resetPasswordFrom passwordFrom){
+    public Result forgetPasswordResetPassword(@RequestBody resetPasswordFrom passwordFrom) {
         return userService.forgetPasswordResetPassword(passwordFrom);
+    }
     @GetMapping("/showUserInfoById/{id}")
     public Result showUserInfoById(@PathVariable Integer id){
         Result result = userService.showUserInfoById(id);
