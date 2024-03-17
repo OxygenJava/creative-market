@@ -53,7 +53,10 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         //缓存中取出验证码
         String code = redisTemplate.opsForValue().get("login:code" + loginForm.getPhoneNumber());
         System.out.println(code);
-        if (code == null || !code.equals(loginForm.getCode())){
+        if (code == null){
+            return loginResult.fail(Code.SYNTAX_ERROR,"请重新获取验证码");
+        }
+        if (!code.equals(loginForm.getCode())){
             return loginResult.fail(Code.SYNTAX_ERROR,"验证码填写有误");
         }
         //判断账号是否存在
@@ -159,6 +162,102 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         user.setState(1);
         save(user);
         return Result.success();
+    }
+
+    @Override
+    public Result updatePassword(updatePasswordForm updateForm) {
+        Integer id = updateForm.getId();
+        user updateUser = lambdaQuery().eq(user::getId, id).one();
+        if (updateUser == null){
+            return Result.fail(Code.SYNTAX_ERROR,"查找不到该用户");
+        }
+        //该账号是否有密码
+        if (updateUser.getPassword() == null){
+            return Result.fail(Code.SYNTAX_ERROR,"该账号暂无设置密码");
+        }
+        //比对原始密码是否正确
+        String originalPassword = updateForm.getOriginalPassword();
+        originalPassword = DigestUtil.md5Hex(originalPassword);
+        if (!updateUser.getPassword().equals(originalPassword)){
+            return Result.fail(Code.SYNTAX_ERROR,"原密码错误");
+        }
+        //比对输入的密码是否符合规则
+        String newPassword = updateForm.getNewPassword();
+        if (!RegexUtils.passwordMatches(newPassword)){
+            return Result.fail(Code.SYNTAX_ERROR,"密码格式为8-16位字符");
+        }
+
+        //比对第二次输入的密码是否与第一次相同
+        if (!newPassword.equals(updateForm.getConfirmNewPassword())){
+            return Result.fail(Code.SYNTAX_ERROR,"两次输入的密码不相同");
+        }
+        //设置新密码
+        updateUser.setPassword(DigestUtil.md5Hex(updateForm.getConfirmNewPassword()));
+        //设置修改时间
+        updateUser.setUpdateTime(LocalDateTime.now());
+        //保存用户
+        updateById(updateUser);
+        return Result.success();
+    }
+
+    @Override
+    public Result forgetPasswordSendCode(String phone) {
+        if (phone == null || "".equals(phone)){
+            return Result.fail(Code.SYNTAX_ERROR,"手机号不能为空");
+        }
+        //校验手机号
+        if (!RegexUtils.phoneMatches(phone)){
+            return Result.fail(Code.SYNTAX_ERROR,"手机号填写有误");
+        }
+        //查看该手机号是否有账号
+        user forgetPassword = lambdaQuery().eq(user::getPhoneNumber, phone).one();
+        if (forgetPassword == null){
+            return Result.fail(Code.SYNTAX_ERROR,"该手机号下无账号");
+        }
+        if (forgetPassword.getPassword() == null){
+            return Result.fail(Code.SYNTAX_ERROR,"该账号无密码,请进行登录后设置");
+        }
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String code = RandomUtil.randomNumbers(6);
+        ops.set("forget:code"+phone,code,1,TimeUnit.MINUTES);
+        System.out.println("忘记密码：code: "+code);
+        return Result.success();
+    }
+
+    @Override
+    public Result forgetPasswordCheckCode(loginByCodeFormDTO formDTO) {
+        //校验手机号
+        if (!RegexUtils.phoneMatches(formDTO.getPhoneNumber())){
+            return Result.fail(Code.SYNTAX_ERROR,"手机号填写有误");
+        }
+        //缓存中取出验证码
+        String code = redisTemplate.opsForValue().get("forget:code" + formDTO.getPhoneNumber());
+        if (code == null){
+            return Result.fail(Code.SYNTAX_ERROR,"请重新获取验证码");
+        }
+        if (!code.equals(formDTO.getCode())){
+            return Result.fail(Code.SYNTAX_ERROR,"验证码填写有误");
+        }
+        return Result.success("验证码正确");
+    }
+
+    @Override
+    public Result forgetPasswordResetPassword(resetPasswordFrom passwordFrom) {
+        String password = passwordFrom.getPassword();
+        //校验密码
+        if(!RegexUtils.passwordMatches(password)){
+            return Result.fail(Code.SYNTAX_ERROR,"密码格式为8-16位字符");
+        }
+        //校验第二次输入的密码是否与第一次相同
+        if (!password.equals(passwordFrom.getConfirmPassword())){
+            return Result.fail(Code.SYNTAX_ERROR,"两次输入的密码不一致");
+        }
+        String phoneNumber = passwordFrom.getPhoneNumber();
+        user one = lambdaQuery().eq(user::getPhoneNumber, phoneNumber).one();
+        one.setPassword(DigestUtil.md5Hex(password));
+        one.setUpdateTime(LocalDateTime.now());
+        updateById(one);
+        return Result.success("设置成功");
     }
 
 

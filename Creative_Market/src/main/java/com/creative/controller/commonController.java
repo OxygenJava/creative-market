@@ -64,7 +64,6 @@ public class commonController {
 
     private String encodeImageToBase64(String imagePath) throws IOException {
         File imageFile = new File(imagePath);
-
         byte[] imageBytes = Files.readAllBytes(imageFile.toPath());
         String base64Image = Base64.getEncoder().encodeToString(imageBytes);
         return base64Image;
