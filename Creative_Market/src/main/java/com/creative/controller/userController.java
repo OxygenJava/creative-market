@@ -53,8 +53,4 @@ public class userController {
     public Result userRegister(@RequestBody userRegisterForm userRegisterForm){
         return userService.userRegister(userRegisterForm);
     }
-
-    public String getB(){
-        return "hhh";
-    }
 }
