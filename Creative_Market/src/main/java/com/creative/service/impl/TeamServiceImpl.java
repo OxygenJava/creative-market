@@ -114,50 +114,55 @@ public class TeamServiceImpl implements TeamService {
         ArrayList list1=new ArrayList();
         team teams = teamMapper.selectById(team.getId());
 
-        Class class2 = teams.getClass();
-        Field[] des = class2.getDeclaredFields();
-        for (Field de : des) {
-            try {
-                PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class2);
-                //获得get方法
-                Method getMethod1 = pd1.getReadMethod();
-                //执行get方法返回一个Object
-                Object obj1 = getMethod1.invoke(teams);
-                list1.add(obj1);
-            }catch (Exception e){
-                System.out.println(e.getStackTrace());
+        if(teams==null){
+            return new Result(Code.SYNTAX_ERROR,"空","");
+        }
+        else {
+            Class class2 = teams.getClass();
+            Field[] des = class2.getDeclaredFields();
+            for (Field de : des) {
+                try {
+                    PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class2);
+                    //获得get方法
+                    Method getMethod1 = pd1.getReadMethod();
+                    //执行get方法返回一个Object
+                    Object obj1 = getMethod1.invoke(teams);
+                    list1.add(obj1);
+                } catch (Exception e) {
+                    System.out.println(e.getStackTrace());
+                }
+
             }
 
-        }
+            list1.removeAll(Collections.singleton(null));
 
-        list1.removeAll(Collections.singleton(null));
+            list1.remove(0);
 
-        list1.remove(0);
-
-
-        for (int i = 0; i < list1.size(); i++) {
-            if(list1.get(i)==team.getUid()){
-                flag=true;
+            if (list1.size() == 0) {
+               flag=false;
             }
-            else{
-                flag=false;
+                for (int i = 0; i < list1.size(); i++) {
+                    if (list1.get(i) == team.getUid()) {
+                        flag = true;
+                    } else {
+                        flag = false;
+                    }
+                }
+
+                if (flag) {
+                    return new Result(Code.SYNTAX_ERROR, "该成员已经在团队里了", "");
+                } else {
+
+                    updateWrapper.set("uid" + String.valueOf(team.getUidlocation()), team.getUid());
+                    int update = teamMapper.update(null, updateWrapper);
+                    Integer code = update > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+                    String msg = update > 0 ? "添加新成员成功" : "添加新成员失败";
+                    return new Result(code, msg, "");
+                }
+
             }
         }
 
-        if(flag){
-            return new Result(Code.SYNTAX_ERROR,"该成员已经在团队里了","");
-        }else {
-
-            updateWrapper.set("uid"+String.valueOf(team.getUidlocation()), team.getUid());
-            int update = teamMapper.update(null, updateWrapper);
-        Integer code = update>0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update>0 ? "添加新成员成功" : "添加新成员失败";
-        return new Result(code,msg,"");
-        }
-
-
-
-    }
 
 
 }
