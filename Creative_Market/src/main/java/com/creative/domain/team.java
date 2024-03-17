@@ -28,11 +28,11 @@ public class team {
     private Integer uid14;
     private Integer uid15;
 
-    //uid的位置
+    //uid所在的位置
     @TableField(exist = false)
     private Integer uidlocation;
 
-    //成员id
+    //要添加进团队的成员的id
     @TableField(exist = false)
     private Integer uid;
 

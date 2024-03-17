@@ -10,4 +10,7 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface TeamMapper extends BaseMapper<team> {
 
+
+    @Insert("insert into team(uid1) values (NULL)")
+    int insertTeam();
 }

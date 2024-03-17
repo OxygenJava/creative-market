@@ -39,8 +39,8 @@ public class TeamController {
     }
 
     @PostMapping
-    public Result insertTeam(@RequestBody team team){
-        Result result = teamService.insertTeam(team);
+    public Result insertTeam(){
+        Result result = teamService.insertTeam();
         return result;
     }
 
