@@ -21,4 +21,6 @@ public class user {
     private String address;
     private LocalDateTime updateTime;
     private Integer state;
+    private Integer fansCount;
+    private Integer FocusCount;
 }

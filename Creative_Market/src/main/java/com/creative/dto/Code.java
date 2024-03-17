@@ -9,4 +9,7 @@ public class  Code {
     public static Integer SYNTAX_ERROR = 400;
     //权限不足（无token）
     public static Integer INSUFFICIENT_PERMISSIONS = 401;
+
+    public static Integer GET_OK = 50001;
+    public static Integer GET_ERR = 50000;
 }
