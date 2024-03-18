@@ -26,4 +26,18 @@ public class CrowControlller {
         Result result = crowImpl.CrowselectAll();
         return result;
     }
+
+    //删除项目
+    @DeleteMapping("/{id}")
+    public Result Crowdelete(@PathVariable Integer id){
+        Result crowdelete = crowImpl.Crowdelete(id);
+        return crowdelete;
+    }
+
+    //修改项目
+    @PutMapping
+    public Result Crowupdate(@RequestBody crow crow){
+        Result crowupdate = crowImpl.Crowupdate(crow);
+        return crowupdate;
+    }
 }
