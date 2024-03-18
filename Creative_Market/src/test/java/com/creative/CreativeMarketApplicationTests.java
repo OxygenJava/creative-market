@@ -4,16 +4,33 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
+import com.creative.domain.commodity;
+import com.creative.domain.commodityHomePage;
+import com.creative.domain.lable;
 import com.creative.domain.user;
+import com.creative.service.commodityHomePageService;
+import com.creative.service.commodityService;
 import com.creative.service.impl.userServiceImpl;
+import com.creative.service.lableService;
 import com.creative.utils.RegexUtils;
+import com.creative.utils.beanUtil;
+import com.creative.utils.imgUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +39,9 @@ class CreativeMarketApplicationTests {
 
     @Autowired
     private userServiceImpl userService;
+
+    @Value("${creativeMarket.shopImage}")
+    private String shopImage;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -62,5 +82,34 @@ class CreativeMarketApplicationTests {
         String s = "adc.jpg";
         String substring = s.substring(s.lastIndexOf("."));
         System.out.println(substring);
+    }
+
+    @Test
+    void commodityServiceTest(@Autowired commodityService service){
+        commodity c = new commodity();
+        c.setReleaseUserId(1);
+        c.setTargetCrowdfundingAmount(3999.00);
+        c.setHomePageImage("cde68dfd235d3978.jpg");
+        c.setLabelId("11,12,13,14");
+        c.setDescription("电脑 荣耀笔记本X14 2024 13代酷睿i5-13500H 16G 1T 100%sRGB高色域 长续航 14吋护眼全面屏轻薄笔记本电脑");
+        c.setReleaseTime(LocalDateTime.now());
+        c.setReleaseAddress("广东-广州-天河区");
+        service.save(c);
+    }
+    @Test
+    void lableServiceTest(@Autowired lableService lableService){
+        lable lable = new lable();
+        lable.setName("13代酷睿");
+        lable.setCreateTime(LocalDateTime.now());
+        lableService.save(lable);
+    }
+
+    @Test
+    void getImageWidth(@Autowired commodityService service, @Autowired commodityHomePageService com) throws IOException {
+        List<commodity> list = service.query().list();
+        for (commodity commodity : list) {
+            commodityHomePage commodityHomePage = beanUtil.copyCommodity(this.shopImage,commodity);
+            com.save(commodityHomePage);
+        }
     }
 }

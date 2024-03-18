@@ -103,4 +103,9 @@ public class userController {
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         return new  Result(userDTO == null ? Code.GET_ERR : Code.GET_OK,userDTO == null ? "查询失败" : "",userDTO);
     }
+    @GetMapping("/showUserInformation")
+    public Result showUserInformation(){
+        UserDTO user = userHolder.getUser();
+        return Result.success("操作成功",user);
+    }
 }

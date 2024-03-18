@@ -48,7 +48,7 @@ public class commonController {
 
     //使用base64格式的图片在前端显示需要加上：“data:image/jpeg;base64,”
     @PostMapping("/getSwiperImage")
-    public Result encodeImages() throws IOException {
+    public Result getSwiperImage() throws IOException {
         // 假设imagePaths为存储图片路径的数组
         String[] imagePaths = {"D:\\img\\hello1.png", "D:\\img\\hello2.png"};
 

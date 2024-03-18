@@ -265,6 +265,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         updateById(one);
         return Result.success("设置成功");
     }
+
     //查询用户信息
     @Override
     public Result showUserInfoById(Integer id) {
@@ -278,7 +279,6 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         }
         user.setIconImage(s);
         return Result.success("查询成功",user);
-
     }
 
 

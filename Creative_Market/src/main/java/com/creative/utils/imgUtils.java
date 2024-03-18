@@ -1,6 +1,7 @@
 package com.creative.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Base64;
@@ -13,4 +14,5 @@ public class imgUtils {
         String base64Image = Base64.getEncoder().encodeToString(imageBytes);
         return base64Image;
     }
+
 }
