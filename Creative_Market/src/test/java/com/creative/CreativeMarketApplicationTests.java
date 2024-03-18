@@ -4,6 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
+import com.creative.domain.crow;
 import com.creative.domain.user;
 import com.creative.service.impl.userServiceImpl;
 import com.creative.utils.RegexUtils;
@@ -13,6 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -62,5 +66,24 @@ class CreativeMarketApplicationTests {
         String s = "adc.jpg";
         String substring = s.substring(s.lastIndexOf("."));
         System.out.println(substring);
+    }
+
+    @Test
+    void getCrow(){
+        crow crow=new crow();
+        Class class1 = crow.getClass();
+        Field[] des = class1.getDeclaredFields();
+        for (Field de : des) {
+            try {
+                PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class1);
+                //获得get方法
+                Method getMethod1 = pd1.getReadMethod();
+                //执行get方法返回一个Object
+                Object obj1 = getMethod1.invoke(crow);
+                System.out.println(obj1);
+            } catch (Exception e) {
+                System.out.println(e.getStackTrace());
+            }
+        }
     }
 }

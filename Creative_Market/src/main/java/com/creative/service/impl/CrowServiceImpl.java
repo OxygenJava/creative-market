@@ -13,6 +13,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -26,7 +27,6 @@ public class CrowServiceImpl implements CrowService {
     //发布项目（插入）
     @Override
     public Result Crowinsert(crow crow) {
-        boolean flag;
         ArrayList list1=new ArrayList();
         Class class1 = crow.getClass();
         Field[] des = class1.getDeclaredFields();
@@ -41,26 +41,22 @@ public class CrowServiceImpl implements CrowService {
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
             }
-
-            for (Object o : list1) {
-                if(o==null){
-                    flag=true;
-                }
-                else {
-                    flag=false;
-                }
-            }
         }
-        if(flag=true){
+
+        list1.removeAll(Collections.singleton(null));
+
+        if(list1.size()>=11){
+            int insert = crowMapper.insert(crow);
+            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = insert > 0 ? "发布成功" : "发布失败";
+            return new Result(code, msg, "");
+        }else {
             return new Result( Code.SYNTAX_ERROR,"发布项目时信息不能为空，请重新填写","");
         }
-        else {
-        int insert = crowMapper.insert(crow);
-        Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = insert > 0 ? "发布成功" : "发布失败";
-        return new Result(code, msg, "");
-        }
+
+
     }
+
 
     //查询所有项目
     @Override
@@ -83,8 +79,6 @@ public class CrowServiceImpl implements CrowService {
     //修改项目
     @Override
     public Result Crowupdate(crow crow) {
-
-        boolean flag;
         ArrayList list1=new ArrayList();
         Class class1 = crow.getClass();
         Field[] des = class1.getDeclaredFields();
@@ -99,25 +93,18 @@ public class CrowServiceImpl implements CrowService {
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
             }
-
-            for (Object o : list1) {
-                if(o==null){
-                    flag=true;
-                }
-                else {
-                    flag=false;
-                }
-            }
-            }
-
-        if(flag=true){
-            return new Result( Code.SYNTAX_ERROR,"修改项目时信息不能为空，请重新填写","");
         }
-        else {
+
+        list1.removeAll(Collections.singleton(null));
+
+        if(list1.size()==12){
             int update = crowMapper.updateById(crow);
             Integer code = update>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update >0 ? "修改成功" : "修改失败";
             return new Result(code, msg, "");
+        }
+        else {
+            return new Result( Code.SYNTAX_ERROR,"修改项目时信息不能为空，请重新填写","");
         }
 
     }
