@@ -103,6 +103,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         //查看输入的账号是否为用户名
         user user1 = lambdaQuery().eq(user::getUsername, usernameForm).one();
         //查看输入的账号是否为手机号
+
         user user2 = lambdaQuery().eq(user::getPhoneNumber, usernameForm).one();
 
         if (user1 == null && user2 == null){
@@ -171,6 +172,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     @Override
     public Result showUserInfoById(Integer id) {
         user user = userMapper.selectById(id);
+        user.setIconImage("C:\\Users\\林泽欣\\Desktop\\团队项目\\img\\JPEG\\1_1.jpg");
         String iconImage = user.getIconImage();
         String s = null;
         try {
@@ -179,7 +181,9 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
             e.printStackTrace();
         }
         user.setIconImage(s);
-        return Result.success("查询成功",user);
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        boolean flag = userDTO != null;
+        return new Result(flag ? Code.GET_OK : Code.GET_ERR,flag ? "" : "查询失败",userDTO);
 
     }
 

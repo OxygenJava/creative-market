@@ -10,6 +10,8 @@ public class  Code {
     //权限不足（无token）
     public static Integer INSUFFICIENT_PERMISSIONS = 401;
 
+    //查询成功
     public static Integer GET_OK = 50001;
+    //查询失败
     public static Integer GET_ERR = 50000;
 }

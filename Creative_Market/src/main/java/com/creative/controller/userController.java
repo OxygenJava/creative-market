@@ -58,9 +58,6 @@ public class userController {
 
     @GetMapping("/showUserInfoById/{id}")
     public Result showUserInfoById(@PathVariable Integer id){
-        Result result = userService.showUserInfoById(id);
-        user user = (com.creative.domain.user) result.getData();
-        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
-        return new  Result(userDTO == null ? Code.GET_ERR : Code.GET_OK,userDTO == null ? "查询失败" : "",userDTO);
+        return userService.showUserInfoById(id);
     }
 }
