@@ -44,7 +44,7 @@ public class TeamController {
         return result;
     }
 
-    @PostMapping("/user")
+    @PutMapping("update/user")
     public Result insertTeamUser(@RequestBody team team){
         Result result = teamService.insertTeamUser(team);
         return result;
