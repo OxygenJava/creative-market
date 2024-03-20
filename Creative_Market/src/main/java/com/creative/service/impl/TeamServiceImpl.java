@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-@EnableTransactionManagement
 public class TeamServiceImpl implements TeamService {
 
     @Autowired

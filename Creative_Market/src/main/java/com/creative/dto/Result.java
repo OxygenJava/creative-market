@@ -31,6 +31,10 @@ public class Result {
         return new Result(Code.NORMAL,"操作成功");
     }
 
+    public static Result success(Object data){
+        return new Result(Code.NORMAL,"操作成功",data);
+    }
+
     public static Result success(String message){
         return new Result(Code.NORMAL,message);
     }

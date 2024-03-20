@@ -4,14 +4,9 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
-import com.creative.domain.commodity;
-import com.creative.domain.commodityHomePage;
-import com.creative.domain.lable;
-import com.creative.domain.user;
-import com.creative.service.commodityHomePageService;
-import com.creative.service.commodityService;
+import com.creative.domain.*;
+import com.creative.service.*;
 import com.creative.service.impl.userServiceImpl;
-import com.creative.service.lableService;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.beanUtil;
 import com.creative.utils.imgUtils;
@@ -109,7 +104,17 @@ class CreativeMarketApplicationTests {
         List<commodity> list = service.query().list();
         for (commodity commodity : list) {
             commodityHomePage commodityHomePage = beanUtil.copyCommodity(this.shopImage,commodity);
-            com.save(commodityHomePage);
         }
+    }
+
+    @Test
+    void weightTest(@Autowired recommendService recommendService){
+        List<recommend> list = recommendService.query().list();
+        System.out.println(list);
+    }
+
+    @Test
+    void historicalVisitsTest(@Autowired historicalVisitsService historicalVisitsService){
+//        historicalVisitsService.getHistoricalVisitsList();
     }
 }

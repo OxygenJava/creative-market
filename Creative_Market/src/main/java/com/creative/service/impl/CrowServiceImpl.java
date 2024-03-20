@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import java.util.List;
 
 @Service
-@EnableTransactionManagement
+
 public class CrowServiceImpl implements CrowService {
 
     @Autowired

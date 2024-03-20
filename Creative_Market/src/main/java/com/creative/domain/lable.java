@@ -14,4 +14,5 @@ public class lable {
     private Integer isPopular;
     private LocalDateTime createTime;
     private Integer state;
+    private Integer visitsNumber;
 }
