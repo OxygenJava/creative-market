@@ -105,7 +105,7 @@ public class TeamServiceImpl implements TeamService {
     //在团队里添加新的成员
     @Override
     public Result insertTeamUser(team team) {
-        boolean flag=true;
+        Integer s=-1;
 
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.eq("id", team.getId());
@@ -114,7 +114,7 @@ public class TeamServiceImpl implements TeamService {
         team teams = teamMapper.selectById(team.getId());
 
         if(teams==null){
-            return new Result(Code.SYNTAX_ERROR,"空","");
+            return new Result(Code.SYNTAX_ERROR,"没有该团队","");
         }
         else {
             Class class2 = teams.getClass();
@@ -138,17 +138,21 @@ public class TeamServiceImpl implements TeamService {
             list1.remove(0);
 
             if (list1.size() == 0) {
-               flag=false;
+              s=0;
             }
+
                 for (int i = 0; i < list1.size(); i++) {
-                    if (list1.get(i) == team.getUid()) {
-                        flag = true;
+                    if (list1.get(i)==team.getUid()) {
+                        s=1;
+                        break;
                     } else {
-                        flag = false;
+                       s=0;
                     }
                 }
 
-                if (flag) {
+
+
+                if (s==1) {
                     return new Result(Code.SYNTAX_ERROR, "该成员已经在团队里了", "");
                 } else {
 
@@ -161,7 +165,7 @@ public class TeamServiceImpl implements TeamService {
 
             }
         }
+    }
 
 
 
-}

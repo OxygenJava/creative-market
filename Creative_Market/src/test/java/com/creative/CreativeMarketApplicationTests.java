@@ -6,6 +6,8 @@ import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
 import com.creative.domain.*;
 import com.creative.service.*;
+import com.creative.domain.crow;
+import com.creative.domain.user;
 import com.creative.service.impl.userServiceImpl;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.beanUtil;
@@ -23,6 +25,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -92,7 +97,7 @@ class CreativeMarketApplicationTests {
         service.save(c);
     }
     @Test
-    void lableServiceTest(@Autowired lableService lableService){
+    void lableServiceTest(@Autowired LableService lableService){
         lable lable = new lable();
         lable.setName("13代酷睿");
         lable.setCreateTime(LocalDateTime.now());
@@ -116,5 +121,22 @@ class CreativeMarketApplicationTests {
     @Test
     void historicalVisitsTest(@Autowired historicalVisitsService historicalVisitsService){
 //        historicalVisitsService.getHistoricalVisitsList();
+    }
+    void getCrow(){
+        crow crow=new crow();
+        Class class1 = crow.getClass();
+        Field[] des = class1.getDeclaredFields();
+        for (Field de : des) {
+            try {
+                PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class1);
+                //获得get方法
+                Method getMethod1 = pd1.getReadMethod();
+                //执行get方法返回一个Object
+                Object obj1 = getMethod1.invoke(crow);
+                System.out.println(obj1);
+            } catch (Exception e) {
+                System.out.println(e.getStackTrace());
+            }
+        }
     }
 }
