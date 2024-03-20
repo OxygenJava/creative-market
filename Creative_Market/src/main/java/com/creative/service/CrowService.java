@@ -6,5 +6,6 @@ import com.creative.dto.Result;
 public interface CrowService {
     Result Crowinsert(crow crow);
     Result CrowselectAll();
-
+    Result Crowdelete(Integer id);
+    Result Crowupdate(crow crow);
 }

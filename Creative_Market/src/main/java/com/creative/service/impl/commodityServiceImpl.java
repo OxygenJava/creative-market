@@ -7,9 +7,9 @@ import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
 import com.creative.mapper.commodityMapper;
+import com.creative.service.LableService;
 import com.creative.service.commodityService;
 import com.creative.service.historicalVisitsService;
-import com.creative.service.lableService;
 import com.creative.service.recommendService;
 import com.creative.utils.imgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     private StringRedisTemplate redisTemplate;
 
     @Autowired
-    private lableService lableService;
+    private LableService lableService;
     @Autowired
     private historicalVisitsService historicalVisitsService;
     @Autowired
