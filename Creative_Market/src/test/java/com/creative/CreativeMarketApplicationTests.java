@@ -97,7 +97,7 @@ class CreativeMarketApplicationTests {
         service.save(c);
     }
     @Test
-    void lableServiceTest(@Autowired lableService lableService){
+    void lableServiceTest(@Autowired LableService lableService){
         lable lable = new lable();
         lable.setName("13代酷睿");
         lable.setCreateTime(LocalDateTime.now());

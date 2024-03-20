@@ -1,6 +1,7 @@
 package com.creative.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.creative.domain.crow;
 import com.creative.domain.lable;
 import com.creative.dto.Code;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class LableServiceImpl implements LableService {
+public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements LableService {
 
     @Autowired
     private LableMapper lableMapper;

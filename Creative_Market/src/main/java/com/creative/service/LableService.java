@@ -1,10 +1,11 @@
 package com.creative.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.creative.domain.crow;
 import com.creative.domain.lable;
 import com.creative.dto.Result;
 
-public interface LableService {
+public interface LableService extends IService<lable> {
     Result insertLable(lable lable);
     Result selectLableAll();
     Result deleteLable(Integer id);
