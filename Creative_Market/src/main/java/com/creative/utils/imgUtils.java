@@ -14,5 +14,4 @@ public class imgUtils {
         String base64Image = Base64.getEncoder().encodeToString(imageBytes);
         return base64Image;
     }
-
 }

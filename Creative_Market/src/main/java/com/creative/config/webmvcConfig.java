@@ -24,7 +24,8 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/user/forgetPassword/**",
                 "/api/common/**",
                 "/api/crow/**",
-                "/api/crow/team/**"
+                "/api/crow/team/**",
+                "/api/homePage/**"
         ).order(1);
     }
 }
