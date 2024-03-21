@@ -30,25 +30,31 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
 
     @Override
     public Result insertLable(lable lable) {
-        int l=-1;
-        List<lable> lables = lableMapper.selectList(null);
-        for (int i = 0; i < lables.size(); i++) {
-            if(lables.get(i).getName()==lable.getName()){
-                l=1;
-                break;
+        if(lable.getName()!=null && lable.getCreateTime()!=null && lable.getVisitsNumber()!=null){
+            int l=-1;
+            List<lable> lables = lableMapper.selectList(null);
+            for (int i = 0; i < lables.size(); i++) {
+                if(lables.get(i).getName().equals(lable.getName())){
+                    l=1;
+                    break;
+                }
+                else {
+                    l=0;
+                }
+            }
+            if(l==1){ return new Result(Code.SYNTAX_ERROR, "该标签已存在", "");
             }
             else {
-                l=0;
+                int insert = lableMapper.insert(lable);
+                Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = insert > 0 ? "添加成功" : "添加失败";
+                return new Result(code, msg, "");
             }
         }
-        if(l==1){ return new Result(Code.SYNTAX_ERROR, "该标签已存在", "");
-        }
         else {
-            int insert = lableMapper.insert(lable);
-            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = insert > 0 ? "添加成功" : "添加失败";
-            return new Result(code, msg, "");
+            return new Result(Code.SYNTAX_ERROR, "标签信息不能为空", "");
         }
+
 
     }
 
@@ -70,10 +76,16 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
 
     @Override
     public Result updateLable(lable lable) {
-        int update = lableMapper.updateById(lable);
-        Integer code = update > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 ? "修改成功" : "修改失败";
-        return new Result(code, msg, "");
+        if(lable.getName()!=null && lable.getCreateTime()!=null && lable.getVisitsNumber()!=null){
+            int update = lableMapper.updateById(lable);
+            Integer code = update > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update > 0 ? "修改成功" : "修改失败";
+            return new Result(code, msg, "");
+        }
+        else {
+            return new Result(Code.SYNTAX_ERROR, "修改标签时信息不能为空", "");
+        }
+
     }
 
 

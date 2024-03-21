@@ -16,7 +16,7 @@ public class LableController {
     @Autowired
     private LableServiceImpl lableService;
 
-    //根据众筹的id查询其所有的标签类
+    //根据众筹的id查询其所有的标签id
     @GetMapping("/{id}")
     public Result selectByName(@PathVariable Integer id){
         Result result = lableService.selectByName(id);
