@@ -30,33 +30,20 @@ public class CrowServiceImpl implements CrowService {
     //发布项目（插入）
     @Override
     public Result Crowinsert(crow crow) {
-        ArrayList list1 = new ArrayList();
-        Class class1 = crow.getClass();
-        Field[] des = class1.getDeclaredFields();
-        for (Field de : des) {
-            try {
-                PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class1);
-                //获得get方法
-                Method getMethod1 = pd1.getReadMethod();
-                //执行get方法返回一个Object
-                Object obj1 = getMethod1.invoke(crow);
-                list1.add(obj1);
-            } catch (Exception e) {
-                System.out.println(e.getStackTrace());
-            }
-        }
-
-        list1.removeAll(Collections.singleton(null));
-
-        if (list1.size() >= 11) {
-                    int insert = crowMapper.insert(crow);
-                    Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-                    String msg = insert > 0  ? "发布成功" : "发布失败";
-                    return new Result(code, msg, "");
-            }else{
+       if(crow.getTitle()!=null && crow.getDescription()!=null && crow.getTid()!=null && crow.getFuture()!=null
+       && crow.getCycle()!=null && crow.getCrowMoney()!=null && crow.getCrowTime()!=null && crow.getPublicizeTime()!=null
+       && crow.getDivideMoney()!=null && crow.getPublicizeMoney()!=null && crow.getImage()!=null)
+       {
+           int insert = crowMapper.insert(crow);
+           Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+           String msg = insert > 0  ? "发布成功" : "发布失败";
+           return new Result(code, msg, "");
+       }
+       else{
                 return new Result(Code.SYNTAX_ERROR, "发布项目时信息不能为空，请重新填写", "");
-            }
+
         }
+    }
 
 
 
@@ -82,32 +69,14 @@ public class CrowServiceImpl implements CrowService {
     //修改项目
     @Override
     public Result Crowupdate(crow crow) {
-        ArrayList list1=new ArrayList();
-        Class class1 = crow.getClass();
-        Field[] des = class1.getDeclaredFields();
-        for (Field de : des) {
-            try {
-                PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class1);
-                //获得get方法
-                Method getMethod1 = pd1.getReadMethod();
-                //执行get方法返回一个Object
-                Object obj1 = getMethod1.invoke(crow);
-                list1.add(obj1);
-            } catch (Exception e) {
-                System.out.println(e.getStackTrace());
-            }
-        }
-
-        list1.removeAll(Collections.singleton(null));
-
-        if(list1.size()>=12){
-
-                int update = crowMapper.updateById(crow);
-                Integer code = update>0? Code.NORMAL : Code.SYNTAX_ERROR;
-                String msg = update >0 ? "修改成功" : "修改失败";
-                return new Result(code, msg, "");
-
-
+        if(crow.getTitle()!=null && crow.getDescription()!=null && crow.getTid()!=null && crow.getFuture()!=null
+                && crow.getCycle()!=null && crow.getCrowMoney()!=null && crow.getCrowTime()!=null && crow.getPublicizeTime()!=null
+                && crow.getDivideMoney()!=null && crow.getPublicizeMoney()!=null && crow.getImage()!=null)
+        {
+            int update = crowMapper.updateById(crow);
+            Integer code = update>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update >0 ? "修改成功" : "修改失败";
+            return new Result(code, msg, "");
         }
         else {
             return new Result( Code.SYNTAX_ERROR,"修改项目时信息不能为空，请重新填写","");
