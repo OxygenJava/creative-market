@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 @Service
 @Transactional
@@ -79,6 +80,9 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
     //根据众筹的id查询其所有的标签id
     @Override
     public Result selectByName(Integer id) {
+
+        StringJoiner stringJoiner=new StringJoiner(",");
+
         crow crow = crowMapper.selectById(id);
         LambdaQueryWrapper<lable> lqw=new LambdaQueryWrapper<>();
         lqw.eq(lable::getName,crow.getLable1())
@@ -91,9 +95,13 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
                 .or()
                 .eq(lable::getName,crow.getLable5());
         List<lable> lables = lableMapper.selectList(lqw);
+        for (int i = 0; i < lables.size(); i++) {
+            stringJoiner.add(lables.get(i).getId());
+
+        }
         Integer code = lables != null ? Code.NORMAL : Code.SYNTAX_ERROR;
         String msg = lables != null ? "查询成功" : "查询失败";
-        return new Result(code, msg, lables);
+        return new Result(code, msg, stringJoiner.toString());
     }
 
 }
