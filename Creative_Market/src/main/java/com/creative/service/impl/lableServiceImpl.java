@@ -2,13 +2,12 @@ package com.creative.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.creative.domain.crow;
 import com.creative.domain.lable;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 
 import com.creative.mapper.LableMapper;
-import com.creative.mapper.CrowMapper;
+
 import com.creative.service.LableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,7 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
     @Autowired
     private LableMapper lableMapper;
 
-    @Autowired
-    private CrowMapper crowMapper;
+
 
 
     @Override
@@ -88,32 +86,5 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
 
     }
 
-
-    //根据众筹的id查询其所有的标签id
-    @Override
-    public Result selectByName(Integer id) {
-
-        StringJoiner stringJoiner=new StringJoiner(",");
-
-        crow crow = crowMapper.selectById(id);
-        LambdaQueryWrapper<lable> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(lable::getName,crow.getLable1())
-                .or()
-                .eq(lable::getName,crow.getLable2())
-                .or()
-                .eq(lable::getName,crow.getLable3())
-                .or()
-                .eq(lable::getName,crow.getLable4())
-                .or()
-                .eq(lable::getName,crow.getLable5());
-        List<lable> lables = lableMapper.selectList(lqw);
-        for (int i = 0; i < lables.size(); i++) {
-            stringJoiner.add(lables.get(i).getId());
-
-        }
-        Integer code = lables != null ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = lables != null ? "查询成功" : "查询失败";
-        return new Result(code, msg, stringJoiner.toString());
-    }
 
 }
