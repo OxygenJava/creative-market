@@ -1,12 +1,11 @@
 package com.creative.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.creative.domain.user;
+import com.creative.domain.commodity;
 import com.creative.dto.*;
 import com.creative.service.userService;
 import com.creative.utils.userHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -105,4 +104,7 @@ public class userController {
         UserDTO user = userHolder.getUser();
         return Result.success("操作成功",user);
     }
+
+
+
 }

@@ -7,6 +7,7 @@ import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
 import com.creative.mapper.commodityMapper;
+import com.creative.mapper.userMapper;
 import com.creative.service.LableService;
 import com.creative.service.commodityService;
 import com.creative.service.historicalVisitsService;
@@ -21,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -38,6 +41,11 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     private recommendService recommendService;
     @Value("${creativeMarket.shopImage}")
     private String shopImage;
+
+    @Autowired
+    private userMapper userMapper;
+
+
     /**
      * 用户点击某个商品，跳转到商品详情页
      * @param id
@@ -76,6 +84,7 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
         return Result.success(one);
     }
+
 
 
     /*************************  commodityServiceImpl内部方法   ******************************/

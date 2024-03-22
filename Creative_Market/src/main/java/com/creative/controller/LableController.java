@@ -1,10 +1,10 @@
 package com.creative.controller;
 
-import com.creative.domain.crow;
+
 import com.creative.domain.lable;
 import com.creative.dto.Result;
 import com.creative.service.LableService;
-import com.creative.service.impl.CrowServiceImpl;
+
 import com.creative.service.impl.LableServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +16,7 @@ public class LableController {
     @Autowired
     private LableServiceImpl lableService;
 
-    //根据众筹的id查询其所有的标签id
-    @GetMapping("/{id}")
-    public Result selectByName(@PathVariable Integer id){
-        Result result = lableService.selectByName(id);
-        return result;
-    }
+
 
     //查询所有的标签
     @GetMapping

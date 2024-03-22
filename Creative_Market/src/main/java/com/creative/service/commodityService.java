@@ -13,4 +13,5 @@ public interface commodityService extends IService<commodity> {
     @Transactional(rollbackFor = Exception.class)
     Result selectCommodityById(Integer id, HttpServletRequest request) throws IOException;
 
+
 }
