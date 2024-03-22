@@ -23,5 +23,13 @@ public class post {
     private Integer uid;
     //帖子的发布时间
     private LocalDateTime creativeTime;
+    //帖子的点赞数
+    private Integer likes;
+    //帖子的点赞状态
+    private Integer likesState;
+    //帖子的收藏数
+    private Integer collection;
+    //帖子的收藏状态
+    private Integer collectionState;
 
 }
