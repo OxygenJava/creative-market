@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class post {
     //帖子id
@@ -16,8 +18,10 @@ public class post {
     //帖子图片路径
     private String image;
     //帖子标签
-    private String lable;
+    private String lableId;
     //帖子用户id
     private Integer uid;
+    //帖子的发布时间
+    private LocalDateTime creativeTime;
 
 }

@@ -24,8 +24,6 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
     private LableMapper lableMapper;
 
 
-
-
     @Override
     public Result insertLable(lable lable) {
         if(lable.getName()!=null && lable.getCreateTime()!=null && lable.getVisitsNumber()!=null){

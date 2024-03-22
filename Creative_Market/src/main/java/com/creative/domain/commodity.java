@@ -3,6 +3,7 @@ package com.creative.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -31,13 +32,19 @@ public class commodity{
     //支持者数量
     private Integer supportNumber;
     //商品发布时间
+    @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime releaseTime;
     //商品发布地址
     private String releaseAddress;
     //结束众筹时间
+    @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime finishCrowdfundingTime;
     //下架时间
+    @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime offShelfTime;
+    @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     //修改时间
     private LocalDateTime updateTime;
+    //团队成员的id
+    private String teamId;
 }
