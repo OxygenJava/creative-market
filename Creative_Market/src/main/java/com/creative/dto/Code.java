@@ -10,8 +10,19 @@ public class  Code {
     //权限不足（无token）
     public static Integer INSUFFICIENT_PERMISSIONS = 401;
 
-    //查询成功
+    //查询单个成功
     public static Integer GET_OK = 50001;
-    //查询失败
+    //查询单个失败
     public static Integer GET_ERR = 50000;
+
+    //查询全部成功
+    public static Integer SELECTALL_OK = 50011;
+    //查询全部失败
+    public static Integer SELECTALL_ERR = 50010;
+
+    //添加成功
+    public static Integer Add_OK = 50021;
+    //添加失败
+    public static Integer Add_ERR = 50020;
+
 }
