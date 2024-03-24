@@ -22,5 +22,5 @@ mybatis-plus:
 
 creativeMarket:
   filePath: D:\img
-  shopImage: D:\img\shopImage\
+  shopImage: D:\img\shopImage
 

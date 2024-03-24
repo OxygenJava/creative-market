@@ -1,6 +1,7 @@
 package com.creative.controller;
 
 import com.creative.dto.Result;
+import com.creative.dto.homePageDTO;
 import com.creative.service.commodityHomePageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,5 +21,10 @@ public class homePageController {
     @PostMapping()
     public Result getInformationToHomePage(@RequestBody String token){
         return commodityHomePageService.getInformationToHomePage(token);
+    }
+
+    @PostMapping("/HomePageByPage")
+    public Result getInformationToHomePageByPage(@RequestBody homePageDTO homePageDTO){
+       return commodityHomePageService.getInformationToHomePageByPage(homePageDTO);
     }
 }
