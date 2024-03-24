@@ -1,5 +1,6 @@
 package com.creative;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -37,15 +38,23 @@ public class test {
     }
 
     public static void main(String[] args) {
-        Map<Integer, Double> weightsMap = new HashMap<>();
-        weightsMap.put(6, 0.38095238095238093);
-        weightsMap.put(7, 0.38095238095238093);
-        weightsMap.put(9, 0.0);
-        weightsMap.put(8, 0.0);
-        weightsMap.put(4, 0.23809523809523803);
+//        Map<Integer, Double> weightsMap = new HashMap<>();
+//        weightsMap.put(6, 0.38095238095238093);
+//        weightsMap.put(7, 0.38095238095238093);
+//        weightsMap.put(9, 0.0);
+//        weightsMap.put(8, 0.0);
+//        weightsMap.put(4, 0.23809523809523803);
+//
+//        test lottery = new test(weightsMap);
+//        int winner = (int) lottery.draw();
+//        System.out.println("Winner is: " + winner);
 
-        test lottery = new test(weightsMap);
-        int winner = (int) lottery.draw();
-        System.out.println("Winner is: " + winner);
+        String ids="1,2,3,4,5";
+        ArrayList<Integer> list=new ArrayList<>();
+        String[] split = ids.split(",");
+        for (int i = 0; i < split.length; i++) {
+            list.add(Integer.parseInt(split[i]));
+        }
+        System.out.println(list);
     }
 }

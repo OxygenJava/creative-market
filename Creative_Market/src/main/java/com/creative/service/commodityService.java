@@ -13,4 +13,12 @@ public interface commodityService extends IService<commodity> {
     @Transactional(rollbackFor = Exception.class)
     Result selectCommodityById(Integer id, HttpServletRequest request) throws IOException;
 
+    Result insertCom(commodity commodity);
+    Result deleteCom(Integer id);
+    Result updateCom(commodity commodity);
+    Result selectComAll();
+    Result selectComLable(Integer id);
+    Result selectComTeam(Integer id);
+
+
 }

@@ -6,7 +6,9 @@ import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
+import com.creative.mapper.LableMapper;
 import com.creative.mapper.commodityMapper;
+import com.creative.mapper.userMapper;
 import com.creative.service.LableService;
 import com.creative.service.commodityService;
 import com.creative.service.historicalVisitsService;
@@ -21,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -38,6 +42,16 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     private recommendService recommendService;
     @Value("${creativeMarket.shopImage}")
     private String shopImage;
+
+    @Autowired
+    private  commodityMapper commodityMapper;
+
+    @Autowired
+    private  userMapper userMapper;
+
+    @Autowired
+    private LableMapper lableMapper;
+
     /**
      * 用户点击某个商品，跳转到商品详情页
      * @param id
@@ -75,6 +89,82 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         one.setHomePageImage(imgUtils.encodeImageToBase64(this.shopImage+"\\"+one.getHomePageImage()));
 
         return Result.success(one);
+    }
+
+    //发布（插入）
+    @Override
+    public Result insertCom(commodity commodity) {
+        if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
+        && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
+        && commodity.getTeamId()!=null){
+            int insert = commodityMapper.insert(commodity);
+            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = insert > 0 ? "发布成功" : "发布失败";
+            return new Result(code, msg, "");
+        }
+        else {
+            return new Result( Code.SYNTAX_ERROR, "商品的基本信息不完全，请填写完整", "");
+        }
+
+    }
+
+    @Override
+    public Result deleteCom(Integer id) {
+        int delete = commodityMapper.deleteById(id);
+        Integer code = delete > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = delete > 0 ? "删除成功" : "删除失败";
+        return new Result(code, msg, "");
+    }
+
+    @Override
+    public Result updateCom(commodity commodity) {
+        if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
+                && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
+                && commodity.getTeamId()!=null && commodity.getUpdateTime()!=null){
+            int insert = commodityMapper.updateById(commodity);
+            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = insert > 0 ? "修改成功" : "修改失败";
+            return new Result(code, msg, "");
+        }
+        else {
+            return new Result( Code.SYNTAX_ERROR, "修改的商品的基本信息不完全，请填写完整", "");
+        }
+    }
+
+    @Override
+    public Result selectComAll() {
+        List<commodity> commodities = commodityMapper.selectList(null);
+        Integer code = commodities != null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = commodities != null ? "查询成功" : "查询失败";
+        return new Result(code, msg, commodities);
+    }
+
+    @Override
+    public Result selectComLable(Integer id) {
+        commodity commodity = commodityMapper.selectById(id);
+        ArrayList<Integer> list=new ArrayList<>();
+        String[] split = commodity.getLabelId().split(",");
+        for (int i = 0; i < split.length; i++) {
+            list.add(Integer.parseInt(split[i]));
+        }
+        List<lable> lables = lableMapper.selectBatchIds(list);
+        Integer code = lables != null && commodity!=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = lables != null && commodity!=null ? "查询成功" : "查询失败";
+        return new Result(code, msg, lables);
+    }
+
+    @Override
+    public Result selectComTeam(Integer id) {
+        commodity commodity = commodityMapper.selectById(id);
+        ArrayList<Integer> list=new ArrayList<>();
+        String[] split = commodity.getTeamId().split(",");
+        for (int i = 0; i < split.length; i++) {
+            list.add(Integer.parseInt(split[i]));
+        }
+        List<user> users = userMapper.selectBatchIds(list);
+        Integer code = users != null && commodity!=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = users != null && commodity!=null ? "查询成功" : "查询失败";
+        return new Result(code, msg, users);
     }
 
 
