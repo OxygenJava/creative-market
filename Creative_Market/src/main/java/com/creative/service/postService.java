@@ -1,5 +1,6 @@
 package com.creative.service;
 
+import com.creative.domain.likepost;
 import com.creative.domain.post;
 import com.creative.dto.Result;
 
@@ -9,5 +10,6 @@ public interface postService {
     Result deletePost(Integer id);
     Result updatePost(post post);
     Result selectPostAll();
+
 
 }

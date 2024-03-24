@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/crow/lable")
+@RequestMapping("/api/lable")
 @CrossOrigin
 public class LableController {
     @Autowired

@@ -2,6 +2,7 @@ package com.creative.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,8 @@ public class post {
     //帖子用户id
     private Integer uid;
     //帖子的发布时间
-    private LocalDateTime creativeTime;
+    @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
     //帖子的点赞数
     private Integer likes;
     //帖子的点赞状态
