@@ -30,8 +30,8 @@ public class postServiceImpl implements postService {
             post.setCollection(0);
             post.setCollectionState(0);
             int update = postMapper.updateById(post);
-            Integer code = insert > 0 && update>0? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = insert > 0 && update>0? "添加成功" : "添加失败";
+            Integer code = insert > 0 && update >0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = insert > 0 && update >0? "添加成功" : "添加失败";
             return new Result(code, msg, "");
         }
         else {

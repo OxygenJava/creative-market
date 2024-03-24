@@ -30,15 +30,10 @@ public class likepostServiceImpl implements likepostService {
     @Override
     public Result ClickPostlikes(likepost likepost) {
         post post = postMapper.selectById(likepost.getPid());
-        if(post.getLikes()==null){
-            post.setLikes(0);
-        }
         post.setLikes(post.getLikes()+1);
         post.setLikesState(1);
         int update = postMapper.updateById(post);
-
         int insert = likepostMapper.insert(likepost);
-
         Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
         String msg = update > 0 && insert>0? "点赞成功" : "点赞失败";
         return new Result(code, msg, "");
@@ -47,13 +42,9 @@ public class likepostServiceImpl implements likepostService {
     @Override
     public Result CancelPostlikes(likepost likepost) {
         post post = postMapper.selectById(likepost.getPid());
-        if(post.getLikes()==null){
-            post.setLikes(0);
-        }
         post.setLikes(post.getLikes()-1);
         post.setLikesState(0);
         int update = postMapper.updateById(post);
-
         int delete = likepostMapper.deleteBylikepost(likepost);
 
         Integer code = update > 0 && delete>0? Code.NORMAL : Code.SYNTAX_ERROR;
@@ -68,15 +59,14 @@ public class likepostServiceImpl implements likepostService {
         List<likepost> likeposts = likepostMapper.selectList(lqw);
         ArrayList<Integer> list1=new ArrayList<>();
         ArrayList<Integer> list2=new ArrayList<>();
-        int update=-1;
+        ArrayList<post> list=new ArrayList<>();
        if(likeposts==null){
            List<post> posts1 = postMapper.selectList(null);
            for (int i = 0; i < posts1.size(); i++) {
                posts1.get(i).setLikesState(0);
-                update = postMapper.updateById(posts1.get(i));
            }
-           Integer code = posts1 !=null && update>0? Code.NORMAL : Code.SYNTAX_ERROR;
-           String msg = posts1 !=null && update>0? "查询成功" : "查询失败";
+           Integer code = posts1 !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+           String msg = posts1 !=null? "查询成功" : "查询失败";
            return new Result(code, msg, posts1);
        }
            else{
@@ -94,7 +84,6 @@ public class likepostServiceImpl implements likepostService {
            if(posts1!=null){
                for (int i = 0; i < posts1.size(); i++) {
                    posts1.get(i).setLikesState(1);
-                    update = postMapper.updateById(posts1.get(i));
                }
            }
 
@@ -117,14 +106,16 @@ public class likepostServiceImpl implements likepostService {
            if(posts3!=null){
                for (int i = 0; i < posts3.size(); i++) {
                    posts3.get(i).setLikesState(0);
-                   update = postMapper.updateById(posts3.get(i));
                }
            }
+           list.addAll(posts1);
+           list.addAll(posts3);
        }
-            List<post> posts4=postMapper.selectList(null);
-           Integer code = posts4 !=null && update>0? Code.NORMAL : Code.SYNTAX_ERROR;
-           String msg = posts4 !=null && update>0? "查询成功" : "查询失败";
-           return new Result(code, msg, posts4);
+
+
+           Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+           String msg = list !=null? "查询成功" : "查询失败";
+           return new Result(code, msg, list);
            }
 
        }

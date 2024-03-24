@@ -1,6 +1,7 @@
 package com.creative.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -28,10 +29,12 @@ public class post {
     //帖子的点赞数
     private Integer likes;
     //帖子的点赞状态
+    @TableField(exist = false)
     private Integer likesState;
     //帖子的收藏数
     private Integer collection;
     //帖子的收藏状态
+    @TableField(exist = false)
     private Integer collectionState;
 
 }
