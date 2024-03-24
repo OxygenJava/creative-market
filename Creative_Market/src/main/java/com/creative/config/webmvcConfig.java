@@ -25,7 +25,7 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/common/**",
                 "/api/crow/**",
                 "/api/crow/team/**",
-                "/api/homePage/**"
+                "/api/homePage/**",
                 "/api/buyType/**"
         ).order(1);
     }
