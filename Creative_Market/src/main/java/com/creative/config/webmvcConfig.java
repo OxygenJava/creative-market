@@ -23,9 +23,15 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/user/userRegister",
                 "/api/user/forgetPassword/**",
                 "/api/common/**",
+                "/api/homePage/**",
+                "/api/commodity/**",
+                "api/lable/**",
+                "/api/post/**",
+                "/api/likepost/**",
                 "/api/crow/**",
                 "/api/crow/team/**",
-                "/api/homePage/**"
+                "/api/homePage/**",
+                "/api/buyType/**"
         ).order(1);
     }
 }

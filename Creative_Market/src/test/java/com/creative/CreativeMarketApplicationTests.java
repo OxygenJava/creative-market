@@ -6,7 +6,6 @@ import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
 import com.creative.domain.*;
 import com.creative.service.*;
-import com.creative.domain.crow;
 import com.creative.domain.user;
 import com.creative.service.impl.userServiceImpl;
 import com.creative.utils.RegexUtils;
@@ -123,21 +122,5 @@ class CreativeMarketApplicationTests {
     void historicalVisitsTest(@Autowired historicalVisitsService historicalVisitsService){
 //        historicalVisitsService.getHistoricalVisitsList();
     }
-    void getCrow(){
-        crow crow=new crow();
-        Class class1 = crow.getClass();
-        Field[] des = class1.getDeclaredFields();
-        for (Field de : des) {
-            try {
-                PropertyDescriptor pd1 = new PropertyDescriptor(de.getName(), class1);
-                //获得get方法
-                Method getMethod1 = pd1.getReadMethod();
-                //执行get方法返回一个Object
-                Object obj1 = getMethod1.invoke(crow);
-                System.out.println(obj1);
-            } catch (Exception e) {
-                System.out.println(e.getStackTrace());
-            }
-        }
-    }
+
 }

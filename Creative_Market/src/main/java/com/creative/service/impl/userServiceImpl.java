@@ -1,26 +1,24 @@
 package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.creative.domain.commodity;
 import com.creative.domain.user;
 import com.creative.dto.*;
 import com.creative.mapper.userMapper;
 import com.creative.service.userService;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.imgUtils;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -285,6 +283,15 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         return new Result(flag ? Code.GET_OK : Code.GET_ERR,flag ? "" : "查询失败",userDTO);
 
     }
+
+    @Override
+    public Result selectAll() {
+        List<user> users = userMapper.selectList(null);
+        Integer code = users != null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = users != null ? "查询成功" : "查询失败";
+        return new Result(code, msg, users);
+    }
+
 
 
     /******************************  userService内部方法  **********************************/
