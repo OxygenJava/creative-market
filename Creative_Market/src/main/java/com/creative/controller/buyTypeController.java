@@ -18,4 +18,9 @@ public class buyTypeController {
     public Result buyTypeAdd(@RequestBody buyType buyType){
         return buyTypeService.buyTypeAdd(buyType);
     }
+
+    @GetMapping("/buyTypeSelectAll")
+    public Result buyTypeSelectAll(){
+        return buyTypeService.buyTypeSelectAll();
+    }
 }
