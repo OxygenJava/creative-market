@@ -14,4 +14,10 @@ public class  Code {
     public static Integer GET_OK = 50001;
     //查询失败
     public static Integer GET_ERR = 50000;
+
+    //添加成功
+    public static Integer Add_OK = 50011;
+    //添加失败
+    public static Integer Add_ERR = 50010;
+
 }

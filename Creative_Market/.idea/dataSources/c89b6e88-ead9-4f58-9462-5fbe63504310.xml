@@ -1076,184 +1076,278 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Host>localhost</Host>
       <Plugin>caching_sha2_password</Plugin>
     </user>
-    <table id="314" parent="5" name="crow"/>
-    <table id="315" parent="5" name="order_table">
+    <table id="314" parent="5" name="buy_type">
+      <Comment>商品购买类型表</Comment>
+    </table>
+    <table id="315" parent="5" name="crow"/>
+    <table id="316" parent="5" name="order_table">
       <Comment>订单表</Comment>
     </table>
-    <table id="316" parent="5" name="pay_table">
+    <table id="317" parent="5" name="pay_table">
       <Comment>支付表</Comment>
     </table>
-    <table id="317" parent="5" name="user"/>
-    <column id="318" parent="314" name="id">
+    <table id="318" parent="5" name="user"/>
+    <column id="319" parent="314" name="buyid">
       <Position>1</Position>
       <DataType>int|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="319" parent="314" name="title">
+    <column id="320" parent="314" name="commodity_id">
+      <Position>2</Position>
+      <Comment>商品id</Comment>
+      <DataType>int|0s</DataType>
+    </column>
+    <column id="321" parent="314" name="buy_type">
+      <Position>3</Position>
+      <Comment>商品购买类型</Comment>
+      <DataType>varchar(255)|0s</DataType>
+    </column>
+    <column id="322" parent="314" name="buy_money">
+      <Position>4</Position>
+      <Comment>购买金额</Comment>
+      <DataType>int|0s</DataType>
+    </column>
+    <key id="323" parent="314" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>buyid</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="324" parent="315" name="id">
+      <Position>1</Position>
+      <DataType>int|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="325" parent="315" name="title">
       <Position>2</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="320" parent="314" name="description">
+    <column id="326" parent="315" name="description">
       <Position>3</Position>
       <DataType>varchar(255)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="321" parent="314" name="tid">
+    <column id="327" parent="315" name="tid">
       <Position>4</Position>
       <DataType>int|0s</DataType>
     </column>
-    <column id="322" parent="314" name="future">
+    <column id="328" parent="315" name="future">
       <Position>5</Position>
       <DataType>double|0s</DataType>
     </column>
-    <column id="323" parent="314" name="cycle">
+    <column id="329" parent="315" name="cycle">
       <Position>6</Position>
       <DataType>int|0s</DataType>
     </column>
-    <column id="324" parent="314" name="crow_money">
+    <column id="330" parent="315" name="crow_money">
       <Position>7</Position>
       <DataType>double|0s</DataType>
     </column>
-    <column id="325" parent="314" name="crow_time">
+    <column id="331" parent="315" name="crow_time">
       <Position>8</Position>
       <DataType>datetime|0s</DataType>
     </column>
-    <column id="326" parent="314" name="publicize_time">
+    <column id="332" parent="315" name="publicize_time">
       <Position>9</Position>
       <DataType>datetime|0s</DataType>
     </column>
-    <column id="327" parent="314" name="divide_money">
+    <column id="333" parent="315" name="divide_money">
       <Position>10</Position>
       <DataType>double|0s</DataType>
     </column>
-    <column id="328" parent="314" name="publicize_money">
+    <column id="334" parent="315" name="publicize_money">
       <Position>11</Position>
       <DataType>double|0s</DataType>
     </column>
-    <column id="329" parent="314" name="project_classify">
+    <column id="335" parent="315" name="project_classify">
       <Position>12</Position>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <key id="330" parent="314" name="PRIMARY">
+    <key id="336" parent="315" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="331" parent="315" name="order_id">
+    <column id="337" parent="316" name="order_id">
       <Position>1</Position>
       <DataType>int|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="332" parent="315" name="pay_state">
+    <column id="338" parent="316" name="pay_state">
       <Position>2</Position>
       <Comment>支付状态</Comment>
       <DataType>int|0s</DataType>
     </column>
-    <column id="333" parent="315" name="order_state">
+    <column id="339" parent="316" name="order_state">
       <Position>3</Position>
       <Comment>订单状态</Comment>
       <DataType>int|0s</DataType>
     </column>
-    <key id="334" parent="315" name="PRIMARY">
+    <column id="340" parent="316" name="pay_id">
+      <Position>4</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <column id="341" parent="316" name="user_id">
+      <Position>5</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <column id="342" parent="316" name="crow_id">
+      <Position>6</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <index id="343" parent="316" name="order_pay_id_idx">
+      <ColNames>pay_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <index id="344" parent="316" name="order_user_id_idx">
+      <ColNames>user_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <index id="345" parent="316" name="order_crow_id_idx">
+      <ColNames>crow_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="346" parent="316" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>order_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="335" parent="316" name="pay_id">
+    <foreign-key id="347" parent="316" name="order_pay_id">
+      <ColNames>pay_id</ColNames>
+      <RefTableName>pay_table</RefTableName>
+      <RefColNames>pay_id</RefColNames>
+    </foreign-key>
+    <foreign-key id="348" parent="316" name="order_user_id">
+      <ColNames>user_id</ColNames>
+      <RefTableName>user</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <foreign-key id="349" parent="316" name="order_crow_id">
+      <ColNames>crow_id</ColNames>
+      <RefTableName>crow</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <column id="350" parent="317" name="pay_id">
       <Position>1</Position>
       <Comment>支付表id</Comment>
       <DataType>int|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="336" parent="316" name="pay_money">
+    <column id="351" parent="317" name="pay_money">
       <Position>2</Position>
       <Comment>助力金额</Comment>
       <DataType>int|0s</DataType>
     </column>
-    <column id="337" parent="316" name="pay_type">
+    <column id="352" parent="317" name="pay_type">
       <Position>3</Position>
       <Comment>支付类型</Comment>
       <DataType>varchar(45)|0s</DataType>
     </column>
-    <column id="338" parent="316" name="pay_time">
+    <column id="353" parent="317" name="pay_time">
       <Position>4</Position>
       <Comment>支付时间</Comment>
       <DataType>datetime|0s</DataType>
     </column>
-    <key id="339" parent="316" name="PRIMARY">
+    <column id="354" parent="317" name="user_id">
+      <Position>5</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <column id="355" parent="317" name="crow_id">
+      <Position>6</Position>
+      <DataType>int|0s</DataType>
+    </column>
+    <index id="356" parent="317" name="pay_user_id_idx">
+      <ColNames>user_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <index id="357" parent="317" name="pay_crow_id_idx">
+      <ColNames>crow_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="358" parent="317" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>pay_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="340" parent="317" name="id">
+    <foreign-key id="359" parent="317" name="pay_user_id">
+      <ColNames>user_id</ColNames>
+      <RefTableName>user</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <foreign-key id="360" parent="317" name="pay_crow_id">
+      <ColNames>crow_id</ColNames>
+      <RefTableName>crow</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <column id="361" parent="318" name="id">
       <Position>1</Position>
       <DataType>int|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="341" parent="317" name="username">
+    <column id="362" parent="318" name="username">
       <Position>2</Position>
       <DataType>varchar(20)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="342" parent="317" name="password">
+    <column id="363" parent="318" name="password">
       <Position>3</Position>
       <DataType>varchar(50)|0s</DataType>
     </column>
-    <column id="343" parent="317" name="e_mail">
+    <column id="364" parent="318" name="e_mail">
       <Position>4</Position>
       <DataType>varchar(20)|0s</DataType>
     </column>
-    <column id="344" parent="317" name="phone_number">
+    <column id="365" parent="318" name="phone_number">
       <Position>5</Position>
       <DataType>varchar(11)|0s</DataType>
     </column>
-    <column id="345" parent="317" name="nick_name">
+    <column id="366" parent="318" name="nick_name">
       <Position>6</Position>
       <DataType>varchar(45)|0s</DataType>
     </column>
-    <column id="346" parent="317" name="id_card">
+    <column id="367" parent="318" name="id_card">
       <Position>7</Position>
       <DataType>varchar(18)|0s</DataType>
     </column>
-    <column id="347" parent="317" name="icon_image">
+    <column id="368" parent="318" name="icon_image">
       <Position>8</Position>
       <DataType>varchar(45)|0s</DataType>
     </column>
-    <column id="348" parent="317" name="address">
+    <column id="369" parent="318" name="address">
       <Position>9</Position>
       <DataType>varchar(45)|0s</DataType>
     </column>
-    <column id="349" parent="317" name="create_time">
+    <column id="370" parent="318" name="create_time">
       <Position>10</Position>
       <DataType>datetime|0s</DataType>
     </column>
-    <column id="350" parent="317" name="last_login_time">
+    <column id="371" parent="318" name="last_login_time">
       <Position>11</Position>
       <DataType>datetime|0s</DataType>
     </column>
-    <column id="351" parent="317" name="update_time">
+    <column id="372" parent="318" name="update_time">
       <Position>12</Position>
       <DataType>datetime|0s</DataType>
     </column>
-    <column id="352" parent="317" name="state">
+    <column id="373" parent="318" name="state">
       <Position>13</Position>
       <DataType>int|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="353" parent="317" name="fans_count">
+    <column id="374" parent="318" name="fans_count">
       <Position>14</Position>
       <DataType>int|0s</DataType>
     </column>
-    <column id="354" parent="317" name="focus_count">
+    <column id="375" parent="318" name="focus_count">
       <Position>15</Position>
       <DataType>int|0s</DataType>
     </column>
-    <key id="355" parent="317" name="PRIMARY">
+    <key id="376" parent="318" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id</ColNames>
       <Primary>1</Primary>
