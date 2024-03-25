@@ -27,12 +27,12 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/commodity/**",
                 "api/lable/**",
                 "/api/post/**",
-                "/api/likepost/**",
+                "/api/like/**",
                 "/api/crow/**",
                 "/api/crow/team/**",
                 "/api/homePage/**",
                 "/api/buyType/**",
-                "/api/collpost/**"
+                "/api/collection/**"
         ).order(1);
     }
 }

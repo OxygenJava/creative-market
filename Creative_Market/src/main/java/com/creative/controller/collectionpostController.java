@@ -8,26 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/collpost")
+@RequestMapping("/api/collection/post")
 public class collectionpostController {
     @Autowired
     private com.creative.service.collectionpostService collectionpostService;
 
     @PutMapping("/click")
     public Result ClickLikes(@RequestBody collectionpost collectionpost){
-        Result result = collectionpostService.ClickPostcoll(collectionpost);
+        Result result = collectionpostService.ClickCollectionpost(collectionpost);
         return result;
     }
 
     @PutMapping("/cancel")
     public Result CancelLikes(@RequestBody collectionpost collectionpost){
-        Result result = collectionpostService.CancelPostcoll(collectionpost);
+        Result result = collectionpostService.CancelCollectionpost(collectionpost);
         return result;
     }
 
     @GetMapping("/{id}")
     public Result selectPostcoll(@PathVariable Integer id){
-        Result result = collectionpostService.selectPostcoll(id);
+        Result result = collectionpostService.selectCollectionpost(id);
         return result;
     }
 }

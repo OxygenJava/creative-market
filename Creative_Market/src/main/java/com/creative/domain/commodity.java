@@ -1,6 +1,7 @@
 package com.creative.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -45,4 +46,13 @@ public class commodity{
     private LocalDateTime updateTime;
     //团队成员的id
     private String teamId;
+    //点赞状态
+    @TableField(exist = false)
+    private Integer likesState;
+    //收藏数
+    private Integer collection;
+    //收藏状态
+    @TableField(exist = false)
+    private Integer collectionState;
+
 }

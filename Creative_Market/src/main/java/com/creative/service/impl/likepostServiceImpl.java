@@ -28,7 +28,7 @@ public class likepostServiceImpl implements likepostService {
     private likepostMapper likepostMapper;
 
     @Override
-    public Result ClickPostlikes(likepost likepost) {
+    public Result ClickLikepost(likepost likepost) {
         post post = postMapper.selectById(likepost.getPid());
         post.setLikes(post.getLikes()+1);
         post.setLikesState(1);
@@ -40,7 +40,7 @@ public class likepostServiceImpl implements likepostService {
     }
 
     @Override
-    public Result CancelPostlikes(likepost likepost) {
+    public Result CancelLikepost(likepost likepost) {
         post post = postMapper.selectById(likepost.getPid());
         post.setLikes(post.getLikes()-1);
         post.setLikesState(0);
@@ -53,7 +53,7 @@ public class likepostServiceImpl implements likepostService {
     }
 
     @Override
-    public Result selectPostlikes(Integer id) {
+    public Result selectLikepost(Integer id) {
         LambdaQueryWrapper<likepost> lqw=new LambdaQueryWrapper<>();
         lqw.eq(likepost::getUid,id);
         List<likepost> likeposts = likepostMapper.selectList(lqw);

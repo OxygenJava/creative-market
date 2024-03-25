@@ -26,7 +26,7 @@ public class collectionpostServiceImpl implements collectionpostService {
     private collectionpostMapper collectionpostMapper;
 
     @Override
-    public Result ClickPostcoll(collectionpost collectionpost) {
+    public Result ClickCollectionpost(collectionpost collectionpost) {
         post post = postMapper.selectById(collectionpost.getPid());
         post.setCollection(post.getCollection()+1);
         post.setCollectionState(1);
@@ -38,7 +38,7 @@ public class collectionpostServiceImpl implements collectionpostService {
     }
 
     @Override
-    public Result CancelPostcoll(collectionpost collectionpost) {
+    public Result CancelCollectionpost(collectionpost collectionpost) {
         post post = postMapper.selectById(collectionpost.getPid());
         post.setCollection(post.getCollection()-1);
         post.setCollectionState(0);
@@ -50,7 +50,7 @@ public class collectionpostServiceImpl implements collectionpostService {
     }
 
     @Override
-    public Result selectPostcoll(Integer id)
+    public Result selectCollectionpost(Integer id)
     {
         LambdaQueryWrapper<collectionpost> lqw=new LambdaQueryWrapper<>();
         lqw.eq(collectionpost::getUid,id);
