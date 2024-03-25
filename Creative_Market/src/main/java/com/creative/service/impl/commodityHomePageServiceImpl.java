@@ -2,7 +2,6 @@ package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.creative.domain.commodity;
 import com.creative.domain.commodityHomePage;
@@ -14,6 +13,7 @@ import com.creative.mapper.commodityHomePageMapper;
 import com.creative.service.commodityHomePageService;
 import com.creative.service.recommendService;
 
+import com.creative.utils.imgUtils;
 import com.creative.utils.weightUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +48,7 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
      * @return
      */
     @Override
-    public Result getInformationToHomePage(String token) {
+    public Result getInformationToHomePage(String token) throws InterruptedException, ExecutionException, IOException {
 
         Map<Object, Object> entries = getUserMap(token);
 
@@ -52,6 +56,7 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
         if (entries.isEmpty()){
             List<commodityHomePage> pageList = query().list();
             Collections.shuffle(pageList);
+            changeImageToBase64(pageList);
             return Result.success(pageList);
         }
 
@@ -69,11 +74,12 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
      * @return
      */
     @Override
-    public Result getInformationToHomePageByPage(homePageDTO homePageDTO) {
+    public Result getInformationToHomePageByPage(homePageDTO homePageDTO) throws InterruptedException, ExecutionException, IOException {
         Map<Object, Object> userMap = redisTemplate.opsForHash().entries(homePageDTO.getToken());
         //判断缓存中用户是否存在(用户是否登录)
         if (userMap.isEmpty()){
             List<commodityHomePage> pageList = query().list();
+            changeImageToBase64(pageList);
             Collections.shuffle(pageList);
             return Result.success(pageList);
         }
@@ -85,15 +91,27 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
         Integer pageSize = homePageDTO.getPageSize();
 
         //当前面跳过的元素+要访问的元素数量 大于 商品的集合长度
-            //拼接
-            while (returnCommodityHomePage.size() < (pageNumber - 1) * pageSize + pageSize){
-                List<commodityHomePage> CommodityHomePage = getReturnCommodityHomePageList(userMap);
+        //拼接
+        while (returnCommodityHomePage.size() < (pageNumber - 1) * pageSize + pageSize) {
+            ExecutorService executor = Executors.newFixedThreadPool(4);
+            List<Future<List<commodityHomePage>>> futures = new ArrayList<>();
+
+            for (int i = 0; i < 4; i++) {
+                Future<List<commodityHomePage>> future = executor.submit(() -> getReturnCommodityHomePageList(userMap));
+                futures.add(future);
+            }
+
+            executor.shutdown();
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
+            for (Future<List<commodityHomePage>> future : futures) {
+                List<commodityHomePage> CommodityHomePage = future.get();
                 returnCommodityHomePage.addAll(CommodityHomePage);
             }
+        }
 
         //分页操作
         List<commodityHomePage> pageInformation = getPageInformation(returnCommodityHomePage,pageSize,pageNumber);
-
 
         System.out.println("total: " + pageInformation.size());
         return Result.success(pageInformation);
@@ -108,7 +126,7 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
      * @param commodityWeight
      * @return
      */
-    public List<commodityHomePage> getReturnList(Map<commodityHomePage, Double> commodityWeight) {
+    public List<commodityHomePage> getReturnList(Map<commodityHomePage, Double> commodityWeight) throws IOException {
         List<commodityHomePage> returnList = new ArrayList<>();
         weightUtils weightUtils = new weightUtils(commodityWeight);
         while (!commodityWeight.isEmpty()){
@@ -116,9 +134,9 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
             if (draw == null){
                 for (Map.Entry<commodityHomePage, Double> entry : commodityWeight.entrySet()) {
                     if (entry.getValue() == 0.0){
-                            returnList.add(entry.getKey());
-                            commodityWeight.remove(entry.getKey());
-                            break;
+                        returnList.add(entry.getKey());
+                        commodityWeight.remove(entry.getKey());
+                        break;
                     }
                 }
             }else {
@@ -126,7 +144,17 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
                 commodityWeight.remove(draw);
             }
         }
+        changeImageToBase64(returnList);
         return returnList;
+    }
+
+    public void changeImageToBase64(List<commodityHomePage> returnList) throws IOException {
+        for (commodityHomePage page : returnList) {
+            File file = new File(shopImage,page.getHomePageImage());
+            if (file.exists()){
+                page.setHomePageImage(imgUtils.encodeImageToBase64ByFile(file));
+            }else page.setHomePageImage(null);
+        }
     }
 
     /**
@@ -180,7 +208,8 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
      * @param entries  存放商品于对应的权重的map集合
      * @return
      */
-    public List<commodityHomePage> getReturnCommodityHomePageList(Map<Object, Object> entries) {
+    public List<commodityHomePage> getReturnCommodityHomePageList(Map<Object, Object> entries) throws InterruptedException, ExecutionException {
+
         //获取已登录的用户
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries,new UserDTO(),true);
         //获取该用户的所有权重
@@ -188,10 +217,34 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
         //获取所有商品
         List<commodity> commodityList = commodityService.query().list();
 
-        //获取每一个商品的权重
-        Map<commodityHomePage, Double> commodityWeight = getCommodityWeight(recommendList, commodityList);
-        //根据权重获取返回出去的数据顺序
-        List<commodityHomePage> returnList = getReturnList(commodityWeight);
+        /**
+         * 开启多线程执行计算权重和返回推荐商品的任务
+         */
+        // 创建固定大小的线程池
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        List<Future<Map<commodityHomePage, Double>>> futures = new ArrayList<>();
+        // 将商品列表按照一定规则划分成多个子列表
+        List<List<commodity>> splitCommodityList = splitCommodityList(commodityList, 4);
+        // 提交每个子列表的处理任务到线程池
+        for (List<commodity> subList : splitCommodityList) {
+            Future<Map<commodityHomePage, Double>> future = executor.submit(() -> getCommodityWeight(recommendList, subList));
+            futures.add(future);
+        }
+        // 等待所有任务完成
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        // 合并所有线程的计算结果
+        Map<commodityHomePage, Double> finalResult = new HashMap<>();
+        for (Future<Map<commodityHomePage, Double>> future : futures) {
+            Map<commodityHomePage, Double> result = future.get();
+            finalResult.putAll(result);
+        }
+        ExecutorService returnExecutor = Executors.newFixedThreadPool(4);
+        Future<List<commodityHomePage>> returnListFuture = returnExecutor.submit(() -> getReturnList(finalResult));
+        List<commodityHomePage> returnList = returnListFuture.get();
+        returnExecutor.shutdown();
+        /*********************************************************************/
+
         return returnList;
     }
 
@@ -206,4 +259,24 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(token1);
         return entries;
     }
+
+    /**
+     * 将商品列表按照一定规则划分成多个子列表
+     * @param commodityList
+     * @param chunkSize
+     * @return
+     */
+    public List<List<commodity>> splitCommodityList(List<commodity> commodityList, int chunkSize) {
+        List<List<commodity>> splitList = new ArrayList<>();
+        for (int i = 0; i < commodityList.size(); i += chunkSize) {
+            splitList.add(commodityList.subList(i, Math.min(i + chunkSize, commodityList.size())));
+        }
+        return splitList;
+    }
+
+//    public List<commodityHomePage> handleListImage(List<commodityHomePage> list){
+//        for (commodityHomePage commodityHomePage : list) {
+//
+//        }
+//    }
 }
