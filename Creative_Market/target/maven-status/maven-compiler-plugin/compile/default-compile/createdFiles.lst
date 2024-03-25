@@ -16,7 +16,11 @@ com\creative\mapper\userMapper.class
 com\creative\domain\historicalVisits.class
 com\creative\dto\loginByPasswordFormDTO.class
 com\creative\CreativeMarketApplication.class
+com\creative\interceptor\userInterceptor.class
 com\creative\service\likepostService.class
+com\creative\interceptor\loginInterceptor.class
+com\creative\service\buyTypeService.class
+com\creative\config\webmvcConfig.class
 com\creative\mapper\LableMapper.class
 com\creative\service\userService.class
 com\creative\service\impl\postServiceImpl.class
@@ -57,7 +61,9 @@ com\creative\service\impl\payServiceImpl.class
 com\creative\dto\loginByCodeFormDTO.class
 com\creative\mapper\historicalVisitsMapper.class
 com\creative\utils\userHolder.class
+com\creative\domain\buyType.class
 com\creative\domain\commodity.class
+com\creative\controller\buyTypeController.class
 com\creative\utils\beanUtil.class
 com\creative\service\impl\historicalVisitsServiceImpl.class
 com\creative\domain\order.class
