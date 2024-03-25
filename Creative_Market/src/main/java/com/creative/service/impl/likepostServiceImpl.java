@@ -48,7 +48,7 @@ public class likepostServiceImpl implements likepostService {
         int delete = likepostMapper.deleteBylikepost(likepost);
 
         Integer code = update > 0 && delete>0? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 && delete>0? "取消成功" : "取消失败";
+        String msg = update > 0 && delete>0? "取消点赞成功" : "取消点赞失败";
         return new Result(code, msg, "");
     }
 
@@ -81,6 +81,7 @@ public class likepostServiceImpl implements likepostService {
                post post = postMapper.selectOne(lqw1);
                posts1.add(post);
            }
+
            if(posts1!=null){
                for (int i = 0; i < posts1.size(); i++) {
                    posts1.get(i).setLikesState(1);

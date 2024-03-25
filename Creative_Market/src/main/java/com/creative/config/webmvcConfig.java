@@ -31,7 +31,8 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/crow/**",
                 "/api/crow/team/**",
                 "/api/homePage/**",
-                "/api/buyType/**"
+                "/api/buyType/**",
+                "/api/collpost/**"
         ).order(1);
     }
 }
