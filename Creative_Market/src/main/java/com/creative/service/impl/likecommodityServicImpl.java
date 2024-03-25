@@ -1,20 +1,27 @@
 package com.creative.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.creative.domain.commodity;
 import com.creative.domain.likecommodity;
+import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.mapper.commodityMapper;
 import com.creative.mapper.likecommodityMapper;
 import com.creative.service.likecommodityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Transactional
 public class likecommodityServicImpl implements likecommodityService {
 
     @Autowired
@@ -23,22 +30,49 @@ public class likecommodityServicImpl implements likecommodityService {
     @Autowired
     private likecommodityMapper likecommodityMapper;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private HttpServletRequest request;
+
 
     @Override
     public Result ClickLikecommodity(likecommodity likecommodity) {
-        commodity commodity = commodityMapper.selectById(likecommodity.getCid());
-        commodity.setLikesReceived(commodity.getLikesReceived()+1);
-        commodity.setLikesState(1);
-        int update = commodityMapper.updateById(commodity);
-        int insert = likecommodityMapper.insert(likecommodity);
-        Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 && insert>0? "点赞成功" : "点赞失败";
-        return new Result(code, msg, "");
+//                String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        likecommodity.setUid(user.getId());
+
+
+        if(likecommodity.getUid()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            commodity commodity = commodityMapper.selectById(likecommodity.getCid());
+            commodity.setLikesReceived(commodity.getLikesReceived()+1);
+            commodity.setLikesState(1);
+            int update = commodityMapper.updateById(commodity);
+            int insert = likecommodityMapper.insert(likecommodity);
+            Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update > 0 && insert>0? "点赞成功" : "点赞失败";
+            return new Result(code, msg, "");
+        }
+
     }
 
     @Override
     public Result CancelLikecommodity(likecommodity likecommodity) {
+        //String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        likecommodity.setUid(user.getId());
 
+
+        if(likecommodity.getUid()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
             commodity commodity = commodityMapper.selectById(likecommodity.getCid());
             commodity.setLikesReceived(commodity.getLikesReceived()-1);
             commodity.setLikesState(0);
@@ -47,11 +81,18 @@ public class likecommodityServicImpl implements likecommodityService {
             Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update > 0 && insert>0? "取消点赞成功" : "取消点赞失败";
             return new Result(code, msg, "");
+        }
+
 
     }
 
     @Override
     public Result selectLikecommodity(Integer id) {
+        //String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        likecommodity.setUid(user.getId());
+
         LambdaQueryWrapper<likecommodity> lqw=new LambdaQueryWrapper<>();
         lqw.eq(likecommodity::getUid,id);
         List<likecommodity> likecommodities = likecommodityMapper.selectList(lqw);
@@ -106,8 +147,8 @@ public class likecommodityServicImpl implements likecommodityService {
                 }
             }
 
-            list.addAll(commodities4);
             list.addAll(commodities2);
+            list.addAll(commodities4);
 
         }
         Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;

@@ -6,12 +6,13 @@ import com.creative.dto.Result;
 import com.creative.service.likepostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.creative.service.collectionpostService;
 
 @RestController
 @RequestMapping("/api/collection/post")
 public class collectionpostController {
     @Autowired
-    private com.creative.service.collectionpostService collectionpostService;
+    private collectionpostService collectionpostService;
 
     @PutMapping("/click")
     public Result ClickLikes(@RequestBody collectionpost collectionpost){

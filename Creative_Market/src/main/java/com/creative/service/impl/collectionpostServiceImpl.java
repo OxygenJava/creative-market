@@ -1,9 +1,11 @@
 package com.creative.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.creative.domain.collectionpost;
 import com.creative.domain.likepost;
 import com.creative.domain.post;
+import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.mapper.collectionpostMapper;
@@ -11,12 +13,17 @@ import com.creative.mapper.likepostMapper;
 import com.creative.mapper.postMapper;
 import com.creative.service.collectionpostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Transactional
 public class collectionpostServiceImpl implements collectionpostService {
 
     @Autowired
@@ -25,33 +32,66 @@ public class collectionpostServiceImpl implements collectionpostService {
     @Autowired
     private collectionpostMapper collectionpostMapper;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private HttpServletRequest request;
+
     @Override
     public Result ClickCollectionpost(collectionpost collectionpost) {
-        post post = postMapper.selectById(collectionpost.getPid());
-        post.setCollection(post.getCollection()+1);
-        post.setCollectionState(1);
-        int update = postMapper.updateById(post);
-        int insert = collectionpostMapper.insert(collectionpost);
-        Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 && insert>0? "收藏成功" : "收藏失败";
-        return new Result(code, msg, "");
+//                String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        collectionpost.setUid(user.getId());
+
+        if(collectionpost.getUid()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            post post = postMapper.selectById(collectionpost.getPid());
+            post.setCollection(post.getCollection()+1);
+            post.setCollectionState(1);
+            int update = postMapper.updateById(post);
+            int insert = collectionpostMapper.insert(collectionpost);
+            Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update > 0 && insert>0? "收藏成功" : "收藏失败";
+            return new Result(code, msg, "");
+        }
+
     }
 
     @Override
     public Result CancelCollectionpost(collectionpost collectionpost) {
-        post post = postMapper.selectById(collectionpost.getPid());
-        post.setCollection(post.getCollection()-1);
-        post.setCollectionState(0);
-        int update = postMapper.updateById(post);
-        int insert = collectionpostMapper.deleteBycollpost(collectionpost);
-        Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 && insert>0? "取消收藏成功" : "取消收藏失败";
-        return new Result(code, msg, "");
+//                String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        collectionpost.setUid(user.getId());
+
+        if(collectionpost.getUid()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }else {
+            post post = postMapper.selectById(collectionpost.getPid());
+            post.setCollection(post.getCollection()-1);
+            post.setCollectionState(0);
+            int update = postMapper.updateById(post);
+            int insert = collectionpostMapper.deleteBycollpost(collectionpost);
+            Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update > 0 && insert>0? "取消收藏成功" : "取消收藏失败";
+            return new Result(code, msg, "");
+        }
+
     }
 
     @Override
     public Result selectCollectionpost(Integer id)
     {
+//                String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        collectionpost.setUid(user.getId());
+
+
         LambdaQueryWrapper<collectionpost> lqw=new LambdaQueryWrapper<>();
         lqw.eq(collectionpost::getUid,id);
         List<collectionpost> collectionposts = collectionpostMapper.selectList(lqw);

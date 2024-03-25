@@ -8,6 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface collectioncommodityMapper extends BaseMapper<collectioncommodity> {
-    @Delete("delete from collectioncommodity where uid=#{uid} and cid=#{pid}")
+    @Delete("delete from collectioncommodity where uid=#{uid} and cid=#{cid}")
     int deleteBycollectioncommodity(collectioncommodity collectioncommodity);
 }
