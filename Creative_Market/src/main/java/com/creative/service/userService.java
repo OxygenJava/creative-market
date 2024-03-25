@@ -6,6 +6,7 @@ import com.creative.domain.user;
 import com.creative.dto.*;
 import org.apache.catalina.User;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface userService extends IService<user>{
@@ -17,7 +18,7 @@ public interface userService extends IService<user>{
 
     Result userRegister(userRegisterForm userRegisterForm);
 
-    Result updatePassword(updatePasswordForm updateForm);
+    Result updatePassword(updatePasswordForm updateForm, HttpServletRequest request);
 
     Result forgetPasswordSendCode(String phone);
 

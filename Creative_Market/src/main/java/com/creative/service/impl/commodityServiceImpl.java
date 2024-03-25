@@ -21,12 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity> implements commodityService {
@@ -86,8 +88,13 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         handleLabelVisitTimeAndWeight(labelIds,userDTO);
         //添加用户历史记录(处理historical_visits表)
         handleHistoricalVisits(userDTO, one);
-        one.setHomePageImage(imgUtils.encodeImageToBase64(this.shopImage+"\\"+one.getHomePageImage()));
 
+        File imageFile = new File(this.shopImage,one.getHomePageImage());
+        if (!imageFile.exists()){
+            one.setHomePageImage(null);
+        }else {
+            one.setHomePageImage(imgUtils.encodeImageToBase64ByFile(imageFile));
+        }
         return Result.success(one);
     }
 
@@ -253,4 +260,6 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
             recommendService.updateById(recommendOne);
         }
     }
+
+
 }
