@@ -1,0 +1,3 @@
+spring:
+  datasource:
+    password: "02123290"
