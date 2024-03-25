@@ -27,6 +27,8 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
     @Override
     public Result insertLable(lable lable) {
         if(lable.getName()!=null && lable.getCreateTime()!=null && lable.getVisitsNumber()!=null){
+            lable.setIsPopular(0);
+            lable.setState(1);
             int l=-1;
             List<lable> lables = lableMapper.selectList(null);
             for (int i = 0; i < lables.size(); i++) {
