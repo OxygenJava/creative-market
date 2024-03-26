@@ -26,11 +26,7 @@ public class loginInterceptor implements HandlerInterceptor {
         response.setHeader("Access-Control-Allow-Headers",
                 "x-requested-with, authorization, Content-Type, Authorization, credential, X-XSRF-TOKEN"); // 允许的头部
         response.setHeader("Access-Control-Allow-Credentials", "true"); // 是否支持cookie跨域
-
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            response.setStatus(HttpServletResponse.SC_OK); // 对于预检请求直接返回正常状态
-            return false; // 不再继续执行其他拦截器链
-        }
+        
 
         //没有传递token，直接放行到第二拦截器进行拦截
         String authorization = request.getHeader("Authorization");
