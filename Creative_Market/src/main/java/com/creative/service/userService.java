@@ -25,8 +25,6 @@ public interface userService extends IService<user>{
 
     Result forgetPasswordResetPassword(resetPasswordFrom passwordFrom);
 
-    Result showUserInfoById(Integer id);
-
     Result selectAll();
 
 
