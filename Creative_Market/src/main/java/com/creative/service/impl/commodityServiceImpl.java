@@ -104,6 +104,12 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
         && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
         && commodity.getTeamId()!=null){
+            commodity.setLikesState(0);
+            commodity.setLikesReceived(0);
+            commodity.setCollection(0);
+            commodity.setCollectionState(0);
+            commodity.setState(0);
+            commodity.setSupportNumber(0);
             int insert = commodityMapper.insert(commodity);
             Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = insert > 0 ? "发布成功" : "发布失败";

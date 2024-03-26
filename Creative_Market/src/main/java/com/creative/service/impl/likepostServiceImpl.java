@@ -1,8 +1,10 @@
 package com.creative.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.creative.domain.likepost;
 import com.creative.domain.post;
+import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.mapper.likepostMapper;
@@ -11,11 +13,14 @@ import com.creative.service.likepostService;
 import com.mysql.cj.xdevapi.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.CollectionUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,33 +32,71 @@ public class likepostServiceImpl implements likepostService {
     @Autowired
     private likepostMapper likepostMapper;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private HttpServletRequest request;
+
     @Override
-    public Result ClickPostlikes(likepost likepost) {
-        post post = postMapper.selectById(likepost.getPid());
-        post.setLikes(post.getLikes()+1);
-        post.setLikesState(1);
-        int update = postMapper.updateById(post);
-        int insert = likepostMapper.insert(likepost);
-        Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 && insert>0? "点赞成功" : "点赞失败";
-        return new Result(code, msg, "");
+    public Result ClickLikepost(likepost likepost) {
+
+//        String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        likepost.setUid(user.getId());
+
+        if(likepost.getUid()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            post post = postMapper.selectById(likepost.getPid());
+            post.setLikes(post.getLikes()+1);
+            post.setLikesState(1);
+            int update = postMapper.updateById(post);
+            int insert = likepostMapper.insert(likepost);
+            Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update > 0 && insert>0? "点赞成功" : "点赞失败";
+            return new Result(code, msg, "");
+        }
+
     }
 
     @Override
-    public Result CancelPostlikes(likepost likepost) {
-        post post = postMapper.selectById(likepost.getPid());
-        post.setLikes(post.getLikes()-1);
-        post.setLikesState(0);
-        int update = postMapper.updateById(post);
-        int delete = likepostMapper.deleteBylikepost(likepost);
+    public Result CancelLikepost(likepost likepost) {
 
-        Integer code = update > 0 && delete>0? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = update > 0 && delete>0? "取消成功" : "取消失败";
-        return new Result(code, msg, "");
+        //        String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        likepost.setUid(user.getId());
+
+
+        if(likepost.getUid()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            post post = postMapper.selectById(likepost.getPid());
+            post.setLikes(post.getLikes()-1);
+            post.setLikesState(0);
+            int update = postMapper.updateById(post);
+            int delete = likepostMapper.deleteBylikepost(likepost);
+
+            Integer code = update > 0 && delete>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = update > 0 && delete>0? "取消点赞成功" : "取消点赞失败";
+            return new Result(code, msg, "");
+        }
+
     }
 
     @Override
-    public Result selectPostlikes(Integer id) {
+    public Result selectLikepost(Integer id) {
+
+        //        String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        likepost.setUid(user.getId());
+
+
         LambdaQueryWrapper<likepost> lqw=new LambdaQueryWrapper<>();
         lqw.eq(likepost::getUid,id);
         List<likepost> likeposts = likepostMapper.selectList(lqw);
@@ -81,6 +124,7 @@ public class likepostServiceImpl implements likepostService {
                post post = postMapper.selectOne(lqw1);
                posts1.add(post);
            }
+
            if(posts1!=null){
                for (int i = 0; i < posts1.size(); i++) {
                    posts1.get(i).setLikesState(1);

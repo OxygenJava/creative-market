@@ -19,7 +19,5 @@ public class lable {
     private LocalDateTime createTime;
     private Integer state;
     private Integer visitsNumber;
-   
-
 
 }
