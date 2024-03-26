@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/like/post")
+@RequestMapping("/api/likepost")
+@CrossOrigin
 public class likepostController {
     @Autowired
     private likepostService likepostService;

@@ -15,7 +15,7 @@ public class userInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         UserDTO user = userHolder.getUser();
         if (user == null){
-            //在线程中获取不到对象，则响应404状态码
+            //在线程中获取不到对象，则响应401状态码
             response.setStatus(Code.INSUFFICIENT_PERMISSIONS);
             return false;
         }
