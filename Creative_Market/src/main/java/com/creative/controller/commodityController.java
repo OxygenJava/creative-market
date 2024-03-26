@@ -11,8 +11,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/commodity")
-@CrossOrigin(origins = "http://localhost:8080")
-
+@CrossOrigin
 public class commodityController {
     @Autowired
     private commodityService commodityService;

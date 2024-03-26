@@ -10,8 +10,7 @@ import com.creative.service.collectionpostService;
 
 @RestController
 @RequestMapping("/api/collection/post")
-@CrossOrigin(origins = "http://localhost:8080")
-
+@CrossOrigin
 public class collectionpostController {
     @Autowired
     private collectionpostService collectionpostService;

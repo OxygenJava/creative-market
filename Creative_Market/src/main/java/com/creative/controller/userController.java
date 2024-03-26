@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "http://localhost:8080")
-
+@CrossOrigin
 public class userController {
     @Autowired
     private userService userService;
