@@ -20,13 +20,12 @@ public class loginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //跨域问题解决
-        response.setHeader("Access-Control-Allow-Origin", " http://localhost:8080"); // 允许的来源
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PUT"); // 允许的方法
-        response.setHeader("Access-Control-Max-Age", "3600"); // 预检请求的缓存时间
-        response.setHeader("Access-Control-Allow-Headers",
-                "x-requested-with, authorization, Content-Type, Authorization, credential, X-XSRF-TOKEN"); // 允许的头部
-        response.setHeader("Access-Control-Allow-Credentials", "true"); // 是否支持cookie跨域
-        
+        response.setHeader("Access-Control-Allow-Origin","*");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, PUT");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
 
         //没有传递token，直接放行到第二拦截器进行拦截
         String authorization = request.getHeader("Authorization");
