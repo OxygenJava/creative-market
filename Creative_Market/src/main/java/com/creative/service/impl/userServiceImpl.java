@@ -176,6 +176,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         String authorization = request.getHeader("Authorization");
         //缓存中获取user对象
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        //使用糊涂包把map集合转换为储存的对象
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
         user updateUser = lambdaQuery().eq(user::getId, userDTO.getId()).one();
         if (updateUser == null){
