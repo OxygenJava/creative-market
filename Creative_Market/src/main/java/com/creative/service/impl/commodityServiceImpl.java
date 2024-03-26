@@ -54,6 +54,10 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     @Autowired
     private LableMapper lableMapper;
 
+    @Autowired
+    private HttpServletRequest request;
+
+
     /**
      * 用户点击某个商品，跳转到商品详情页
      * @param id
@@ -101,6 +105,10 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     //发布（插入）
     @Override
     public Result insertCom(commodity commodity) {
+//                        String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        commodity.setReleaseUserId(user.getId());
         if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
         && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
         && commodity.getTeamId()!=null){
