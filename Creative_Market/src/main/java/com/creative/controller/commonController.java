@@ -23,7 +23,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/common")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:8080")
+
 public class commonController {
 
     @Value("${creativeMarket.filePath}")

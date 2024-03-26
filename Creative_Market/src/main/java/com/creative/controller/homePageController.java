@@ -11,7 +11,8 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/homePage")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:8080")
+
 public class homePageController {
 
     @Autowired

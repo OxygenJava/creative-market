@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/likepost")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:8080")
+
 public class likepostController {
     @Autowired
     private likepostService likepostService;

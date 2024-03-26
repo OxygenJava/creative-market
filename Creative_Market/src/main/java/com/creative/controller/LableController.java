@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/lable")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:8080")
+
 public class LableController {
     @Autowired
     private LableServiceImpl lableService;

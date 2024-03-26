@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/collection/commodity")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:8080")
 public class collectioncommodityControlller {
 
     @Autowired
