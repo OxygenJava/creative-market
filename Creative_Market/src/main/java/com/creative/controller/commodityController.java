@@ -11,11 +11,12 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/commodity")
+@CrossOrigin
 public class commodityController {
     @Autowired
     private commodityService commodityService;
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Result selectCommodityById(@PathVariable Integer id, HttpServletRequest request) throws IOException {
         return commodityService.selectCommodityById(id,request);
     }

@@ -179,9 +179,14 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     }
 
     @Override
-    public Result updatePassword(updatePasswordForm updateForm) {
-        Integer id = updateForm.getId();
-        user updateUser = lambdaQuery().eq(user::getId, id).one();
+    public Result updatePassword(updatePasswordForm updateForm, HttpServletRequest request) {
+        //请求头获取token
+        String authorization = request.getHeader("Authorization");
+        //缓存中获取user对象
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        //使用糊涂包把map集合转换为储存的对象
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        user updateUser = lambdaQuery().eq(user::getId, userDTO.getId()).one();
         if (updateUser == null){
             return Result.fail(Code.SYNTAX_ERROR,"查找不到该用户");
         }

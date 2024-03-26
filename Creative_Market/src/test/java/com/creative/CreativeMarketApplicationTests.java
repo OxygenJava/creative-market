@@ -107,7 +107,8 @@ class CreativeMarketApplicationTests {
     void getImageWidth(@Autowired commodityService service, @Autowired commodityHomePageService com) throws IOException {
         List<commodity> list = service.query().list();
         for (commodity commodity : list) {
-            commodityHomePage commodityHomePage = beanUtil.copyCommodity(this.shopImage,commodity);
+            commodityHomePage commodityHomePage = beanUtil.copyCommodity(shopImage, commodity);
+            com.save(commodityHomePage);
         }
     }
 

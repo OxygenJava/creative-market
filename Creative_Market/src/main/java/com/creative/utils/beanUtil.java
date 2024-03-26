@@ -36,9 +36,15 @@ public class beanUtil {
         int width = 0;
         try {
             File file = new File(shopImage,commodity.getHomePageImage());
-            BufferedImage read = ImageIO.read(file);
-            height = read.getHeight();
-            width = read.getWidth();
+            System.out.println(commodity.getHomePageImage());
+                if (file.exists()){
+                    BufferedImage read = ImageIO.read(file);
+                    height = read.getHeight();
+                    width = read.getWidth();
+                }
+                System.out.println(height);
+                 System.out.println(width);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

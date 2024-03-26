@@ -21,12 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity> implements commodityService {
@@ -51,6 +53,10 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
     @Autowired
     private LableMapper lableMapper;
+
+    @Autowired
+    private HttpServletRequest request;
+
 
     /**
      * 用户点击某个商品，跳转到商品详情页
@@ -86,17 +92,32 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         handleLabelVisitTimeAndWeight(labelIds,userDTO);
         //添加用户历史记录(处理historical_visits表)
         handleHistoricalVisits(userDTO, one);
-        one.setHomePageImage(imgUtils.encodeImageToBase64(this.shopImage+"\\"+one.getHomePageImage()));
 
+        File imageFile = new File(this.shopImage,one.getHomePageImage());
+        if (!imageFile.exists()){
+            one.setHomePageImage(null);
+        }else {
+            one.setHomePageImage(imgUtils.encodeImageToBase64ByFile(imageFile));
+        }
         return Result.success(one);
     }
 
     //发布（插入）
     @Override
     public Result insertCom(commodity commodity) {
+//                        String authorization = request.getHeader("Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+//        commodity.setReleaseUserId(user.getId());
         if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
         && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
         && commodity.getTeamId()!=null){
+            commodity.setLikesState(0);
+            commodity.setLikesReceived(0);
+            commodity.setCollection(0);
+            commodity.setCollectionState(0);
+            commodity.setState(0);
+            commodity.setSupportNumber(0);
             int insert = commodityMapper.insert(commodity);
             Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = insert > 0 ? "发布成功" : "发布失败";
@@ -247,4 +268,6 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
             recommendService.updateById(recommendOne);
         }
     }
+
+
 }

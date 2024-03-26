@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin
@@ -62,8 +64,8 @@ public class userController {
      * @return
      */
     @PostMapping("/updatePassword")
-    public Result updatePassword(@RequestBody updatePasswordForm updateForm){
-        return userService.updatePassword(updateForm);
+    public Result updatePassword(@RequestBody updatePasswordForm updateForm, HttpServletRequest request){
+        return userService.updatePassword(updateForm,request);
     }
 
     /**
