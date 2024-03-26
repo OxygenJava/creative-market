@@ -10,6 +10,7 @@ import com.creative.service.collectionpostService;
 
 @RestController
 @RequestMapping("/api/collection/post")
+@CrossOrigin
 public class collectionpostController {
     @Autowired
     private collectionpostService collectionpostService;

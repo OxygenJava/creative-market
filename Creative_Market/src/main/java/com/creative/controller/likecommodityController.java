@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/like/commodity")
+@CrossOrigin
 public class likecommodityController {
 
     @Autowired

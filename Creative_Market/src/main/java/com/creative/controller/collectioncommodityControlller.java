@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/collection/commodity")
+@CrossOrigin
 public class collectioncommodityControlller {
 
     @Autowired
