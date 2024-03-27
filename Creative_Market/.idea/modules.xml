@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/creative_market.iml" filepath="$PROJECT_DIR$/creative_market.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../../springboot_Websocket/springboot_Websocket.iml" filepath="$PROJECT_DIR$/../../../springboot_Websocket/springboot_Websocket.iml" />
     </modules>
   </component>
 </project>

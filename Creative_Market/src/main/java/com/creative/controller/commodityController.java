@@ -23,8 +23,8 @@ public class commodityController {
 
     //发布
     @PutMapping
-    public Result insertCom(@RequestBody commodity commodity){
-        Result result = commodityService.insertCom(commodity);
+    public Result insertCom(@RequestBody commodity commodity, HttpServletRequest request){
+        Result result = commodityService.insertCom(commodity,request);
         return result;
     }
 

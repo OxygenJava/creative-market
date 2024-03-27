@@ -24,13 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity> implements commodityService {
 
     @Autowired
@@ -54,8 +52,6 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     @Autowired
     private LableMapper lableMapper;
 
-    @Autowired
-    private HttpServletRequest request;
 
 
     /**
@@ -104,28 +100,39 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
     //发布（插入）
     @Override
-    public Result insertCom(commodity commodity) {
-//                        String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        commodity.setReleaseUserId(user.getId());
-        if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
-        && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
-        && commodity.getTeamId()!=null){
-            commodity.setLikesState(0);
-            commodity.setLikesReceived(0);
-            commodity.setCollection(0);
-            commodity.setCollectionState(0);
-            commodity.setState(0);
-            commodity.setSupportNumber(0);
-            int insert = commodityMapper.insert(commodity);
-            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = insert > 0 ? "发布成功" : "发布失败";
-            return new Result(code, msg, "");
+    public Result insertCom(commodity commodity, HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        commodity.setReleaseUserId(user.getId());
+
+        if(commodity.getReleaseUserId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
         else {
-            return new Result( Code.SYNTAX_ERROR, "商品的基本信息不完全，请填写完整", "");
+            if(commodity.getLabelId()!=null && commodity.getReleaseAddress()!=null
+                    && commodity.getDescription()!=null  && commodity.getReleaseTime()!=null
+                    && commodity.getTeamId()!=null && commodity.getFinishCrowdfundingTime()!=null
+                    && commodity.getTargetCrowdfundingAmount()!=null
+                    && commodity.getHomePageImage()!=null){
+
+                commodity.setLikesState(0);
+                commodity.setLikesReceived(0);
+                commodity.setCollection(0);
+                commodity.setCollectionState(0);
+                commodity.setState(0);
+                commodity.setSupportNumber(0);
+
+                int insert = commodityMapper.insert(commodity);
+                Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = insert > 0 ? "发布成功" : "发布失败";
+                return new Result(code, msg, "");
+            }
+            else {
+                return new Result( Code.SYNTAX_ERROR, "商品的基本信息不完全，请填写完整", "");
+            }
         }
+
 
     }
 
@@ -139,17 +146,12 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
     @Override
     public Result updateCom(commodity commodity) {
-        if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
-                && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
-                && commodity.getTeamId()!=null && commodity.getUpdateTime()!=null){
+
             int insert = commodityMapper.updateById(commodity);
             Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = insert > 0 ? "修改成功" : "修改失败";
             return new Result(code, msg, "");
-        }
-        else {
-            return new Result( Code.SYNTAX_ERROR, "修改的商品的基本信息不完全，请填写完整", "");
-        }
+
     }
 
     @Override
