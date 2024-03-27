@@ -30,7 +30,6 @@ public class loginInterceptor implements HandlerInterceptor {
             return true;
         }
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
-        System.out.println(userDTO);
         userHolder.saveUser(userDTO);
         //刷新缓存时间
         stringRedisTemplate.expire(authorization,30, TimeUnit.MINUTES);

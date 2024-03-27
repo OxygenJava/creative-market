@@ -1,21 +1,25 @@
 package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
+import com.creative.dto.commodityDTO;
 import com.creative.mapper.LableMapper;
+import com.creative.mapper.commodityHomePageMapper;
 import com.creative.mapper.commodityMapper;
 import com.creative.mapper.userMapper;
-import com.creative.service.LableService;
-import com.creative.service.commodityService;
-import com.creative.service.historicalVisitsService;
-import com.creative.service.recommendService;
+import com.creative.service.*;
+import com.creative.utils.beanUtil;
 import com.creative.utils.imgUtils;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity> implements commodityService {
@@ -55,10 +55,17 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     @Autowired
     private LableMapper lableMapper;
 
+    @Value("${creativeMarket.detailsImage}")
+    private String detailsImage;
+
     @Autowired
-    private HttpServletRequest request;
+    private commodityDetailsImageService commodityDetailsImageService;
 
+    @Autowired
+    private commodityHomePageMapper commodityHomePageMapper;
 
+    @Autowired
+    private AmqpTemplate amqpTemplate;
     /**
      * 用户点击某个商品，跳转到商品详情页
      * @param id
@@ -105,7 +112,7 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
     //发布（插入）
     @Override
-    public Result insertCom(MultipartFile[] file,commodity commodity, HttpServletRequest request) {
+    public Result insertCom(MultipartFile[] file, commodityDTO commodityDTO, HttpServletRequest request) throws IOException {
         //获取请求头信息
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
@@ -113,10 +120,102 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         if(entries.isEmpty()){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录");
         }
+
+        //校验数据
+        if (commodityDTO.getTargetCrowdfundingAmount() == null || commodityDTO.getTargetCrowdfundingAmount() == 0.0){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请填写预计众筹金额");
+        }
+        if (commodityDTO.getLabel() == null || "".equals(commodityDTO.getLabel())){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请填写标签");
+        }
+        if (commodityDTO.getDescription() == null || "".equals(commodityDTO.getDescription())){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请描述商品");
+        }
+        if (commodityDTO.getReleaseAddress() == null || "".equals(commodityDTO.getReleaseAddress())){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请填写发布地址");
+        }
+        if (commodityDTO.getTeamId() == null || "".equals(commodityDTO.getTeamId())){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请填写团队个人用户id");
+        }
+
+        //获取到登录(发布)的用户
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        commodity commodity = BeanUtil.copyProperties(commodityDTO, commodity.class);
+        //给商品绑定用户id
         commodity.setReleaseUserId(userDTO.getId());
-        System.out.println(commodity);
-        return null;
+        //注入发布时间
+        commodity.setReleaseTime(LocalDateTime.now());
+
+        //根据label获取到响应的labelId，如果没有，则创建
+        String[] labels = commodityDTO.getLabel().split(",");
+        StringBuilder labelSb  = new StringBuilder();
+        for (String label : labels) {
+            lable one = lableService.lambdaQuery().eq(lable::getName, label).one();
+            //通过name查询到label存在，则获取id，并拼接
+            if (one != null){
+                labelSb.append(one.getId()+",");
+            }else {
+                //此时,用户插入的标签在标签库中不存在
+                lable l = new lable();
+                l.setName(label);
+                l.setCreateTime(LocalDateTime.now());
+                int i = lableMapper.insertAll(l);
+                if (i < 0){
+                    return Result.fail(Code.SYNTAX_ERROR,"插入标签失败");
+                }
+                labelSb.append(l.getId()+",");
+            }
+        }
+        commodity.setLabelId(labelSb.toString());
+
+        //处理图片(下载图片到服务器)
+        for (int i = 0; i < file.length; i++) {
+            String originalFilename = file[i].getOriginalFilename();
+            if (originalFilename == null){
+                return Result.fail(Code.SYNTAX_ERROR,"上传的图片不能为空");
+            }
+            //获取图片后缀
+            String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
+            //校验图片的格式
+            if (!imageLastName.equals(".jpg") && !imageLastName.equals(".png")){
+                return Result.fail(Code.SYNTAX_ERROR,"图片格式必须为 jgp 或 png 格式");
+            }
+            File baseFile = new File(detailsImage);
+            File homePageImageFile = new File(shopImage);
+            if (!baseFile.exists()){
+                baseFile.mkdirs();
+            }
+            if (!homePageImageFile.exists()){
+                homePageImageFile.mkdirs();
+            }
+
+            String imageName = UUID.randomUUID().toString();
+            //选用第一张上传的图片当首页图片
+            if (i == 0){
+                //下载图片
+                file[i].transferTo(new File(homePageImageFile,imageName+imageLastName));
+                //设置商品的首页图片地址
+                commodity.setHomePageImage(imageName+imageLastName);
+                commodityHomePage commodityHomePage = beanUtil.copyCommodity(shopImage, commodity);
+                commodityHomePage.setLabel(commodityDTO.getLabel().replace(",",""));
+                //保存商品到数据库
+                save(commodity);
+                //设置刚保存的商品的id到首页表中
+                commodityHomePage.setCommodityId(commodity.getId());
+                commodityHomePageMapper.insert(commodityHomePage);
+
+                //将commodityHomePage对象放进消息队列，待监听器处理
+                System.out.println("待存进es的commodityHomePage已纳入消息队列：id="+commodityHomePage.getId());
+                amqpTemplate.convertAndSend("topic_exchange","searchRouting", JSON.toJSONString(commodityHomePage));
+            }else {
+                file[i].transferTo(new File(baseFile,imageName+imageLastName));
+                commodityDetailsImage commodityDetailsImage = new commodityDetailsImage();
+                commodityDetailsImage.setCommodityId(commodity.getId());
+                commodityDetailsImage.setImage(imageName+imageLastName);
+                commodityDetailsImageService.save(commodityDetailsImage);
+            }
+        }
+        return Result.success("操作成功");
     }
 
     @Override

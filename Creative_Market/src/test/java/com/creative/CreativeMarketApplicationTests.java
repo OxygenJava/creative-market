@@ -6,6 +6,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
 import com.alibaba.fastjson.JSON;
 import com.creative.domain.*;
+import com.creative.mapper.LableMapper;
 import com.creative.service.*;
 import com.creative.domain.user;
 import com.creative.service.impl.userServiceImpl;
@@ -101,12 +102,15 @@ class CreativeMarketApplicationTests {
         c.setReleaseAddress("广东-广州-天河区");
         service.save(c);
     }
+    @Autowired
+    private LableMapper lableMapper;
     @Test
     void lableServiceTest(@Autowired LableService lableService){
         lable lable = new lable();
-        lable.setName("13代酷睿");
+        lable.setName("13");
         lable.setCreateTime(LocalDateTime.now());
-        lableService.save(lable);
+        int i = lableMapper.insertAll(lable);
+        System.out.println(lable.getId());
     }
 
     @Autowired
