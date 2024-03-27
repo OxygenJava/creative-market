@@ -35,16 +35,15 @@ public class likepostServiceImpl implements likepostService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private HttpServletRequest request;
+
 
     @Override
-    public Result ClickLikepost(likepost likepost) {
+    public Result ClickLikepost(likepost likepost,HttpServletRequest request) {
 
-//        String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        likepost.setUid(user.getId());
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        likepost.setUid(user.getId());
 
         if(likepost.getUid()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
@@ -63,13 +62,12 @@ public class likepostServiceImpl implements likepostService {
     }
 
     @Override
-    public Result CancelLikepost(likepost likepost) {
+    public Result CancelLikepost(likepost likepost,HttpServletRequest request) {
 
-        //        String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        likepost.setUid(user.getId());
-
+                String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        likepost.setUid(user.getId());
 
         if(likepost.getUid()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
@@ -89,16 +87,15 @@ public class likepostServiceImpl implements likepostService {
     }
 
     @Override
-    public Result selectLikepost(Integer id) {
+    public Result selectLikepost(HttpServletRequest request) {
 
-        //        String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        likepost.setUid(user.getId());
+                String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
 
         LambdaQueryWrapper<likepost> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(likepost::getUid,id);
+        lqw.eq(likepost::getUid,user.getId());
         List<likepost> likeposts = likepostMapper.selectList(lqw);
         ArrayList<Integer> list1=new ArrayList<>();
         ArrayList<Integer> list2=new ArrayList<>();

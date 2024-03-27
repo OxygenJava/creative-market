@@ -1,9 +1,6 @@
 package com.creative;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class test {
     private Map<Integer, Double> weightsMap;
@@ -49,12 +46,13 @@ public class test {
 //        int winner = (int) lottery.draw();
 //        System.out.println("Winner is: " + winner);
 
-        String ids="1,2,3,4,5";
-        ArrayList<Integer> list=new ArrayList<>();
-        String[] split = ids.split(",");
-        for (int i = 0; i < split.length; i++) {
-            list.add(Integer.parseInt(split[i]));
-        }
-        System.out.println(list);
+        String ids="12345";
+        StringJoiner stringJoiner=new StringJoiner(",","",",");
+        String[] split = ids.split("");
+        for (String s : split) {
+            stringJoiner.add(s);
+                  }
+        System.out.println(stringJoiner.toString());
+
     }
 }
