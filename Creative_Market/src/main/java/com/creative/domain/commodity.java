@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class commodity{
+
     @TableId(type = IdType.AUTO)
     private Integer id;
     //发布者id

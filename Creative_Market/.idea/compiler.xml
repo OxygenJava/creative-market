@@ -8,7 +8,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="creative_market" />
-        <module name="springboot_Websocket" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
