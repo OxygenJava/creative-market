@@ -81,7 +81,10 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
             List<commodityHomePage> pageList = query().list();
             changeImageToBase64(pageList);
             Collections.shuffle(pageList);
-            return Result.success(pageList);
+            //对打乱后的集合进行分页处理
+            List<commodityHomePage> pageInformation =
+                    getPageInformation(pageList, homePageDTO.getPageSize(), homePageDTO.getPageNumber());
+            return Result.success(pageInformation);
         }
         //用户已经登录，并按照权重获取到商品列表
         List<commodityHomePage> returnCommodityHomePage = getReturnCommodityHomePageList(userMap);
