@@ -55,6 +55,10 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     @Autowired
     private LableMapper lableMapper;
 
+    @Autowired
+    private HttpServletRequest request;
+
+
     /**
      * 用户点击某个商品，跳转到商品详情页
      * @param id
