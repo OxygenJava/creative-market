@@ -15,7 +15,9 @@ spring:
         min-idle: 1
         time-between-eviction-runs: 10s
   profiles:
-    active: test
+    active: dev
+  elasticsearch:
+    uris: http://localhost:9200
 
 mybatis-plus:
   configuration:
