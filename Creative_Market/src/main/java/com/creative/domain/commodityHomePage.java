@@ -24,6 +24,10 @@ public class commodityHomePage {
     private Integer supportNumber;
     //点赞者数量
     private Integer likesReceived;
+    //描述
+    private String description;
     //已众筹数量
     private Double crowdfundedAmount;
+    //标签文字
+    private String label;
 }

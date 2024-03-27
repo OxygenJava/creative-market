@@ -4,6 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.digest.MD5;
+import com.alibaba.fastjson.JSON;
 import com.creative.domain.*;
 import com.creative.service.*;
 import com.creative.domain.user;
@@ -11,6 +12,11 @@ import com.creative.service.impl.userServiceImpl;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.beanUtil;
 import com.creative.utils.imgUtils;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -103,12 +109,26 @@ class CreativeMarketApplicationTests {
         lableService.save(lable);
     }
 
+    @Autowired
+    private LableService lableService;
     @Test
     void getImageWidth(@Autowired commodityService service, @Autowired commodityHomePageService com) throws IOException {
         List<commodity> list = service.query().list();
+
+        int index = 1;
         for (commodity commodity : list) {
+            String labelId = commodity.getLabelId();
+            String[] split = labelId.split(",");
+            String label = "";
+            for (String s : split) {
+                lable one = lableService.lambdaQuery().eq(lable::getId, s).one();
+                label += one.getName();
+            }
             commodityHomePage commodityHomePage = beanUtil.copyCommodity(shopImage, commodity);
-            com.save(commodityHomePage);
+            commodityHomePage.setLabel(label);
+            commodityHomePage.setId(index);
+            com.updateById(commodityHomePage);
+            index++;
         }
     }
 
@@ -121,6 +141,22 @@ class CreativeMarketApplicationTests {
     @Test
     void historicalVisitsTest(@Autowired historicalVisitsService historicalVisitsService){
 //        historicalVisitsService.getHistoricalVisitsList();
+    }
+
+    /**
+     * es初始化，批量导入数据
+     */
+    @Test
+    void esInit(@Autowired commodityHomePageService homePageService, @Autowired RestHighLevelClient restHighLevelClient) throws IOException {
+        List<commodityHomePage> list = homePageService.query().list();
+        BulkRequest bulk = new BulkRequest("app_seacher");
+        for (commodityHomePage commodityHomePage : list) {
+            IndexRequest indexRequest = new IndexRequest().id(commodityHomePage.getId().toString())
+                    .source(JSON.toJSONString(commodityHomePage), XContentType.JSON);
+            //批量添加
+            bulk.add(indexRequest);
+        }
+        restHighLevelClient.bulk(bulk, RequestOptions.DEFAULT);
     }
 
 }

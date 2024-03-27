@@ -16,6 +16,8 @@ spring:
         time-between-eviction-runs: 10s
   profiles:
     active: dev
+  elasticsearch:
+    uris: http://localhost:9200
 
 mybatis-plus:
   configuration:

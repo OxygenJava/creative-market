@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -100,25 +101,18 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
     //发布（插入）
     @Override
-    public Result insertCom(commodity commodity) {
-        if(commodity.getReleaseUserId()!=null && commodity.getLikesReceived()!=null && commodity.getLabelId()!=null
-        && commodity.getDescription()!=null && commodity.getState()!=null && commodity.getReleaseTime()!=null
-        && commodity.getTeamId()!=null){
-            commodity.setLikesState(0);
-            commodity.setLikesReceived(0);
-            commodity.setCollection(0);
-            commodity.setCollectionState(0);
-            commodity.setState(0);
-            commodity.setSupportNumber(0);
-            int insert = commodityMapper.insert(commodity);
-            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = insert > 0 ? "发布成功" : "发布失败";
-            return new Result(code, msg, "");
+    public Result insertCom(MultipartFile[] file,commodity commodity, HttpServletRequest request) {
+        //获取请求头信息
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        //判断用户是否登录
+        if(entries.isEmpty()){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录");
         }
-        else {
-            return new Result( Code.SYNTAX_ERROR, "商品的基本信息不完全，请填写完整", "");
-        }
-
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        commodity.setReleaseUserId(userDTO.getId());
+        System.out.println(commodity);
+        return null;
     }
 
     @Override
