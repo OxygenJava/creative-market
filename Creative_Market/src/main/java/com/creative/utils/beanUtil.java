@@ -28,6 +28,7 @@ public class beanUtil {
         commodityHomePage.setCrowdfundedAmount(commodity.getCrowdfundedAmount());
         commodityHomePage.setState(commodity.getState());
         commodityHomePage.setSupportNumber(commodity.getSupportNumber());
+        commodityHomePage.setDescription(commodity.getDescription());
 
         /**
          * 获取图片高宽
@@ -49,8 +50,8 @@ public class beanUtil {
             e.printStackTrace();
         }
 
-        commodityHomePage.setImageWidth(width);
-        commodityHomePage.setImageHeight(height);
+        commodityHomePage.setWidth(width);
+        commodityHomePage.setHeight(height);
 
         return commodityHomePage;
     }
