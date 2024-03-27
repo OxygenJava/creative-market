@@ -28,6 +28,8 @@ public class commonController {
 
     @Value("${creativeMarket.filePath}")
     private String basePath;
+    @Value("${creativeMarket.shopImage}")
+    private String shopImage;
 
     @PostMapping("/upload")
     public Result upload(MultipartFile file, HttpServletResponse response) throws IOException {
@@ -50,7 +52,7 @@ public class commonController {
     @PostMapping("/getSwiperImage")
     public Result getSwiperImage() throws IOException {
         // 假设imagePaths为存储图片路径的数组
-        String[] imagePaths = {"D:\\img\\hello1.png", "D:\\img\\hello2.png"};
+        String[] imagePaths = {shopImage+"\\"+"7f5a3f5d98930846.jpg", shopImage+"\\"+"849a6061fff494d5.jpg"};
 
         List<String> base64ImageList = new ArrayList<>();
         for (int i = 0; i < imagePaths.length; i++) {

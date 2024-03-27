@@ -18,6 +18,9 @@ spring:
     active: dev
   elasticsearch:
     uris: http://localhost:9200
+  rabbitmq:
+    host: localhost
+    port: 5672
 
 mybatis-plus:
   configuration:
@@ -26,4 +29,5 @@ mybatis-plus:
 creativeMarket:
   filePath: D:\img
   shopImage: D:\img\shopImage
+  detailsImage: D:\img\shop_details_image
 

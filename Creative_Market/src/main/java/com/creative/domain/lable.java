@@ -12,12 +12,11 @@ import java.time.LocalDateTime;
 @Data
 public class lable {
     @TableId(type = IdType.AUTO)
-    private String id;
+    private Integer id;
     private String name;
     private Integer isPopular;   
     @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     private Integer state;
     private Integer visitsNumber;
-
 }
