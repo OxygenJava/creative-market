@@ -1,5 +1,6 @@
 package com.creative.listen;
 
+
 import com.alibaba.fastjson.JSON;
 import com.creative.domain.commodityHomePage;
 import org.elasticsearch.action.index.IndexRequest;

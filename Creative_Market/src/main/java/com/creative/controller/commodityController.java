@@ -37,7 +37,7 @@ public class commodityController {
     }
 
     //修改
-    @PostMapping
+    @PutMapping
     public Result updateCom(@RequestBody commodity commodity){
         Result result = commodityService.updateCom(commodity);
         return result;
