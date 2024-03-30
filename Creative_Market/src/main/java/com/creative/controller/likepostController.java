@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/likepost")
+@RequestMapping("/api/like/post")
 @CrossOrigin
 public class likepostController {
     @Autowired
@@ -29,8 +29,14 @@ public class likepostController {
         return result;
     }
 
-    @GetMapping()
-    public Result selectPostlikes(HttpServletRequest request){
+    @GetMapping("/all")
+    public Result selectAllpost(HttpServletRequest request){
+        Result result = likepostService.selectAllpost(request);
+        return result;
+    }
+
+    @GetMapping
+    public Result selectLikepost(HttpServletRequest request){
         Result result = likepostService.selectLikepost(request);
         return result;
     }

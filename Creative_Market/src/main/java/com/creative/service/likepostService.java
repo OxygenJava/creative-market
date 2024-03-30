@@ -8,5 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 public interface likepostService {
     Result ClickLikepost(likepost likepost, HttpServletRequest request);
     Result CancelLikepost(likepost likepost,HttpServletRequest request);
+    Result selectAllpost(HttpServletRequest request);
     Result selectLikepost(HttpServletRequest request);
 }

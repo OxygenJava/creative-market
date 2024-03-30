@@ -9,5 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 public interface likecommodityService {
     Result ClickLikecommodity(likecommodity likecommodity, HttpServletRequest request);
     Result CancelLikecommodity(likecommodity likecommodity, HttpServletRequest request);
+    Result selectAllcommodity(HttpServletRequest request);
     Result selectLikecommodity(HttpServletRequest request);
 }
