@@ -30,7 +30,13 @@ public class likecommodityController {
         return result;
     }
 
-    @GetMapping()
+    @GetMapping("/all")
+    public Result selectAllcommodity(HttpServletRequest request){
+        Result result = likecommodityService.selectAllcommodity(request);
+        return result;
+    }
+
+    @GetMapping
     public Result selectLikecommodity(HttpServletRequest request){
         Result result = likecommodityService.selectLikecommodity(request);
         return result;

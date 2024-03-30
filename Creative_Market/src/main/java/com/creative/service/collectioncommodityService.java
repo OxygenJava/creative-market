@@ -9,5 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 public interface collectioncommodityService {
     Result ClickCollectioncommodity(collectioncommodity collectioncommodity, HttpServletRequest request);
     Result CancelCollectioncommodity(collectioncommodity collectioncommodity, HttpServletRequest request);
+    Result selectAllcommodity(HttpServletRequest request);
     Result selectCollectioncommodity(HttpServletRequest request);
 }
