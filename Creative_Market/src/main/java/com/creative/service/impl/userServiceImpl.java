@@ -271,25 +271,6 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         return Result.success("设置成功");
     }
 
-    //查询用户信息
-    @Override
-    public Result showUserInfoById(Integer id) {
-        user user = userMapper.selectById(id);
-        user.setIconImage("C:\\Users\\林泽欣\\Desktop\\团队项目\\img\\JPEG\\1_1.jpg");
-        String iconImage = user.getIconImage();
-        String s = null;
-        try {
-            s = imgUtils.encodeImageToBase64(iconImage);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        user.setIconImage(s);
-        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
-        boolean flag = userDTO != null;
-        return new Result(flag ? Code.GET_OK : Code.GET_ERR,flag ? "" : "查询失败",userDTO);
-
-    }
-
     @Override
     public Result selectAll() {
         List<user> users = userMapper.selectList(null);

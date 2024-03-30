@@ -97,10 +97,6 @@ public class userController {
     public Result forgetPasswordResetPassword(@RequestBody resetPasswordFrom passwordFrom) {
         return userService.forgetPasswordResetPassword(passwordFrom);
     }
-    @GetMapping("/showUserInfoById/{id}")
-    public Result showUserInfoById(@PathVariable Integer id){
-        return userService.showUserInfoById(id);
-    }
     @GetMapping("/showUserInformation")
     public Result showUserInformation(){
         UserDTO user = userHolder.getUser();
