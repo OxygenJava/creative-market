@@ -2,9 +2,11 @@ package com.creative.controller;
 
 import com.creative.domain.commodity;
 import com.creative.dto.Result;
+import com.creative.dto.commodityDTO;
 import com.creative.service.commodityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -22,10 +24,9 @@ public class commodityController {
     }
 
     //发布
-    @PutMapping
-    public Result insertCom(@RequestBody commodity commodity){
-        Result result = commodityService.insertCom(commodity);
-        return result;
+    @PostMapping("/publishCommodity")
+    public Result insertCom(@RequestParam("file")MultipartFile[] file,commodityDTO commodityDTO, HttpServletRequest request) throws IOException {
+        return commodityService.insertCom(file, commodityDTO,request);
     }
 
     //删除
@@ -36,7 +37,7 @@ public class commodityController {
     }
 
     //修改
-    @PostMapping
+    @PutMapping
     public Result updateCom(@RequestBody commodity commodity){
         Result result = commodityService.updateCom(commodity);
         return result;

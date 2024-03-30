@@ -7,6 +7,8 @@ import com.creative.service.postService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/post")
 @CrossOrigin
@@ -16,8 +18,8 @@ public class postController {
     private postService postService;
 
     @PostMapping
-    public Result insertPost(@RequestBody  post post){
-        Result result = postService.insertPost(post);
+    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
+        Result result = postService.insertPost(post,request);
         return result;
     }
 
@@ -34,8 +36,8 @@ public class postController {
     }
 
     @GetMapping
-    public Result selectPostAll(){
-        Result result = postService.selectPostAll();
+    public Result selectByUidAllPost(HttpServletRequest request){
+        Result result = postService.selectByUidAllPost(request);
         return result;
     }
 

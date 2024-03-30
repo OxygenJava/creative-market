@@ -12,10 +12,9 @@ public class commodityHomePage {
     //商品id
     private Integer commodityId;
     //主页图片宽
-    private Integer imageWidth;
+    private Integer width;
     //主页图片高
-    private Integer imageHeight;
-
+    private Integer height;
     //主页图片
     private String homePageImage;
     //商品状态
@@ -24,6 +23,10 @@ public class commodityHomePage {
     private Integer supportNumber;
     //点赞者数量
     private Integer likesReceived;
+    //描述
+    private String description;
     //已众筹数量
     private Double crowdfundedAmount;
+    //标签文字
+    private String label;
 }

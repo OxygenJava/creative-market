@@ -12,12 +12,14 @@ import com.creative.service.userService;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.imgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,12 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     @Autowired
     private userMapper userMapper;
+
+    @Value("${creativeMarket.shopImage}")
+    private String imgAddress;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @Override
     public Result sendCode(String phone) {
@@ -270,6 +278,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         updateById(one);
         return Result.success("设置成功");
     }
+
 
     @Override
     public Result selectAll() {

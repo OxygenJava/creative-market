@@ -97,6 +97,11 @@ public class userController {
     public Result forgetPasswordResetPassword(@RequestBody resetPasswordFrom passwordFrom) {
         return userService.forgetPasswordResetPassword(passwordFrom);
     }
+
+    /**
+     * 获取用户个人信息
+     * @return
+     */
     @GetMapping("/showUserInformation")
     public Result showUserInformation(){
         UserDTO user = userHolder.getUser();
