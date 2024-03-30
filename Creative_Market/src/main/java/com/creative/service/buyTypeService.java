@@ -7,5 +7,9 @@ public interface buyTypeService {
     Result buyTypeAdd(buyType buyType);
 
 
-    Result buyTypeSelectAll();
+    Result buyTypeSelectAllTypeByCommodityId(Integer commodityId);
+
+    Result buyTypeDeleteById(Integer id);
+
+    Result buyTypeUpdate(buyType buyType);
 }
