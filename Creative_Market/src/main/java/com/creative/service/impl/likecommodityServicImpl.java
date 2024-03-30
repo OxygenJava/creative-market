@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -86,7 +87,7 @@ public class likecommodityServicImpl implements likecommodityService {
     }
 
     @Override
-    public Result selectLikecommodity(HttpServletRequest request) {
+    public Result selectAllcommodity(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
@@ -151,6 +152,7 @@ public class likecommodityServicImpl implements likecommodityService {
 
                 list.addAll(commodities2);
                 list.addAll(commodities4);
+                Collections.shuffle(list);
 
             }
             Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
@@ -160,4 +162,55 @@ public class likecommodityServicImpl implements likecommodityService {
 
 
     }
-}
+
+    @Override
+    public Result selectLikecommodity(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            LambdaQueryWrapper<likecommodity> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(likecommodity::getUid,user.getId());
+            List<likecommodity> likecommodities = likecommodityMapper.selectList(lqw);
+            ArrayList<Integer> list1=new ArrayList<>();
+            ArrayList<commodity> list=new ArrayList<>();
+
+            if(likecommodities==null){
+                return new Result( Code.SYNTAX_ERROR, "", "");
+            }
+            else {
+                for (int i = 0; i < likecommodities.size(); i++) {
+                    list1.add(likecommodities.get(i).getCid());
+                }
+
+                List<commodity> commodities2=new ArrayList<>();
+                for (int i = 0; i < list1.size(); i++) {
+                    LambdaQueryWrapper<commodity> lqw1=new LambdaQueryWrapper<>();
+                    lqw1.eq(commodity::getId,list1.get(i));
+                    commodity commodity = commodityMapper.selectOne(lqw1);
+                    commodities2.add(commodity);
+                }
+
+                if(commodities2!=null){
+                    for (int i = 0; i < commodities2.size(); i++) {
+                        commodities2.get(i).setLikesState(1);
+                    }
+                }
+
+                list.addAll(commodities2);
+
+            }
+
+            Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = list !=null? "查询成功" : "查询失败";
+            return new Result(code, msg, list);
+        }
+    }
+
+
+    }
+

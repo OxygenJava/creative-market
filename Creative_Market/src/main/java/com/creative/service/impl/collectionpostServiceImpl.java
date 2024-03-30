@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -35,15 +36,14 @@ public class collectionpostServiceImpl implements collectionpostService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private HttpServletRequest request;
+
 
     @Override
-    public Result ClickCollectionpost(collectionpost collectionpost) {
-//                String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        collectionpost.setUid(user.getId());
+    public Result ClickCollectionpost(collectionpost collectionpost,HttpServletRequest request) {
+                String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        collectionpost.setUid(user.getId());
 
         if(collectionpost.getUid()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
@@ -62,11 +62,11 @@ public class collectionpostServiceImpl implements collectionpostService {
     }
 
     @Override
-    public Result CancelCollectionpost(collectionpost collectionpost) {
-//                String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        collectionpost.setUid(user.getId());
+    public Result CancelCollectionpost(collectionpost collectionpost,HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        collectionpost.setUid(user.getId());
 
         if(collectionpost.getUid()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
@@ -84,16 +84,16 @@ public class collectionpostServiceImpl implements collectionpostService {
     }
 
     @Override
-    public Result selectCollectionpost(Integer id)
+    public Result selectAllpost(HttpServletRequest request)
     {
-//                String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        collectionpost.setUid(user.getId());
+                String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
 
 
         LambdaQueryWrapper<collectionpost> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(collectionpost::getUid,id);
+        lqw.eq(collectionpost::getUid,user.getId());
         List<collectionpost> collectionposts = collectionpostMapper.selectList(lqw);
         ArrayList<Integer> list1=new ArrayList<>();
         ArrayList<Integer> list2=new ArrayList<>();
@@ -146,10 +146,52 @@ public class collectionpostServiceImpl implements collectionpostService {
 
             list.addAll(posts2);
             list.addAll(posts4);
+            Collections.shuffle(list);
         }
 
         Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
         String msg = list !=null? "查询成功" : "查询失败";
         return new Result(code, msg, list);
+    }
+
+    @Override
+    public Result selectCollectionpost(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        LambdaQueryWrapper<collectionpost> lqw=new LambdaQueryWrapper<>();
+        lqw.eq(collectionpost::getUid,user.getId());
+        List<collectionpost> collectionposts = collectionpostMapper.selectList(lqw);
+        ArrayList<Integer> list1=new ArrayList<>();
+
+        ArrayList<post> list=new ArrayList<>();
+
+        if(collectionposts==null){
+
+            return new Result(Code.SYNTAX_ERROR, "", "");
+        }
+        else {
+            for (int i = 0; i < collectionposts.size(); i++) {
+                list1.add(collectionposts.get(i).getPid());
+            }
+            List<post> posts2=new ArrayList<>();
+            for (int i = 0; i < list1.size(); i++) {
+                LambdaQueryWrapper<post> lqw1=new LambdaQueryWrapper<>();
+                lqw1.eq(post::getId,list1.get(i));
+                post post = postMapper.selectOne(lqw1);
+                posts2.add(post);
+            }
+            if(posts2!=null){
+                for (int i = 0; i < posts2.size(); i++) {
+                    posts2.get(i).setCollectionState(1);
+                }
+            }
+            list.addAll(posts2);
+        }
+        Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = list !=null? "查询成功" : "查询失败";
+        return new Result(code, msg, list);
+
     }
 }
