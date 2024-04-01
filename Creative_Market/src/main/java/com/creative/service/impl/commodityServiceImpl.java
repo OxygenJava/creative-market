@@ -139,6 +139,9 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         if (commodityDTO.getTeamId() == null || "".equals(commodityDTO.getTeamId())){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请填写团队个人用户id");
         }
+        if (commodityDTO.getCrowdfundingDay() == null){
+            commodityDTO.setCrowdfundingDay(30);
+        }
 
         //获取到登录(发布)的用户
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
@@ -208,6 +211,7 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
                 //将commodityHomePage对象放进消息队列，待监听器处理
                 System.out.println("待存进es的commodityHomePage已纳入消息队列：id="+commodityHomePage.getId());
+                commodityHomePage.setHomePageImage(imgUtils.encodeImageToBase64(shopImage+"//"+commodityHomePage.getHomePageImage()));
                 amqpTemplate.convertAndSend("topic_exchange","searchRouting", JSON.toJSONString(commodityHomePage));
             }else {
                 file[i].transferTo(new File(baseFile,imageName+imageLastName));

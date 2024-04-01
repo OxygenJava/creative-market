@@ -36,6 +36,10 @@ public class commodity{
     private LocalDateTime releaseTime;
     //商品发布地址
     private String releaseAddress;
+    //开启众筹后的天数
+    private Integer crowdfundingDay;
+    //开启众筹时间
+    private LocalDateTime beginCrowdfundingTime;
     //结束众筹时间
     @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime finishCrowdfundingTime;
