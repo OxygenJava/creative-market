@@ -87,7 +87,7 @@ public class likepostServiceImpl implements likepostService {
     }
 
     @Override
-    public Result selectLikepost(HttpServletRequest request) {
+    public Result selectAllpost(HttpServletRequest request) {
 
                 String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
@@ -151,6 +151,7 @@ public class likepostServiceImpl implements likepostService {
            }
            list.addAll(posts1);
            list.addAll(posts3);
+           Collections.shuffle(list);
        }
 
 
@@ -159,7 +160,49 @@ public class likepostServiceImpl implements likepostService {
            return new Result(code, msg, list);
            }
 
-       }
+    @Override
+    public Result selectLikepost(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        LambdaQueryWrapper<likepost> lqw=new LambdaQueryWrapper<>();
+        lqw.eq(likepost::getUid,user.getId());
+        List<likepost> likeposts = likepostMapper.selectList(lqw);
+
+        ArrayList<Integer> list1=new ArrayList<>();
+        ArrayList<post> list=new ArrayList<>();
+
+        if(likeposts==null){
+            return new Result(Code.SYNTAX_ERROR, "", "");
+        }
+        else {
+            for (int i = 0; i < likeposts.size(); i++) {
+                list1.add(likeposts.get(i).getPid());
+            }
+            List<post> posts1=new ArrayList<>();
+            for (int i = 0; i < list1.size(); i++) {
+                LambdaQueryWrapper<post> lqw1=new LambdaQueryWrapper<>();
+                lqw1.eq(post::getId,list1.get(i));
+                post post = postMapper.selectOne(lqw1);
+                posts1.add(post);
+            }
+
+            if(posts1!=null){
+                for (int i = 0; i < posts1.size(); i++) {
+                    posts1.get(i).setLikesState(1);
+                }
+            }
+
+            list.addAll(posts1);
+        }
+
+        Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = list !=null? "查询成功" : "查询失败";
+        return new Result(code, msg, list);
+    }
+
+}
 
 
 

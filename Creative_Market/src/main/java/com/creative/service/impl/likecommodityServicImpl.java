@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,16 +34,15 @@ public class likecommodityServicImpl implements likecommodityService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Autowired
-    private HttpServletRequest request;
+
 
 
     @Override
-    public Result ClickLikecommodity(likecommodity likecommodity) {
-//                String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        likecommodity.setUid(user.getId());
+    public Result ClickLikecommodity(likecommodity likecommodity,HttpServletRequest request) {
+                String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        likecommodity.setUid(user.getId());
 
 
         if(likecommodity.getUid()==null){
@@ -62,11 +62,11 @@ public class likecommodityServicImpl implements likecommodityService {
     }
 
     @Override
-    public Result CancelLikecommodity(likecommodity likecommodity) {
-        //String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        likecommodity.setUid(user.getId());
+    public Result CancelLikecommodity(likecommodity likecommodity,HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        likecommodity.setUid(user.getId());
 
 
         if(likecommodity.getUid()==null){
@@ -87,72 +87,130 @@ public class likecommodityServicImpl implements likecommodityService {
     }
 
     @Override
-    public Result selectLikecommodity(Integer id) {
-        //String authorization = request.getHeader("Authorization");
-//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-//        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-//        likecommodity.setUid(user.getId());
+    public Result selectAllcommodity(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
-        LambdaQueryWrapper<likecommodity> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(likecommodity::getUid,id);
-        List<likecommodity> likecommodities = likecommodityMapper.selectList(lqw);
-        ArrayList<Integer> list1=new ArrayList<>();
-        ArrayList<Integer> list2=new ArrayList<>();
-        ArrayList<commodity> list=new ArrayList<>();
-
-        if(likecommodities==null){
-            List<commodity> commodities1 = commodityMapper.selectList(null);
-            for (int i = 0; i < commodities1.size(); i++) {
-                commodities1.get(i).setLikesState(0);
-            }
-            Integer code = commodities1 !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = commodities1 !=null? "查询成功" : "查询失败";
-            return new Result(code, msg, commodities1);
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
         else {
-            for (int i = 0; i < likecommodities.size(); i++) {
-                list1.add(likecommodities.get(i).getCid());
-            }
+            LambdaQueryWrapper<likecommodity> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(likecommodity::getUid,user.getId());
+            List<likecommodity> likecommodities = likecommodityMapper.selectList(lqw);
+            ArrayList<Integer> list1=new ArrayList<>();
+            ArrayList<Integer> list2=new ArrayList<>();
+            ArrayList<commodity> list=new ArrayList<>();
 
-            List<commodity> commodities2=new ArrayList<>();
-            for (int i = 0; i < list1.size(); i++) {
-                LambdaQueryWrapper<commodity> lqw1=new LambdaQueryWrapper<>();
-                lqw1.eq(commodity::getId,list1.get(i));
-                commodity commodity = commodityMapper.selectOne(lqw1);
-                commodities2.add(commodity);
-            }
-
-            if(commodities2!=null){
-                for (int i = 0; i < commodities2.size(); i++) {
-                    commodities2.get(i).setLikesState(1);
+            if(likecommodities==null){
+                List<commodity> commodities1 = commodityMapper.selectList(null);
+                for (int i = 0; i < commodities1.size(); i++) {
+                    commodities1.get(i).setLikesState(0);
                 }
+                Integer code = commodities1 !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = commodities1 !=null? "查询成功" : "查询失败";
+                return new Result(code, msg, commodities1);
             }
-
-            List<commodity> commodities3=commodityMapper.selectList(null);
-            for (int i = 0; i < commodities3.size(); i++) {
-                list2.add(commodities3.get(i).getId());
-            }
-            list2.removeAll(list1);
-
-            List<commodity> commodities4=new ArrayList<>();
-            for (int i = 0; i < list2.size(); i++) {
-                LambdaQueryWrapper<commodity> lqw2=new LambdaQueryWrapper<>();
-                lqw2.eq(commodity::getId,list2.get(i));
-                commodity commodity = commodityMapper.selectOne(lqw2);
-                commodities4.add(commodity);
-            }
-            if(commodities4!=null){
-                for (int i = 0; i < commodities4.size(); i++) {
-                    commodities4.get(i).setLikesState(0);
+            else {
+                for (int i = 0; i < likecommodities.size(); i++) {
+                    list1.add(likecommodities.get(i).getCid());
                 }
+
+                List<commodity> commodities2=new ArrayList<>();
+                for (int i = 0; i < list1.size(); i++) {
+                    LambdaQueryWrapper<commodity> lqw1=new LambdaQueryWrapper<>();
+                    lqw1.eq(commodity::getId,list1.get(i));
+                    commodity commodity = commodityMapper.selectOne(lqw1);
+                    commodities2.add(commodity);
+                }
+
+                if(commodities2!=null){
+                    for (int i = 0; i < commodities2.size(); i++) {
+                        commodities2.get(i).setLikesState(1);
+                    }
+                }
+
+                List<commodity> commodities3=commodityMapper.selectList(null);
+                for (int i = 0; i < commodities3.size(); i++) {
+                    list2.add(commodities3.get(i).getId());
+                }
+                list2.removeAll(list1);
+
+                List<commodity> commodities4=new ArrayList<>();
+                for (int i = 0; i < list2.size(); i++) {
+                    LambdaQueryWrapper<commodity> lqw2=new LambdaQueryWrapper<>();
+                    lqw2.eq(commodity::getId,list2.get(i));
+                    commodity commodity = commodityMapper.selectOne(lqw2);
+                    commodities4.add(commodity);
+                }
+                if(commodities4!=null){
+                    for (int i = 0; i < commodities4.size(); i++) {
+                        commodities4.get(i).setLikesState(0);
+                    }
+                }
+
+                list.addAll(commodities2);
+                list.addAll(commodities4);
+                Collections.shuffle(list);
+
             }
-
-            list.addAll(commodities2);
-            list.addAll(commodities4);
-
+            Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = list !=null? "查询成功" : "查询失败";
+            return new Result(code, msg, list);
         }
-        Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = list !=null? "查询成功" : "查询失败";
-        return new Result(code, msg, list);
+
+
     }
-}
+
+    @Override
+    public Result selectLikecommodity(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            LambdaQueryWrapper<likecommodity> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(likecommodity::getUid,user.getId());
+            List<likecommodity> likecommodities = likecommodityMapper.selectList(lqw);
+            ArrayList<Integer> list1=new ArrayList<>();
+            ArrayList<commodity> list=new ArrayList<>();
+
+            if(likecommodities==null){
+                return new Result( Code.SYNTAX_ERROR, "", "");
+            }
+            else {
+                for (int i = 0; i < likecommodities.size(); i++) {
+                    list1.add(likecommodities.get(i).getCid());
+                }
+
+                List<commodity> commodities2=new ArrayList<>();
+                for (int i = 0; i < list1.size(); i++) {
+                    LambdaQueryWrapper<commodity> lqw1=new LambdaQueryWrapper<>();
+                    lqw1.eq(commodity::getId,list1.get(i));
+                    commodity commodity = commodityMapper.selectOne(lqw1);
+                    commodities2.add(commodity);
+                }
+
+                if(commodities2!=null){
+                    for (int i = 0; i < commodities2.size(); i++) {
+                        commodities2.get(i).setLikesState(1);
+                    }
+                }
+
+                list.addAll(commodities2);
+
+            }
+
+            Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = list !=null? "查询成功" : "查询失败";
+            return new Result(code, msg, list);
+        }
+    }
+
+
+    }
+
