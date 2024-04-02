@@ -50,8 +50,8 @@ public class beanUtil {
             e.printStackTrace();
         }
 
-        commodityHomePage.setWidth(width);
-        commodityHomePage.setHeight(height);
+        commodityHomePage.setImageWidth(width);
+        commodityHomePage.setImageHeight(height);
 
         return commodityHomePage;
     }

@@ -12,9 +12,9 @@ public class commodityHomePage {
     //商品id
     private Integer commodityId;
     //主页图片宽
-    private Integer width;
+    private Integer imageWidth;
     //主页图片高
-    private Integer height;
+    private Integer imageHeight;
     //主页图片
     private String homePageImage;
     //商品状态
