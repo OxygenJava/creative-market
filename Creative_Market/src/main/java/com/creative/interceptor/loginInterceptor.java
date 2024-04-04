@@ -21,9 +21,20 @@ public class loginInterceptor implements HandlerInterceptor {
     private StringRedisTemplate stringRedisTemplate;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (request.getMethod().equals("OPTIONS")) {
+            // 设置允许的方法
+            response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
+            // 设置允许的头部信息
+            response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            // 设置允许的最大缓存时间
+            response.setHeader("Access-Control-Max-Age", "3600");
+            // 设置允许的来源，根据需要进行设置，*表示允许所有来源
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            return false; // 不继续执行请求
+        }
         //没有传递token，直接放行到第二拦截器进行拦截
         String authorization = request.getHeader("Authorization");
-
+        System.out.println(authorization);
         if (authorization == null){
             return true;
         }
