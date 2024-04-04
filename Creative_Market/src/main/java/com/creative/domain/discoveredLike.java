@@ -4,15 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
-public class discovered {
+public class discoveredLike {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private Integer userId;
-    private String title;
-    private String content;
-    private String image;
-    private Integer favoritesNumber;
-    private Integer likesNumber;
-    private Long releasedTime;
+    private Integer discoveredId;
+    //点赞时间
+    private LocalDateTime likeTime;
 }

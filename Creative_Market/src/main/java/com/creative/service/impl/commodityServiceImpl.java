@@ -173,12 +173,14 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         }
         commodity.setLabelId(labelSb.toString());
 
+        if (file == null || file.length <= 0){
+            return Result.fail(Code.SYNTAX_ERROR,"上传的图片不能为空");
+        }
+
         //处理图片(下载图片到服务器)
         for (int i = 0; i < file.length; i++) {
             String originalFilename = file[i].getOriginalFilename();
-            if (originalFilename == null){
-                return Result.fail(Code.SYNTAX_ERROR,"上传的图片不能为空");
-            }
+
             //获取图片后缀
             String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
             //校验图片的格式

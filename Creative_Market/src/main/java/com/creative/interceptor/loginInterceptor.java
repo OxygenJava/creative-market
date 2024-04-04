@@ -6,10 +6,12 @@ import com.creative.utils.userHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +32,8 @@ public class loginInterceptor implements HandlerInterceptor {
             return true;
         }
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        Object lastLoginTime = entries.get("lastLoginTime");
+        userDTO.setLastLoginTime(LocalDateTime.parse(lastLoginTime.toString()));
         userHolder.saveUser(userDTO);
         //刷新缓存时间
         stringRedisTemplate.expire(authorization,30, TimeUnit.MINUTES);
