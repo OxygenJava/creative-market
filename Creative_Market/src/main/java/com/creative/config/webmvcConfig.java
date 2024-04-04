@@ -33,7 +33,8 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/homePage/**",
                 "/api/buyType/**",
                 "/api/collection/**",
-                "/api/userSearch/**"
+                "/api/userSearch/**",
+                "/api/concern/**"
         ).order(1);
     }
 }
