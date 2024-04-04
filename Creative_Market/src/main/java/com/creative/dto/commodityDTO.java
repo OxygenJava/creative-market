@@ -16,4 +16,6 @@ public class commodityDTO {
     private String releaseAddress;
     //团队成员的id
     private String teamId;
+    //开启众筹后的天数
+    private Integer crowdfundingDay;
 }

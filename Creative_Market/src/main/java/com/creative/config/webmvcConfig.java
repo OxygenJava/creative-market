@@ -35,6 +35,9 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/collection/**",
                 "/api/userSearch/**",
                 "/api/concern/**"
+                "/api/addressInfo/**",
+                "/api/pay/**",
+                "/api/order/**"
         ).order(1);
     }
 }
