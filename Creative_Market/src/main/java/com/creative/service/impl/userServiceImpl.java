@@ -299,6 +299,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         }
         String s = imgUtils.encodeImageToBase64(iconImage + "\\" + user.getIconImage());
         user.setIconImage(s);
+
         return Result.success(user);
     }
 

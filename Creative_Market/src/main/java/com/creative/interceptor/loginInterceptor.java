@@ -23,6 +23,7 @@ public class loginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //没有传递token，直接放行到第二拦截器进行拦截
         String authorization = request.getHeader("Authorization");
+
         if (authorization == null){
             return true;
         }

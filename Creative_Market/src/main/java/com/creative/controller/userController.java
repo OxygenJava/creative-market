@@ -17,15 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin
 public class userController {
     @Autowired
     private userService userService;
-
-    @Value("creativeMarket.iconImage")
-    private String iconImage;
 
     /**
      * 发送验证码
