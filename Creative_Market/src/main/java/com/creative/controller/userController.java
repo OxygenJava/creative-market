@@ -1,5 +1,6 @@
 package com.creative.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.creative.domain.commodity;
 import com.creative.dto.*;
 import com.creative.service.userService;
@@ -8,10 +9,13 @@ import com.creative.utils.userHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -110,12 +114,6 @@ public class userController {
      */
     @GetMapping("/showUserInformation")
     public Result showUserInformation() throws IOException {
-        UserDTO user = userHolder.getUser();
-        String s = imgUtils.encodeImageToBase64(iconImage + "\\" + user.getIconImage());
-        user.setIconImage(s);
-        return Result.success("操作成功",user);
+        return userService.getUserInfo();
     }
-
-
-
 }
