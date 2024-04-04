@@ -90,6 +90,8 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
         //查询商品详情信息
         commodity one = lambdaQuery().eq(commodity::getId, id).one();
+        one.setLikesState(0);
+        one.setCollectionState(0);
 
         if (one == null){
             return Result.fail(Code.SYNTAX_ERROR,"商品不存在");
