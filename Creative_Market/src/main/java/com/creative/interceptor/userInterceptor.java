@@ -4,6 +4,7 @@ import com.creative.dto.Code;
 import com.creative.dto.UserDTO;
 import com.creative.utils.userHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;

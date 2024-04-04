@@ -1,10 +1,13 @@
 package com.creative.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.creative.domain.commodity;
+import com.creative.domain.commodityHomePage;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.userSearchDTO;
+import com.creative.service.commodityHomePageService;
 import com.creative.service.commodityService;
 import com.creative.service.userSearchService;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +42,13 @@ public class userSearchServiceImpl implements userSearchService {
 
     @Autowired
     private RestHighLevelClient restHighLevelClient;
+
+    @Autowired
+    private commodityHomePageService commodityHomePageService;
+
+    //自定义设置高亮
+    private final String heightLight = "<font style='color: red';>";
+    private final String  endHeightLight= "</font>";
 
     @Override
     public Result getSearchInfo(userSearchDTO userSearch) throws IOException {
@@ -90,6 +101,21 @@ public class userSearchServiceImpl implements userSearchService {
             }
             mapList.add(map);
         }
+
+        //按照商品描述查询
+        //数据库模糊查询
+        List<commodityHomePage> descriptionList = commodityHomePageService.lambdaQuery().like(commodityHomePage::getDescription, userSearch.getSearchInfo()).list();
+        //按照商品标签查询
+        List<commodityHomePage> labelList = commodityHomePageService.lambdaQuery().like(commodityHomePage::getLabel, userSearch.getSearchInfo()).list();
+        descriptionList.addAll(labelList);
+        for (commodityHomePage commodityHomePage : descriptionList) {
+            Map<String, Object> stringObjectMap = BeanUtil.beanToMap(commodityHomePage);
+            String description1 = stringObjectMap.get("description").toString();
+            StringBuilder sb = new StringBuilder();
+
+            mapList.add(stringObjectMap);
+        }
+
         //排序
         mapList.sort((o1, o2) -> {
                 Integer commodityId = (Integer) o1.get("commodityId");
@@ -110,6 +136,29 @@ public class userSearchServiceImpl implements userSearchService {
         List<Map> collect = mapList.stream().skip(((long) (userSearch.getPageNumber() - 1) * userSearch.getPageSize()))
                 .limit(userSearch.getPageSize())
                 .collect(Collectors.toList());
+        System.out.println(collect.size());
         return Result.success(collect);
+    }
+
+    public static void main(String[] args) {
+        String heightLight = "<font style='color: red';>";
+        String  endHeightLight= "</font>";
+        String s = "盯盯拍行车记录仪MINI3S升级版 3K高清影像 超大存储拓展 AI驾驶辅助";
+        String s1 = "行车记录仪";
+        StringBuilder sb = new StringBuilder();
+        char[] chars = s1.toCharArray();
+        int i = s.indexOf(s1);
+        int i1 = s.indexOf(chars[chars.length - 1]);
+        char[] chars1 = s.toCharArray();
+        for (int i2 = 0; i2 < chars1.length; i2++) {
+            if (i2 == i){
+                sb.append(heightLight);
+            }
+            if (i2 == i1){
+                sb.append(endHeightLight);
+            }
+            sb.append(chars1[i2]);
+        }
+        System.out.println(sb);
     }
 }
