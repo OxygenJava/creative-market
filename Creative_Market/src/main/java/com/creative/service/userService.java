@@ -7,6 +7,7 @@ import com.creative.dto.*;
 import org.apache.catalina.User;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 public interface userService extends IService<user>{
@@ -30,5 +31,5 @@ public interface userService extends IService<user>{
     Result selectAll();
 
 
-    
+    Result getUserInfo() throws IOException;
 }

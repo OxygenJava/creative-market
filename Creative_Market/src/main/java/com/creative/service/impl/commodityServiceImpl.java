@@ -90,6 +90,8 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
         //查询商品详情信息
         commodity one = lambdaQuery().eq(commodity::getId, id).one();
+        one.setLikesState(0);
+        one.setCollectionState(0);
 
         if (one == null){
             return Result.fail(Code.SYNTAX_ERROR,"商品不存在");
@@ -139,6 +141,9 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         if (commodityDTO.getTeamId() == null || "".equals(commodityDTO.getTeamId())){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请填写团队个人用户id");
         }
+        if (commodityDTO.getCrowdfundingDay() == null){
+            commodityDTO.setCrowdfundingDay(30);
+        }
 
         //获取到登录(发布)的用户
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
@@ -170,12 +175,14 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         }
         commodity.setLabelId(labelSb.toString());
 
+        if (file == null || file.length <= 0){
+            return Result.fail(Code.SYNTAX_ERROR,"上传的图片不能为空");
+        }
+
         //处理图片(下载图片到服务器)
         for (int i = 0; i < file.length; i++) {
             String originalFilename = file[i].getOriginalFilename();
-            if (originalFilename == null){
-                return Result.fail(Code.SYNTAX_ERROR,"上传的图片不能为空");
-            }
+
             //获取图片后缀
             String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
             //校验图片的格式
@@ -208,6 +215,7 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
 
                 //将commodityHomePage对象放进消息队列，待监听器处理
                 System.out.println("待存进es的commodityHomePage已纳入消息队列：id="+commodityHomePage.getId());
+                commodityHomePage.setHomePageImage(imgUtils.encodeImageToBase64(shopImage+"//"+commodityHomePage.getHomePageImage()));
                 amqpTemplate.convertAndSend("topic_exchange","searchRouting", JSON.toJSONString(commodityHomePage));
             }else {
                 file[i].transferTo(new File(baseFile,imageName+imageLastName));

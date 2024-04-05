@@ -153,6 +153,9 @@ class CreativeMarketApplicationTests {
     @Test
     void esInit(@Autowired commodityHomePageService homePageService, @Autowired RestHighLevelClient restHighLevelClient) throws IOException {
         List<commodityHomePage> list = homePageService.query().list();
+        for (commodityHomePage commodityHomePage : list) {
+            commodityHomePage.setHomePageImage(imgUtils.encodeImageToBase64(shopImage+"//"+commodityHomePage.getHomePageImage()));
+        }
         BulkRequest bulk = new BulkRequest("app_seacher");
         for (commodityHomePage commodityHomePage : list) {
             IndexRequest indexRequest = new IndexRequest().id(commodityHomePage.getId().toString())
@@ -163,4 +166,12 @@ class CreativeMarketApplicationTests {
         restHighLevelClient.bulk(bulk, RequestOptions.DEFAULT);
     }
 
+    @Test
+     void StringTest(){
+        String s = "盯盯拍行车记录仪MINI3S升级版 3K高清影像 超大存储拓展 AI驾驶辅助";
+        String s1 = "行车记录仪";
+        char[] chars = s1.toCharArray();
+        int i = s.indexOf(s1);
+        System.out.println(i);
+    }
 }
