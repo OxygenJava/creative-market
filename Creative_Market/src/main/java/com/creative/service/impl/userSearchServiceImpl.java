@@ -10,6 +10,7 @@ import com.creative.dto.userSearchDTO;
 import com.creative.service.commodityHomePageService;
 import com.creative.service.commodityService;
 import com.creative.service.userSearchService;
+import com.creative.utils.imgUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -24,14 +25,14 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +51,8 @@ public class userSearchServiceImpl implements userSearchService {
     private final String heightLight = "<font style='color: red';>";
     private final String  endHeightLight= "</font>";
 
+    @Value("${creativeMarket.shopImage}")
+    private String imageAddress;
     @Override
     public Result getSearchInfo(userSearchDTO userSearch) throws IOException {
         //检查参数
@@ -111,13 +114,30 @@ public class userSearchServiceImpl implements userSearchService {
         for (commodityHomePage commodityHomePage : descriptionList) {
             Map<String, Object> stringObjectMap = BeanUtil.beanToMap(commodityHomePage);
             String description1 = stringObjectMap.get("description").toString();
+            //设置高亮
             StringBuilder sb = new StringBuilder();
-
+            int index = description1.indexOf(userSearch.getSearchInfo());
+            try {
+                String substring = description1.substring(0, index);
+                sb.append(substring);
+                sb.append(heightLight);
+                int index2 = index + userSearch.getSearchInfo().length();
+                sb.append(description1.substring(index,index2));
+                sb.append(endHeightLight);
+                sb.append(description1.substring(index2));
+                stringObjectMap.put("h_description",sb);
+            } catch (StringIndexOutOfBoundsException siobe) {
+                siobe.printStackTrace();
+            }
+            String image = imgUtils.encodeImageToBase64(imageAddress+"\\"+stringObjectMap.get("homePageImage"));
+            stringObjectMap.put("homePageImage",image);
             mapList.add(stringObjectMap);
         }
+        //去重
+        List<Map> distinct = distinct(mapList);
 
         //排序
-        mapList.sort((o1, o2) -> {
+        distinct.sort((o1, o2) -> {
                 Integer commodityId = (Integer) o1.get("commodityId");
                 // 时间原点
                 LocalDateTime startTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
@@ -133,32 +153,36 @@ public class userSearchServiceImpl implements userSearchService {
         });
 
         //分页查询
-        List<Map> collect = mapList.stream().skip(((long) (userSearch.getPageNumber() - 1) * userSearch.getPageSize()))
+        List<Map> collect = distinct.stream().skip(((long) (userSearch.getPageNumber() - 1) * userSearch.getPageSize()))
                 .limit(userSearch.getPageSize())
                 .collect(Collectors.toList());
         System.out.println(collect.size());
         return Result.success(collect);
     }
 
-    public static void main(String[] args) {
-        String heightLight = "<font style='color: red';>";
-        String  endHeightLight= "</font>";
-        String s = "盯盯拍行车记录仪MINI3S升级版 3K高清影像 超大存储拓展 AI驾驶辅助";
-        String s1 = "行车记录仪";
-        StringBuilder sb = new StringBuilder();
-        char[] chars = s1.toCharArray();
-        int i = s.indexOf(s1);
-        int i1 = s.indexOf(chars[chars.length - 1]);
-        char[] chars1 = s.toCharArray();
-        for (int i2 = 0; i2 < chars1.length; i2++) {
-            if (i2 == i){
-                sb.append(heightLight);
+    /**
+     * 集合去重
+     * @param mapList
+     */
+    private List<Map> distinct(List<Map> mapList) {
+        // 辅助HashSet用于存储已经出现过的id值
+        Set<Object> seenIds = new HashSet<>();
+        // 用于存储去重后的Map对象
+        List<Map> distinctMapList = new ArrayList<>();
+
+        // 遍历mapList中的每个Map对象
+        for (Map map : mapList) {
+            // 获取当前Map对象的id值
+            Object id = map.get("id");
+            // 如果当前id值在HashSet中已经存在，说明该Map对象是重复的，跳过此次循环
+            if (seenIds.contains(id)) {
+                continue;
             }
-            if (i2 == i1){
-                sb.append(endHeightLight);
-            }
-            sb.append(chars1[i2]);
+            // 将当前id值添加到HashSet中，表示已经处理过该id值
+            seenIds.add(id);
+            // 将当前Map对象添加到去重后的List中
+            distinctMapList.add(map);
         }
-        System.out.println(sb);
+        return distinctMapList;
     }
 }

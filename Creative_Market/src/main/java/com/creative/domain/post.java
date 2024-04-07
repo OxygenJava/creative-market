@@ -24,8 +24,7 @@ public class post {
     //帖子用户id
     private Integer uid;
     //帖子的发布时间
-    @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createTime;
+    private Long createTime;
     //帖子的点赞数
     private Integer likes;
     //帖子的点赞状态
@@ -36,5 +35,4 @@ public class post {
     //帖子的收藏状态
     @TableField(exist = false)
     private Integer collectionState;
-
 }
