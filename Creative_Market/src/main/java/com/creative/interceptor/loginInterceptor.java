@@ -34,7 +34,6 @@ public class loginInterceptor implements HandlerInterceptor {
         }
         //没有传递token，直接放行到第二拦截器进行拦截
         String authorization = request.getHeader("Authorization");
-        System.out.println(authorization);
         if (authorization == null){
             return true;
         }

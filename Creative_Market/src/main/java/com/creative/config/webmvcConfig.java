@@ -30,8 +30,6 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/homePage/**",
                 "/api/commodity/**",
                 "api/lable/**",
-                "/api/post/**",
-                "/api/like/**",
                 "/api/crow/**",
                 "/api/crow/team/**",
                 "/api/homePage/**",
@@ -42,7 +40,7 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/addressInfo/**",
                 "/api/pay/**",
                 "/api/order/**",
-                "/api/discover/{pageSize}/{pageNumber}"
+                "/api/post/{pageSize}/{pageNumber}"
         ).order(1);
     }
 
