@@ -33,4 +33,9 @@ public class orderController {
     public Result orderUpdateById(@RequestBody orderTable orderTable){
         return orderService.orderUpdateById(orderTable);
     }
+
+    @PutMapping("/orderPay/{orderId}")
+    public Result orderPay(@PathVariable Integer orderId){
+        return orderService.orderPay(orderId);
+    }
 }

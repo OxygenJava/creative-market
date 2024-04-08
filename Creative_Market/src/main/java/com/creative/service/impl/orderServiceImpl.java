@@ -39,6 +39,7 @@ public class orderServiceImpl implements orderService {
 
     /**
      * 创建订单
+     *
      * @param orderTable 订单类
      * @param request
      * @return
@@ -59,7 +60,7 @@ public class orderServiceImpl implements orderService {
 
             int insert = orderMapper.insert(orderTable);
             boolean flag = insert > 0;
-            return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "添加订单成功" : "添加订单失败",orderTable);
+            return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "添加订单成功" : "添加订单失败", orderTable);
         } else {
             return new Result(Code.SYNTAX_ERROR, "请先登录");
         }
@@ -98,7 +99,7 @@ public class orderServiceImpl implements orderService {
         orderTable.setCommodity(commodity);
         orderTable.setBuyType(buyTypeMapper.selectById(orderTable.getBuyTypeId()));
         boolean flag = orderTable != null;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功" : "查询失败");
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功" : "查询失败",orderTable);
     }
 
     @Override
@@ -106,6 +107,16 @@ public class orderServiceImpl implements orderService {
         int i = orderMapper.updateById(orderTable);
         boolean flag = i > 0;
         return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "修改成功" : "修改失败");
+    }
+
+    @Override
+    public Result orderPay(Integer orderId) {
+        orderTable orderTable = orderMapper.selectById(orderId);
+        orderTable.setPayState(1);
+        orderTable.setPayTime(LocalDateTime.now());
+        int i = orderMapper.updateById(orderTable);
+        boolean flag = i > 0;
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "支付成功" : "支付失败");
     }
 
 
