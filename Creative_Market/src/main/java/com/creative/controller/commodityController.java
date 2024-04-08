@@ -25,7 +25,7 @@ public class commodityController {
 
     //发布
     @PostMapping("/publishCommodity")
-    public Result insertCom(@RequestParam("file")MultipartFile[] file,commodityDTO commodityDTO, HttpServletRequest request) throws IOException {
+    public Result insertCom(MultipartFile[] file,commodityDTO commodityDTO, HttpServletRequest request) throws IOException {
         return commodityService.insertCom(file, commodityDTO,request);
     }
 

@@ -4,6 +4,8 @@ import com.creative.interceptor.loginInterceptor;
 import com.creative.interceptor.userInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -15,7 +17,9 @@ public class webmvcConfig implements WebMvcConfigurer {
     private userInterceptor userInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
         registry.addInterceptor(loginInterceptor).addPathPatterns("/**").order(0);
+
         registry.addInterceptor(userInterceptor).excludePathPatterns(
                 "/api/user/sendCode/{phone}",
                 "/api/user/loginByCode",
@@ -26,8 +30,6 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/homePage/**",
                 "/api/commodity/**",
                 "api/lable/**",
-                "/api/post/**",
-                "/api/like/**",
                 "/api/crow/**",
                 "/api/crow/team/**",
                 "/api/homePage/**",
@@ -38,7 +40,9 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/addressInfo/**",
                 "/api/pay/**",
                 "/api/order/**",
-                "/api/websocket/**"
+                "/api/websocket/**",
+                "/api/post/{pageSize}/{pageNumber}"
         ).order(1);
     }
+
 }

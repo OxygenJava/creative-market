@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/creative_market
+    url: jdbc:mysql://localhost:3306/creative_market?serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.jdbc.Driver
     username: root
   redis:
@@ -31,3 +31,4 @@ creativeMarket:
   shopImage: D:\img\shopImage
   detailsImage: D:\img\shop_details_image
   iconImage: D:\img\iconImage
+  discoverImage: D:\img\discover_image

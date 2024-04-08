@@ -21,4 +21,6 @@ public class orderTable {
     private commodity commodity;
 
     private Integer addresseeId;
+
+    private String orderCode;
 }

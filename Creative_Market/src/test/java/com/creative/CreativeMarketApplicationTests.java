@@ -166,4 +166,12 @@ class CreativeMarketApplicationTests {
         restHighLevelClient.bulk(bulk, RequestOptions.DEFAULT);
     }
 
+    @Test
+     void StringTest(){
+        String s = "盯盯拍行车记录仪MINI3S升级版 3K高清影像 超大存储拓展 AI驾驶辅助";
+        String s1 = "行车记录仪";
+        char[] chars = s1.toCharArray();
+        int i = s.indexOf(s1);
+        System.out.println(i);
+    }
 }

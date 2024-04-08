@@ -11,6 +11,8 @@ import com.creative.mapper.userMapper;
 import com.creative.service.userService;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.imgUtils;
+import com.creative.utils.userHolder;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -40,7 +42,8 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     @Autowired
     private HttpServletRequest request;
-
+    @Value("creativeMarket.iconImage")
+    private String iconImage;
     @Override
     public Result sendCode(String phone) {
 
@@ -288,6 +291,17 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         return new Result(code, msg, users);
     }
 
+    @Override
+    public Result getUserInfo() throws IOException {
+        UserDTO user = userHolder.getUser();
+        if (user == null){
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        }
+        String s = imgUtils.encodeImageToBase64(iconImage + "\\" + user.getIconImage());
+        user.setIconImage(s);
+
+        return Result.success(user);
+    }
 
 
     /******************************  userService内部方法  **********************************/

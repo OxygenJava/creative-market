@@ -12,6 +12,7 @@ import com.creative.mapper.addressInfoMapper;
 import com.creative.mapper.commodityMapper;
 import com.creative.mapper.orderMapper;
 import com.creative.service.orderService;
+import com.creative.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class orderServiceImpl implements orderService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
         if (user.getId() != null) {
+            orderTable.setOrderCode(RandomUtil.generateOrderCode());
             orderTable.setUserId(user.getId());
             int insert = orderMapper.insert(orderTable);
             boolean flag = insert > 0;
