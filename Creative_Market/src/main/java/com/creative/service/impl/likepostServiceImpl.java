@@ -38,7 +38,7 @@ public class likepostServiceImpl implements likepostService {
 
 
     @Override
-    public Result ClickLikepost(likepost likepost, HttpServletRequest request) {
+    public Result ClickLikepost(Integer postId, HttpServletRequest request) {
 
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
@@ -46,13 +46,14 @@ public class likepostServiceImpl implements likepostService {
         if (entries.isEmpty()) {
             return Result.fail(Code.INSUFFICIENT_PERMISSIONS, "请登录");
         }
-        if (!isTruePost(likepost.getPid())){
+        if (!isTruePost(postId)){
             return Result.fail(Code.SYNTAX_ERROR, "帖子不存在");
         }
 
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        likepost likepost = new likepost();
         likepost.setUid(user.getId());
-
+        likepost.setPid(postId);
         //查询用户是否已经对该帖子点赞
         LambdaQueryWrapper<likepost> lqw = new LambdaQueryWrapper<>();
         lqw.eq(com.creative.domain.likepost::getUid,user.getId())

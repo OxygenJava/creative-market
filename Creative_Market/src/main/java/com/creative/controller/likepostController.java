@@ -17,9 +17,9 @@ public class likepostController {
     @Autowired
     private likepostService likepostService;
 
-    @PutMapping("/click")
-    public Result ClickLikes(@RequestBody likepost likepost, HttpServletRequest request){
-        Result result = likepostService.ClickLikepost(likepost,request);
+    @PutMapping("/click/{postId}")
+    public Result ClickLikes(@PathVariable Integer postId, HttpServletRequest request){
+        Result result = likepostService.ClickLikepost(postId,request);
         return result;
     }
 

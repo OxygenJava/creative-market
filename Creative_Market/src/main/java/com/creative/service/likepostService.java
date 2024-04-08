@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface likepostService {
     @Transactional(rollbackFor = Exception.class)
-    Result ClickLikepost(likepost likepost, HttpServletRequest request);
+    Result ClickLikepost(Integer postId, HttpServletRequest request);
     Result CancelLikepost(likepost likepost,HttpServletRequest request);
     Result selectAllpost(HttpServletRequest request);
     Result selectLikepost(HttpServletRequest request);

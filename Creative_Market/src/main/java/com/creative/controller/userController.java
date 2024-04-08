@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -112,5 +113,15 @@ public class userController {
     @GetMapping("/showUserInformation")
     public Result showUserInformation() throws IOException {
         return userService.getUserInfo();
+    }
+
+    @PostMapping("/uploadUserIcon")
+    public Result uploadUserIcon(MultipartFile file) throws IOException {
+        return userService.uploadUserIcon(file);
+    }
+
+    @GetMapping("/selectUserById/{id}")
+    public Result selectUserById(@PathVariable String id){
+        return userService.selectUserById(id);
     }
 }

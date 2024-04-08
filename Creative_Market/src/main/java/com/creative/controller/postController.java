@@ -38,8 +38,8 @@ public class postController {
      * @return
      */
     @GetMapping("/{pageSize}/{pageNumber}")
-    public Result getAllDiscover(@PathVariable int pageSize,@PathVariable int pageNumber) throws IOException {
-        return postService.getAllDiscover(pageSize,pageNumber);
+    public Result getAllDiscover(@PathVariable int pageSize,@PathVariable int pageNumber,HttpServletRequest request) throws IOException {
+        return postService.getAllDiscover(pageSize,pageNumber,request);
     }
 
 //    @PostMapping
