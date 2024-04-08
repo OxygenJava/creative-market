@@ -93,7 +93,6 @@ public class likepostServiceImpl implements likepostService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
-
         LambdaQueryWrapper<likepost> lqw=new LambdaQueryWrapper<>();
         lqw.eq(likepost::getUid,user.getId());
         List<likepost> likeposts = likepostMapper.selectList(lqw);

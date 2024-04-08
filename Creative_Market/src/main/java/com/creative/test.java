@@ -1,5 +1,9 @@
 package com.creative;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.creative.domain.lable;
+
 import java.util.*;
 
 public class test {
@@ -46,13 +50,14 @@ public class test {
 //        int winner = (int) lottery.draw();
 //        System.out.println("Winner is: " + winner);
 
-        String ids="12345";
-        StringJoiner stringJoiner=new StringJoiner(",","",",");
-        String[] split = ids.split("");
-        for (String s : split) {
-            stringJoiner.add(s);
-                  }
-        System.out.println(stringJoiner.toString());
+//        String ids="12345";
+//        StringJoiner stringJoiner=new StringJoiner(",","",",");
+//        String[] split = ids.split("");
+//        for (String s : split) {
+//            stringJoiner.add(s);
+//                  }
+//        System.out.println(stringJoiner.toString());
 
-    }
+
+        }
 }
