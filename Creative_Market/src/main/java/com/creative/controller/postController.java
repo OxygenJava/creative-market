@@ -19,12 +19,12 @@ public class postController {
     @Autowired
     private postService postService;
 
-    //发布帖子
-    @PostMapping
-    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
-        Result result = postService.insertPost(post,request);
-        return result;
-    }
+//    //发布帖子
+//    @PostMapping
+//    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
+//        Result result = postService.insertPost(post,request);
+//        return result;
+//    }
 
     //删除帖子
 
