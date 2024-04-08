@@ -12,21 +12,21 @@ import com.creative.service.userService;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.imgUtils;
 import com.creative.utils.userHolder;
+import com.rabbitmq.client.Return;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -40,9 +40,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     @Value("${creativeMarket.shopImage}")
     private String imgAddress;
 
-    @Autowired
-    private HttpServletRequest request;
-    @Value("creativeMarket.iconImage")
+    @Value("${creativeMarket.iconImage}")
     private String iconImage;
     @Override
     public Result sendCode(String phone) {
@@ -303,6 +301,76 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         return Result.success(user);
     }
 
+    /**
+     * 上传用户头像
+     *
+     * @param file
+     * @return
+     */
+    @Override
+    public Result uploadUserIcon(MultipartFile file) throws IOException {
+        UserDTO user = userHolder.getUser();
+        if (user == null){
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        }
+        if (file == null){
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"上传图片不能为空");
+        }
+        //获取图片后缀
+        String originalFilename = file.getOriginalFilename();
+        String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
+        //校验格式
+        if (!imageLastName.equals(".jpg") && !imageLastName.equals(".png")){
+            return Result.fail(Code.SYNTAX_ERROR,"图片格式必须为 jgp 或 png 格式");
+        }
+
+        File base  = new File(iconImage);
+        if (!base.exists()){
+            base.mkdirs();
+        }
+        String imageName = UUID.randomUUID().toString();
+        //把照片村在数据库中
+        user userById = getById(user.getId());
+        userById.setIconImage(imageName+imageLastName);
+        boolean b = updateById(userById);
+        if (!b){
+            return Result.fail(Code.SYNTAX_ERROR,"插入数据库失败");
+        }
+        //下载照片
+        file.transferTo(new File(base,imageName+imageLastName));
+        return Result.success();
+    }
+
+    /**
+     * 按照用户id或者用户名或者nickName查找
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Result selectUserById(String id) {
+        //使用HashSet方法进行去重
+        HashSet<UserDTO> treeSet = new HashSet<>();
+        //假设前端传过来的是一个用户id
+        user byId = getById(id);
+        if (byId != null){
+            UserDTO userDTObyId = BeanUtil.copyProperties(byId, UserDTO.class);
+            userDTObyId.setIconImage(getIconImageToBase64(userDTObyId.getIconImage()));
+            treeSet.add(userDTObyId);
+        }
+        //假设前端传来的是一个账号
+        List<user> list = lambdaQuery().eq(user::getUsername, id).list();
+        addHashSet(treeSet, list);
+
+        //假设前端传来的是用户名
+        List<user> list1 = lambdaQuery().eq(user::getNickName, id).list();
+        addHashSet(treeSet, list1);
+
+        return Result.success(treeSet);
+    }
+
+
+
 
     /******************************  userService内部方法  **********************************/
     /**
@@ -333,10 +401,11 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
             updateById(user);
             //获取一个map集合，用于放入缓存
             Map<String, Object> stringObjectMap = getUserDTOMap(user);
+            stringObjectMap.put("fansCount",String.valueOf(stringObjectMap.get("fansCount")));
+            stringObjectMap.put("FocusCount",String.valueOf(stringObjectMap.get("FocusCount")));
+            System.out.println(stringObjectMap);
             redisTemplate.opsForHash().putAll(token,stringObjectMap);
             redisTemplate.expire(token,30,TimeUnit.MINUTES);
-
-
             return loginResult.successLogin(token);
         }
     }
@@ -357,6 +426,36 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     public String getRandomString(){
         return "user_"+RandomUtil.randomString(15);
+    }
+
+    /**
+     * 将头像路径设置为base64格式
+     * @param iconImage
+     * @return
+     */
+    public String getIconImageToBase64(String iconImage){
+        String image = "";
+        try {
+            image = imgUtils.encodeImageToBase64(this.iconImage+"\\"+iconImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
+    }
+
+    /**
+     * 将查询到的结果添加到Set集合中
+     * @param treeSet
+     * @param list1
+     */
+    private void addHashSet(HashSet<UserDTO> treeSet, List<user> list1) {
+        if (list1 != null) {
+            for (user user : list1) {
+                UserDTO userDTObyNickName = BeanUtil.copyProperties(user, UserDTO.class);
+                userDTObyNickName.setIconImage(getIconImageToBase64(userDTObyNickName.getIconImage()));
+                treeSet.add(userDTObyNickName);
+            }
+        }
     }
 }
 
