@@ -19,6 +19,14 @@ public class postController {
     @Autowired
     private postService postService;
 
+    //发布帖子
+    @PostMapping
+    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
+        Result result = postService.insertPost(post,request);
+        return result;
+    }
+
+    //删除帖子
 
     /**
      * 上传
@@ -54,12 +62,14 @@ public class postController {
         return result;
     }
 
+    //修改帖子
     @PutMapping
     public Result updatePost(@RequestBody  post post){
         Result result = postService.updatePost(post);
         return result;
     }
 
+    //根据用户id查询发布过的帖子
     @GetMapping
     public Result selectByUidAllPost(HttpServletRequest request){
         Result result = postService.selectByUidAllPost(request);
