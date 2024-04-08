@@ -14,4 +14,5 @@ public interface orderService {
 
     Result orderUpdateById(orderTable orderTable);
 
+    Result orderPay(Integer orderId);
 }
