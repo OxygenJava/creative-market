@@ -28,4 +28,9 @@ public class orderController {
     public Result orderSelectOneByOrderId(@PathVariable Integer orderId){
         return orderService.orderSelectOneByOrderId(orderId);
     }
+
+    @PutMapping("/orderUpdateById")
+    public Result orderUpdateById(@RequestBody orderTable orderTable){
+        return orderService.orderUpdateById(orderTable);
+    }
 }

@@ -38,4 +38,9 @@ public class addressInfoController {
     public Result addressInfoSelectOneByAddresseeId(@PathVariable Integer addresseeId){
         return addressInfoService.addressInfoSelectOneByAddresseeId(addresseeId);
     }
+
+    @PutMapping("/addressInfoUpdateState/{updateId}")
+    public Result addressInfoUpdateState(@PathVariable Integer updateId){
+        return addressInfoService.addressInfoUpdateState(updateId);
+    }
 }
