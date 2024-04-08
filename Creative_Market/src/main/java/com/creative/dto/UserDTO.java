@@ -3,6 +3,7 @@ package com.creative.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 public class UserDTO {
@@ -16,4 +17,17 @@ public class UserDTO {
     private String address;
     private Integer fansCount;
     private Integer FocusCount;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDTO userDTO = (UserDTO) o;
+        return Objects.equals(id, userDTO.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

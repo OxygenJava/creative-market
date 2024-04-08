@@ -28,7 +28,7 @@ public interface postService {
      * @param pageNumber
      * @return
      */
-    Result getAllDiscover(int pageSize, int pageNumber) throws IOException;
+    Result getAllDiscover(int pageSize, int pageNumber,HttpServletRequest request) throws IOException;
 
     Result deletePost(Integer id);
     Result updatePost(post post);

@@ -3,6 +3,7 @@ package com.creative.controller;
 import com.creative.domain.commodity;
 import com.creative.dto.Result;
 import com.creative.dto.commodityDTO;
+import com.creative.service.commodityDetailsImageService;
 import com.creative.service.commodityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +18,22 @@ import java.io.IOException;
 public class commodityController {
     @Autowired
     private commodityService commodityService;
+    @Autowired
+    private commodityDetailsImageService commodityDetailsImageService;
 
     @GetMapping("/{id}")
     public Result selectCommodityById(@PathVariable Integer id, HttpServletRequest request) throws IOException {
         return commodityService.selectCommodityById(id,request);
+    }
+
+    /**
+     * 获取商品详情
+     * @param commodityId
+     * @return
+     */
+    @GetMapping("/getDetailsImage/{commodityId}")
+    public Result getDetailsImage(@PathVariable Integer commodityId){
+        return commodityDetailsImageService.getAllByCommodityId(commodityId);
     }
 
     //发布

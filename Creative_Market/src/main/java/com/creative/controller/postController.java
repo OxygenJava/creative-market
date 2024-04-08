@@ -19,12 +19,12 @@ public class postController {
     @Autowired
     private postService postService;
 
-    //发布帖子
-    @PostMapping
-    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
-        Result result = postService.insertPost(post,request);
-        return result;
-    }
+//    //发布帖子
+//    @PostMapping
+//    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
+//        Result result = postService.insertPost(post,request);
+//        return result;
+//    }
 
     //删除帖子
 
@@ -46,8 +46,8 @@ public class postController {
      * @return
      */
     @GetMapping("/{pageSize}/{pageNumber}")
-    public Result getAllDiscover(@PathVariable int pageSize,@PathVariable int pageNumber) throws IOException {
-        return postService.getAllDiscover(pageSize,pageNumber);
+    public Result getAllDiscover(@PathVariable int pageSize,@PathVariable int pageNumber,HttpServletRequest request) throws IOException {
+        return postService.getAllDiscover(pageSize,pageNumber,request);
     }
 
 //    @PostMapping
