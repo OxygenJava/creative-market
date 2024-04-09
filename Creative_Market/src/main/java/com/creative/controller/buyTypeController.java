@@ -6,6 +6,8 @@ import com.creative.service.buyTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/buyType")
 @CrossOrigin
@@ -18,6 +20,11 @@ public class buyTypeController {
     @PostMapping("/buyTypeAdd")
     public Result buyTypeAdd(@RequestBody buyType buyType){
         return buyTypeService.buyTypeAdd(buyType);
+    }
+
+    @PostMapping("/buyTypeAddMore")
+    public Result buyTypeAddMore(@RequestBody List<buyType> buyTypes){
+        return buyTypeService.buyTypeAddMore(buyTypes);
     }
 
     @GetMapping("/buyTypeSelectAllTypeByCommodityId/{commodityId}")
