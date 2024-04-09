@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -31,6 +32,7 @@ import java.util.*;
 
 @ServerEndpoint(value = "/websocket",configurator = websocketConfig.class)
 @Component
+@CrossOrigin
 public class websocketServer {
 
     private static final Logger log= LoggerFactory.getLogger(websocketServer.class);

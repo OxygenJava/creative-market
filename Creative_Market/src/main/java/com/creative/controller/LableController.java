@@ -45,4 +45,17 @@ public class LableController {
         Result result = lableService.deleteLable(id);
         return result;
     }
+
+    @GetMapping("/{pageSize}/{pageNumber}")
+    public Result selectPages(@PathVariable Integer pageSize,@PathVariable Integer pageNumber){
+        Result result = lableService.selectPages(pageSize,pageNumber);
+        return result;
+    }
+
+    @GetMapping("/{name}")
+    public Result selectLike(@PathVariable String  name){
+        Result result = lableService.selectLike(name);
+        return result;
+    }
+
 }
