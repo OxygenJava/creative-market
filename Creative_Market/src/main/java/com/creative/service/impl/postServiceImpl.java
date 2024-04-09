@@ -9,12 +9,14 @@ import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
 import com.creative.dto.getAllDiscoverDTO;
 import com.creative.mapper.LableMapper;
+import com.creative.mapper.collectionpostMapper;
 import com.creative.mapper.likepostMapper;
 import com.creative.mapper.postMapper;
 import com.creative.service.LableService;
 import com.creative.service.postService;
 import com.creative.service.userService;
 import com.creative.utils.imgUtils;
+import com.creative.utils.userHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -46,6 +48,10 @@ public class postServiceImpl implements postService {
     @Autowired
     private LableService lableService;
 
+    @Autowired
+    private likepostMapper likepostMapper;
+    @Autowired
+    private collectionpostMapper collectionpostMapper;
 
 
     /**
@@ -141,7 +147,7 @@ public class postServiceImpl implements postService {
      * @return
      */
     @Override
-    public Result getAllDiscover(int pageSize, int pageNumber) throws IOException {
+    public Result getAllDiscover(int pageSize, int pageNumber,HttpServletRequest request) throws IOException {
         Page<post> postPage = new Page<>(pageNumber,pageSize);
         Page<post> page = postMapper.selectPage(postPage,null);
         List<post> records = page.getRecords();
@@ -149,8 +155,36 @@ public class postServiceImpl implements postService {
             return Result.success("数据已经到底啦~");
         }
         List<getAllDiscoverDTO> list = new ArrayList<>();
+
+        UserDTO userDTO = userHolder.getUser();
+
+        //判断是否登录
+        boolean isLogin = userDTO != null;
+        Integer userId = userDTO == null ? null : userDTO.getId();
+
         for (post record : records) {
             getAllDiscoverDTO getAllDiscoverDTO = BeanUtil.copyProperties(record, getAllDiscoverDTO.class);
+            //按照用户是否点赞或收藏设置状态
+            if (isLogin){
+                Integer postId = record.getId();
+                LambdaQueryWrapper<likepost> likeLqw = new LambdaQueryWrapper<>();
+                likeLqw.eq(likepost::getPid,postId).eq(likepost::getUid,userId);
+                likepost likepost = likepostMapper.selectOne(likeLqw);
+                //判断用户是否收藏，收藏状态码为：1
+                Integer isLike = likepost == null ? 0 : 1;
+                getAllDiscoverDTO.setLikesState(isLike);
+
+                LambdaQueryWrapper<collectionpost> collectionpostLqw = new LambdaQueryWrapper<>();
+                collectionpostLqw.eq(collectionpost::getPid,postId).eq(collectionpost::getUid,userId);
+                collectionpost collectionpost = collectionpostMapper.selectOne(collectionpostLqw);
+                Integer isCollection = collectionpost == null ? 0 : 1;
+                getAllDiscoverDTO.setCollectionState(isCollection);
+            }else {
+                //表示没有登录，此时默认为未点赞
+                getAllDiscoverDTO.setCollectionState(0);
+                getAllDiscoverDTO.setLikesState(0);
+            }
+
             //根据用户id查询用户
             user one = userService.lambdaQuery().eq(user::getId, record.getUid()).one();
             getAllDiscoverDTO.setUserName(one.getNickName());

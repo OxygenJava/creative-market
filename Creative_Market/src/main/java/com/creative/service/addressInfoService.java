@@ -11,4 +11,5 @@ public interface addressInfoService {
     Result addressInfoUpdate(addressInfo addressInfo);
     Result addressInfoDeleteById(Integer id);
     Result addressInfoSelectOneByAddresseeId(Integer addresseeId);
+    Result addressInfoUpdateState(Integer updateId);
 }

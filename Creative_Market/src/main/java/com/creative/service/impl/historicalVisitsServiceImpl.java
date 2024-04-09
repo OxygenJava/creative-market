@@ -19,4 +19,5 @@ public class historicalVisitsServiceImpl extends ServiceImpl<historicalVisitsMap
 //    public void getHistoricalVisitsList() {
 //
 //    }
+
 }

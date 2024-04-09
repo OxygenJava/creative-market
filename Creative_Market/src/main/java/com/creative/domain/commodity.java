@@ -37,6 +37,7 @@ public class commodity{
     //商品发布地址
     private String releaseAddress;
     //开启众筹后的天数
+
     private Integer crowdfundingDay;
     //开启众筹时间
     private LocalDateTime beginCrowdfundingTime;

@@ -1,5 +1,6 @@
 package com.creative.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 @Data
@@ -17,4 +18,10 @@ public class getAllDiscoverDTO{
     //用户头像图片
     private String iconImage;
     private String[] image;
+
+    //帖子的点赞状态
+    private Integer likesState;
+
+    //帖子的收藏状态
+    private Integer collectionState;
 }

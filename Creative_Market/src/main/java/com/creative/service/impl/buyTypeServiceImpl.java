@@ -9,6 +9,7 @@ import com.creative.service.buyTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,22 +31,40 @@ public class buyTypeServiceImpl implements buyTypeService {
         return new Result(code, msg);
     }
 
+    @Override
+    public Result buyTypeAddMore(List<buyType> buyTypes) {
+        ArrayList<Integer> arrayList = new ArrayList();
+        boolean flag = true;
+        for (buyType buyType : buyTypes) {
+            int insert = buyTypeMapper.insert(buyType);
+            arrayList.add(insert);
+        }
+        for (Integer integer : arrayList) {
+            if (integer <= 0) {
+                flag = false;
+            }
+        }
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "添加多条成功" : "添加多条失败");
+    }
+
     /**
      * 查询商品所有可购买类别
+     *
      * @param commodityId 传入的商品id
      * @return
      */
     @Override
     public Result buyTypeSelectAllTypeByCommodityId(Integer commodityId) {
-        LambdaQueryWrapper<buyType> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(buyType::getCommodityId,commodityId);
+        LambdaQueryWrapper<buyType> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(buyType::getCommodityId, commodityId);
         List<buyType> buyTypes = buyTypeMapper.selectList(lqw);
         boolean flag = buyTypes != null;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功" : "查询失败",buyTypes);
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功" : "查询失败", buyTypes);
     }
 
     /**
      * 用于删除商品可购买类别
+     *
      * @param id 要删除的类别id
      * @return
      */
@@ -53,11 +72,12 @@ public class buyTypeServiceImpl implements buyTypeService {
     public Result buyTypeDeleteById(Integer id) {
         int i = buyTypeMapper.deleteById(id);
         boolean flag = i > 0;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "删除成功" : "删除失败");
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "删除成功" : "删除失败");
     }
 
     /**
      * 用于修改商品可购买类别
+     *
      * @param buyType
      * @return
      */
@@ -65,7 +85,7 @@ public class buyTypeServiceImpl implements buyTypeService {
     public Result buyTypeUpdate(buyType buyType) {
         int i = buyTypeMapper.updateById(buyType);
         boolean flag = i > 0;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "修改成功" : "修改失败");
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "修改成功" : "修改失败");
     }
 
 

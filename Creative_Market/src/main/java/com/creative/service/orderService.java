@@ -12,4 +12,7 @@ public interface orderService {
 
     Result orderSelectOneByOrderId(Integer orderId);
 
+    Result orderUpdateById(orderTable orderTable);
+
+    Result orderPay(Integer orderId);
 }

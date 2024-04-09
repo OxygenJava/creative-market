@@ -53,8 +53,6 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
         else {
             return new Result(Code.SYNTAX_ERROR, "标签信息不能为空", "");
         }
-
-
     }
 
     @Override
@@ -84,7 +82,6 @@ public class LableServiceImpl extends ServiceImpl<LableMapper,lable> implements 
         else {
             return new Result(Code.SYNTAX_ERROR, "修改标签时信息不能为空", "");
         }
-
     }
 
     @Override

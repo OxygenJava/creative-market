@@ -2,13 +2,11 @@ package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.creative.domain.addressInfo;
-import com.creative.domain.commodity;
-import com.creative.domain.orderTable;
-import com.creative.domain.user;
+import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.mapper.addressInfoMapper;
+import com.creative.mapper.buyTypeMapper;
 import com.creative.mapper.commodityMapper;
 import com.creative.mapper.orderMapper;
 import com.creative.service.orderService;
@@ -18,6 +16,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,16 @@ public class orderServiceImpl implements orderService {
     @Autowired
     private commodityMapper commodityMapper;
 
+    @Autowired
+    private buyTypeMapper buyTypeMapper;
+
+    /**
+     * 创建订单
+     *
+     * @param orderTable 订单类
+     * @param request
+     * @return
+     */
     @Override
     public Result orderAdd(orderTable orderTable, HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
@@ -42,10 +51,16 @@ public class orderServiceImpl implements orderService {
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
         if (user.getId() != null) {
             orderTable.setOrderCode(RandomUtil.generateOrderCode());
+            orderTable.setOrderTime(LocalDateTime.now());
             orderTable.setUserId(user.getId());
+
+            Integer buyTypeId = orderTable.getBuyTypeId();
+            buyType buyType = buyTypeMapper.selectById(buyTypeId);
+            orderTable.setPayMoney(buyType.getBuyMoney());
+
             int insert = orderMapper.insert(orderTable);
             boolean flag = insert > 0;
-            return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "添加成功" : "添加失败");
+            return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "添加订单成功" : "添加订单失败", orderTable);
         } else {
             return new Result(Code.SYNTAX_ERROR, "请先登录");
         }
@@ -65,6 +80,8 @@ public class orderServiceImpl implements orderService {
                 orderTable.setAddressInfo(addressInfo);
                 commodity commodity = commodityMapper.selectById(orderTable.getCommodityId());
                 orderTable.setCommodity(commodity);
+                buyType buyType = buyTypeMapper.selectById(orderTable.getBuyTypeId());
+                orderTable.setBuyType(buyType);
             }
             boolean flag = orderTables != null;
             return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功" : "查询失败", orderTables);
@@ -80,7 +97,27 @@ public class orderServiceImpl implements orderService {
         orderTable.setAddressInfo(addressInfo);
         commodity commodity = commodityMapper.selectById(orderTable.getCommodityId());
         orderTable.setCommodity(commodity);
+        orderTable.setBuyType(buyTypeMapper.selectById(orderTable.getBuyTypeId()));
         boolean flag = orderTable != null;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "查询成功" : "查询失败",orderTable);
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功" : "查询失败",orderTable);
     }
+
+    @Override
+    public Result orderUpdateById(orderTable orderTable) {
+        int i = orderMapper.updateById(orderTable);
+        boolean flag = i > 0;
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "修改成功" : "修改失败");
+    }
+
+    @Override
+    public Result orderPay(Integer orderId) {
+        orderTable orderTable = orderMapper.selectById(orderId);
+        orderTable.setPayState(1);
+        orderTable.setPayTime(LocalDateTime.now());
+        int i = orderMapper.updateById(orderTable);
+        boolean flag = i > 0;
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "支付成功" : "支付失败");
+    }
+
+
 }

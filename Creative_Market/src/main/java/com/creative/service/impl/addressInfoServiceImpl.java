@@ -101,4 +101,23 @@ public class addressInfoServiceImpl implements addressInfoService {
         boolean flag = addressInfo != null;
         return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "查询成功" : "查询失败",addressInfo);
     }
+
+    /**
+     * 修改收货信息是否默认
+     * @param updateId 要设置默认的收货信息id
+     * @return
+     */
+    @Override
+    public Result addressInfoUpdateState(Integer updateId) {
+        LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(addressInfo::getState,1);
+        addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
+        addressInfo.setState(0);
+        int i = addressInfoMapper.updateById(addressInfo);
+        addressInfo addressInfoUpdate = addressInfoMapper.selectById(updateId);
+        addressInfoUpdate.setState(1);
+        int i1 = addressInfoMapper.updateById(addressInfoUpdate);
+        boolean flag = i > 0 && i1 > 0;
+        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "修改成功" : "修改失败");
+    }
 }
