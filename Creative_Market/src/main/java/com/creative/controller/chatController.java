@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/websocket")
+@CrossOrigin
 public class chatController {
 
     @Autowired
