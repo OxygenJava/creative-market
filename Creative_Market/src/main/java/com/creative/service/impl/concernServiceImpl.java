@@ -7,6 +7,7 @@ import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.mapper.concernMapper;
+import com.creative.mapper.userMapper;
 import com.creative.service.concernService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class concernServiceImpl implements concernService {
     @Autowired
     private concernMapper concernMapper;
 
+    @Autowired
+    private userMapper userMapper;
+
 
     //关注
     @Override
@@ -44,6 +48,8 @@ public class concernServiceImpl implements concernService {
             LocalDateTime dateTime = LocalDateTime.now();
             concern.setConcernTime(dateTime);
             int insert = concernMapper.insert(concern);
+
+
             Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = insert > 0  ? "关注成功" : "关注失败";
             return new Result(code, msg, "");
@@ -52,6 +58,8 @@ public class concernServiceImpl implements concernService {
     }
 
     //取消关注
+
+
     @Override
     public Result cancelConcern(concern concern, HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
@@ -84,7 +92,7 @@ public class concernServiceImpl implements concernService {
         }
         else {
             LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
-            lqw.eq(com.creative.domain.concern::getUid,user.getId());
+            lqw.eq(com.creative.domain.concern::getConcernId,user.getId());
             Integer integer = concernMapper.selectCount(lqw);
             Integer code = integer > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = integer > 0  ? "统计成功" : "统计失败失败";

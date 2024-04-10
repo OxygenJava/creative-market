@@ -52,6 +52,7 @@ public class postController {
         return postService.getPostDetail(postId);
     }
 
+    //删除帖子
     @DeleteMapping("/{id}")
     public Result deletePost(@PathVariable Integer id){
         Result result = postService.deletePost(id);

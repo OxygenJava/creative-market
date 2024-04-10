@@ -29,7 +29,7 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/common/**",
                 "/api/homePage/**",
                 "/api/commodity/**",
-                "api/lable/**",
+                "/api/lable/**",
                 "/api/crow/**",
                 "/api/crow/team/**",
                 "/api/homePage/**",
@@ -42,6 +42,7 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/order/**",
                 "/api/websocket/**",
                 "/api/post/{pageSize}/{pageNumber}"
+
         ).order(1);
     }
 
