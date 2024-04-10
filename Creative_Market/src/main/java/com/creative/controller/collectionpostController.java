@@ -31,12 +31,6 @@ public class collectionpostController {
         return result;
     }
 
-    //根据用户id查询该用户收藏过和为未收藏的所有帖子
-    @GetMapping("/all")
-    public Result selectAllpost(HttpServletRequest request){
-        Result result = collectionpostService.selectAllpost(request);
-        return result;
-    }
 
     //根据用户id查询该用户收藏过的帖子
     @GetMapping
