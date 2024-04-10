@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/pay")
+@CrossOrigin
 public class payController {
     @Autowired
     private payService payService;

@@ -45,7 +45,7 @@ public class orderTable {
     private LocalDateTime payTime;
 
     //支付金额
-    private Integer payMoney;
+    private Double payMoney;
 
     //购买类型id
     private Integer buyTypeId;

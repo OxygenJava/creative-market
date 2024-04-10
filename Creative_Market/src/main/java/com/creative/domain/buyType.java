@@ -11,5 +11,5 @@ public class buyType {
     private Integer buyId;
     private Integer commodityId;
     private String buyType;
-    private Integer buyMoney;
+    private Double buyMoney;
 }

@@ -41,7 +41,8 @@ public class webmvcConfig implements WebMvcConfigurer {
                 "/api/pay/**",
                 "/api/order/**",
                 "/api/websocket/**",
-                "/api/post/{pageSize}/{pageNumber}"
+                "/api/post/{pageSize}/{pageNumber}",
+                "/api/wallet/**"
 
         ).order(1);
     }
