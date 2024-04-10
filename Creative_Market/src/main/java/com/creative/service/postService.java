@@ -35,4 +35,11 @@ public interface postService {
     Result selectPostAll();
     Result selectByUidAllPost(HttpServletRequest request);
 
+
+    /**
+     * 获取帖子详情
+     * @param postId
+     * @return
+     */
+    Result getPostDetail(Integer postId);
 }
