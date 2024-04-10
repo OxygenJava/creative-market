@@ -12,4 +12,5 @@ public interface collectionpostService {
     @Transactional(rollbackFor = Exception.class)
     Result CancelCollectionpost(Integer postId,HttpServletRequest request);
     Result selectCollectionpost(HttpServletRequest request);
+    Result selectAllpost(HttpServletRequest request);
 }
