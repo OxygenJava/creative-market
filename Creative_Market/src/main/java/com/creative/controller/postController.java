@@ -19,14 +19,6 @@ public class postController {
     @Autowired
     private postService postService;
 
-//    //发布帖子
-//    @PostMapping
-//    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
-//        Result result = postService.insertPost(post,request);
-//        return result;
-//    }
-
-    //删除帖子
 
     /**
      * 上传
@@ -50,11 +42,15 @@ public class postController {
         return postService.getAllDiscover(pageSize,pageNumber,request);
     }
 
-//    @PostMapping
-//    public Result insertPost(@RequestBody  post post, HttpServletRequest request){
-//        Result result = postService.insertPost(post,request);
-//        return result;
-//    }
+    /**
+     * 获取帖子详情
+     * @param postId
+     * @return
+     */
+    @GetMapping("/getPostDetail/{postId}")
+    public Result getPostDetail(@PathVariable Integer postId){
+        return postService.getPostDetail(postId);
+    }
 
     @DeleteMapping("/{id}")
     public Result deletePost(@PathVariable Integer id){
@@ -75,6 +71,4 @@ public class postController {
         Result result = postService.selectByUidAllPost(request);
         return result;
     }
-
-
 }
