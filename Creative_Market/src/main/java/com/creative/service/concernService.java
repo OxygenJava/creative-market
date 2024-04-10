@@ -8,5 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 public interface concernService {
     Result concernPerson(concern concern, HttpServletRequest request);
     Result cancelConcern(concern concern,HttpServletRequest request);
-    Result countConcern(HttpServletRequest request);
+    Result ifconcern(Integer uid,HttpServletRequest request);
+    Result ObtainFans(Integer pageSize,Integer pageNumber,HttpServletRequest request);
+    Result ObtainFocus(Integer pageSize,Integer pageNumber,HttpServletRequest request);
+    Result selectLikeUser(String name);
+    Result selectFansTotal(HttpServletRequest request);
+    Result selectFocusTotal(HttpServletRequest request);
 }
