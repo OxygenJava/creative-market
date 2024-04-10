@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/order")
+@CrossOrigin
 public class orderController {
     @Autowired
     private orderService orderService;
@@ -35,7 +36,12 @@ public class orderController {
     }
 
     @PutMapping("/orderPay/{orderId}")
-    public Result orderPay(@PathVariable Integer orderId){
-        return orderService.orderPay(orderId);
+    public Result orderPay(@PathVariable Integer orderId,HttpServletRequest request){
+        return orderService.orderPay(orderId,request);
+    }
+
+    @DeleteMapping("/orderDelete/{orderId}")
+    public Result orderDelete(@PathVariable Integer orderId){
+        return orderService.orderDelete(orderId);
     }
 }

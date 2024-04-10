@@ -14,5 +14,7 @@ public interface orderService {
 
     Result orderUpdateById(orderTable orderTable);
 
-    Result orderPay(Integer orderId);
+    Result orderPay(Integer orderId,HttpServletRequest request);
+
+    Result orderDelete(Integer orderId);
 }

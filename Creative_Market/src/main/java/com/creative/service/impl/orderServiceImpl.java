@@ -5,17 +5,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
-import com.creative.mapper.addressInfoMapper;
-import com.creative.mapper.buyTypeMapper;
-import com.creative.mapper.commodityMapper;
-import com.creative.mapper.orderMapper;
+import com.creative.mapper.*;
 import com.creative.service.orderService;
 import com.creative.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,9 @@ public class orderServiceImpl implements orderService {
 
     @Autowired
     private buyTypeMapper buyTypeMapper;
+
+    @Autowired
+    private walletMapper walletMapper;
 
     /**
      * 创建订单
@@ -110,14 +112,50 @@ public class orderServiceImpl implements orderService {
     }
 
     @Override
-    public Result orderPay(Integer orderId) {
-        orderTable orderTable = orderMapper.selectById(orderId);
-        orderTable.setPayState(1);
-        orderTable.setPayTime(LocalDateTime.now());
-        int i = orderMapper.updateById(orderTable);
-        boolean flag = i > 0;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "支付成功" : "支付失败");
+    public Result orderPay(Integer orderId,HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        Integer userId = user.getId();
+        if (userId != null){
+            LambdaQueryWrapper<wallet> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(wallet::getUserId,userId);
+            wallet wallet = walletMapper.selectOne(lqw);
+            if (wallet == null){
+                return new Result(Code.NORMAL,"该用户未开启钱包功能");
+            }
+            BigDecimal balanceAccount = wallet.getBalanceAccount();
+            orderTable orderTable = orderMapper.selectById(orderId);
+            BigDecimal payMoney = BigDecimal.valueOf(orderTable.getPayMoney());
+            if (balanceAccount.compareTo(payMoney) > 0 && balanceAccount.compareTo(BigDecimal.ZERO) >= 0){
+                wallet.setBalanceAccount(balanceAccount.subtract(payMoney));
+                orderTable.setPayState(1);
+                orderTable.setPayTime(LocalDateTime.now());
+                int i = walletMapper.updateById(wallet);
+                int i1 = orderMapper.updateById(orderTable);
+                boolean flag = i > 0 && i1 > 0;
+                return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "支付成功" : "支付失败");
+            }else {
+                return new Result(Code.NORMAL,"支付失败，账户余额不足");
+            }
+        }else {
+            return new Result(Code.SYNTAX_ERROR, "请先登录");
+        }
     }
 
-
+    /**
+     * 取消订单
+     * @param orderId
+     * @return
+     */
+    @Override
+    public Result orderDelete(Integer orderId) {
+        boolean flag = false;
+        orderTable orderTable = orderMapper.selectById(orderId);
+        if (orderTable.getPayState() == 0){
+            int i = orderMapper.deleteById(orderId);
+            flag = i > 0;
+        }
+        return new Result(flag?Code.NORMAL:Code.SYNTAX_ERROR,flag?"取消订单成功":"取消订单失败");
+    }
 }

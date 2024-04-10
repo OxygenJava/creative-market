@@ -8,6 +8,7 @@ import com.creative.domain.commodity;
 import com.creative.domain.user;
 import com.creative.dto.*;
 import com.creative.mapper.userMapper;
+import com.creative.mapper.walletMapper;
 import com.creative.service.userService;
 import com.creative.utils.RegexUtils;
 import com.creative.utils.imgUtils;
@@ -36,6 +37,9 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     @Autowired
     private userMapper userMapper;
+
+    @Autowired
+    private walletMapper walletMapper;
 
     @Value("${creativeMarket.shopImage}")
     private String imgAddress;
