@@ -29,11 +29,6 @@ public class collectioncommodityControlller {
         return result;
     }
 
-    @GetMapping("/all")
-    public Result selectAllcommodity(HttpServletRequest request){
-        Result result = collectioncommodityService.selectAllcommodity(request);
-        return result;
-    }
 
     @GetMapping
     public Result selectCollectioncommodity(HttpServletRequest request){

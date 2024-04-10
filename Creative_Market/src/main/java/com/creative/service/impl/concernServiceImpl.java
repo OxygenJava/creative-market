@@ -2,10 +2,13 @@ package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creative.domain.concern;
 import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
+import com.creative.dto.UserDTO;
 import com.creative.mapper.concernMapper;
 import com.creative.mapper.userMapper;
 import com.creative.service.concernService;
@@ -17,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,25 +45,49 @@ public class concernServiceImpl implements concernService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
+
         if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
+        else if(user.getId()==concern.getConcernId()){
+            return new Result(Code.SYNTAX_ERROR,"请不要自我关注","");
+        }
         else {
-            concern.setUid(user.getId());
-            LocalDateTime dateTime = LocalDateTime.now();
-            concern.setConcernTime(dateTime);
-            int insert = concernMapper.insert(concern);
+
+            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(com.creative.domain.concern::getUid,user.getId())
+                    .eq(com.creative.domain.concern::getConcernId,concern.getConcernId());
+            com.creative.domain.concern concern1 = concernMapper.selectOne(lqw);
 
 
-            Integer code = insert > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = insert > 0  ? "关注成功" : "关注失败";
-            return new Result(code, msg, "");
+            //排除多次关注同一个人
+            if(concern1!=null){
+                return new Result(Code.SYNTAX_ERROR,"您已经关注过他了","");
+            }
+            else {
+                concern.setUid(user.getId());
+                LocalDateTime dateTime = LocalDateTime.now();
+                concern.setConcernTime(dateTime);
+                int insert = concernMapper.insert(concern);
+
+                com.creative.domain.user user1 = userMapper.selectById(user.getId());
+                user1.setFocusCount(user1.getFocusCount()+1);
+                int update1 = userMapper.updateById(user1);
+
+                com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
+                user2.setFansCount(user2.getFansCount()+1);
+                int update2 = userMapper.updateById(user2);
+
+
+                Integer code = insert > 0 && update1>0 && update2>0? Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = insert > 0  && update1>0 && update2>0? "关注成功" : "关注失败";
+                return new Result(code, msg, "");
+            }
         }
 
     }
 
     //取消关注
-
 
     @Override
     public Result cancelConcern(concern concern, HttpServletRequest request) {
@@ -69,20 +98,69 @@ public class concernServiceImpl implements concernService {
         if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
+        else if(user.getId()==concern.getConcernId()){
+            return new Result(Code.SYNTAX_ERROR,"请不要自我取关","");
+        }
         else {
             LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
             lqw.eq(com.creative.domain.concern::getUid,user.getId())
                     .eq(com.creative.domain.concern::getConcernId,concern.getConcernId());
             int delete = concernMapper.delete(lqw);
-            Integer code = delete > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = delete > 0  ? "取消关注成功" : "取消关注失败";
+
+
+            com.creative.domain.user user1 = userMapper.selectById(user.getId());
+            user1.setFocusCount(user1.getFocusCount()-1);
+            int update1 = userMapper.updateById(user1);
+
+            com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
+            user2.setFansCount(user2.getFansCount()-1);
+            int update2 = userMapper.updateById(user2);
+
+
+            Integer code = delete > 0 && update1>0 && update2>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = delete > 0  && update1>0 && update2>0? "取消关注成功" : "取消关注失败";
             return new Result(code, msg, "");
         }
     }
 
-    //统计关注的人数
+
+    //判断是否关注了
     @Override
-    public Result countConcern(HttpServletRequest request) {
+    public Result ifconcern(Integer uid, HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        com.creative.domain.user user1 = userMapper.selectById(uid);
+
+        if(user1==null){
+            return new Result(Code.SYNTAX_ERROR,"该用户不存在","");
+        }
+        else if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else if(user.getId()==uid){
+            return new Result(Code.SYNTAX_ERROR,"请不要自我关注","");
+        }
+        else {
+            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(com.creative.domain.concern::getUid,user.getId())
+                    .eq(com.creative.domain.concern::getConcernId,uid);
+            concern concern = concernMapper.selectOne(lqw);
+
+            if(concern==null){
+                return new Result(Code.SYNTAX_ERROR,"",0);
+            }
+            else {
+                return new Result(Code.NORMAL,"",1);
+            }
+        }
+    }
+
+    //获取粉丝名单
+    @Override
+    public Result ObtainFans(Integer pageSize,Integer pageNumber,HttpServletRequest request) {
+        ArrayList list=new ArrayList();
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
@@ -91,12 +169,102 @@ public class concernServiceImpl implements concernService {
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
         else {
+            IPage page=new Page(pageNumber,pageSize);
             LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
-            lqw.eq(com.creative.domain.concern::getConcernId,user.getId());
-            Integer integer = concernMapper.selectCount(lqw);
-            Integer code = integer > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = integer > 0  ? "统计成功" : "统计失败失败";
-            return new Result(code, msg, integer);
+            lqw.eq(concern::getConcernId,user.getId());
+              concernMapper.selectPage(page,lqw);
+            List<concern> concerns=page.getRecords();
+            for (concern concern : concerns) {
+                Integer uid = concern.getUid();
+                user user1 = userMapper.selectById(uid);
+                UserDTO userDTO = BeanUtil.copyProperties(user1, UserDTO.class);
+                list.add(userDTO);
+            }
+
+            Integer code =  concerns.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = concerns.size()!=0? "查询粉丝成功" : "您还没有粉丝";
+            return new Result(code, msg, list);
+        }
+
+    }
+
+
+    //获取关注名单
+    @Override
+    public Result ObtainFocus(Integer pageSize,Integer pageNumber,HttpServletRequest request) {
+
+        ArrayList list=new ArrayList();
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            IPage page=new Page(pageNumber,pageSize);
+            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(concern::getUid,user.getId());
+             concernMapper.selectPage(page,lqw);
+            List<concern> concerns =page.getRecords();
+            for (concern concern : concerns) {
+                Integer concernId = concern.getConcernId();
+                com.creative.domain.user user1 = userMapper.selectById(concernId);
+                UserDTO userDTO = BeanUtil.copyProperties(user1, UserDTO.class);
+                list.add(userDTO);
+            }
+
+            Integer code =  concerns.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = concerns.size()!=0? "查询关注成功" : "您还没有关注";
+            return new Result(code, msg, list);
         }
     }
+
+
+    //用户模糊查询
+    @Override
+    public Result selectLikeUser(String name) {
+        LambdaQueryWrapper<user> lqw=new LambdaQueryWrapper<>();
+        lqw.like(user::getUsername,name).or().like(user::getNickName,name);
+        List<user> users = userMapper.selectList(lqw);
+        List<UserDTO> userDTOs = BeanUtil.copyToList(users, UserDTO.class);
+        Integer code=users.size()!=0?Code.NORMAL:Code.SYNTAX_ERROR;
+        String msg=users.size()!=0?"查询成功":"查询失败";
+        return new Result(code,msg,userDTOs);
+    }
+
+    @Override
+    public Result selectFansTotal(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            com.creative.domain.user user1 = userMapper.selectById(user.getId());
+            Integer code =  user1!=null?Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg =  user1!=null? "查询成功" : "查询失败";
+            return new Result(code, msg, user1.getFansCount());
+        }
+
+    }
+
+    @Override
+    public Result selectFocusTotal(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            com.creative.domain.user user1 = userMapper.selectById(user.getId());
+            Integer code =  user1!=null?Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg =  user1!=null? "查询成功" : "查询失败";
+            return new Result(code, msg, user1.getFocusCount());
+        }
+
+    }
+
 }
