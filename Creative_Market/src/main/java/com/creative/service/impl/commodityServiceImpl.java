@@ -225,7 +225,7 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
                 commodityDetailsImageService.save(commodityDetailsImage);
             }
         }
-        return Result.success("操作成功");
+        return Result.success(commodity.getId());
     }
 
     @Override
