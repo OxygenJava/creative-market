@@ -4,10 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creative.domain.*;
-import com.creative.dto.Code;
-import com.creative.dto.Result;
-import com.creative.dto.UserDTO;
-import com.creative.dto.getAllDiscoverDTO;
+import com.creative.dto.*;
 import com.creative.mapper.LableMapper;
 import com.creative.mapper.collectionpostMapper;
 import com.creative.mapper.likepostMapper;
@@ -191,29 +188,12 @@ public class postServiceImpl implements postService {
 
             //识别发布时间
             Long releasedTime = record.getCreateTime();
-            //获取当前时间值
-            long nowTime = new Date().getTime();
-            String timeStr = "";
-            //当前时间 - 发布时间 = 相差时间
-            long l = nowTime - releasedTime;
-            //以分钟为单位
-            long time = l / 1000 / 60;
-            //当计算出来的时间值小于1时
-            if (time == 0){
-                timeStr = 1+"分钟前";
-            }else if (time / 60 > 0){
-                //当相差的时间/60大于0，表示可以使用小时为单位
-                timeStr = time / 60+"小时前";
-            }else if (time / 60 / 24 > 0){
-                //当相差的时间/60 / 24大于0，表示可以使用天为单位
-                timeStr = time / 60 / 24 + "天前";
-            }else {
-                timeStr = time + "分钟前";
-            }
+            //获取发布时间与当前时间之差
+            String timeStr = getTimeStr(releasedTime);
             getAllDiscoverDTO.setReleasedTime(timeStr);
             //设置用户头像
             if (one.getIconImage() != null){
-                String s = imgUtils.encodeImageToBase64(iconImage);
+                String s = imgUtils.encodeImageToBase64(iconImage+"\\"+one.getIconImage());
                 getAllDiscoverDTO.setIconImage(s);
             }
             //设置标签
@@ -240,6 +220,8 @@ public class postServiceImpl implements postService {
         }
         return Result.success(list);
     }
+
+
 
     @Override
     public Result deletePost(Integer id) {
@@ -280,6 +262,89 @@ public class postServiceImpl implements postService {
         return new Result(code, msg, posts);
     }
 
+    /**
+     * 获取帖子详情
+     *
+     * @param postId
+     * @return
+     */
+    @Override
+    public Result getPostDetail(Integer postId) {
+
+        UserDTO user = userHolder.getUser();
+        if (user == null){
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        }
+
+        post post = postMapper.selectById(postId);
+        if (post == null){
+            return Result.fail(Code.SYNTAX_ERROR,"该帖子不存在");
+        }
+
+        postDTO postDTO = BeanUtil.copyProperties(post, postDTO.class);
+        List<String> lableId = postDTO.getLableId();
+        //处理标签
+        for (int i = 0; i < lableId.size(); i++) {
+            lableId.set(i,lableService.getById(lableId.get(i)).getName());
+        }
+        postDTO.setLableId(lableId);
+
+        //处理用户名
+        //获取发布用户
+        user getUserById = userService.getById(post.getUid());
+        postDTO.setPostUserNickName(getUserById.getNickName());
+
+        //处理相差时间
+        Long createTime = post.getCreateTime();
+        //获取发布时间与当前时间之差
+        String timeStr = getTimeStr(createTime);
+        postDTO.setCreateTime(timeStr);
+
+        //处理头像
+        try {
+            postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+getUserById.getIconImage()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //处理照片
+        //将图片转换为base64格式
+        List<String> image = postDTO.getImage();
+        for (int i = 0; i < image.size(); i++) {
+            try {
+                image.set(i,imgUtils.encodeImageToBase64(discoverImage + "\\" + image.get(i)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        postDTO.setImage(image);
+
+        //根据用户id和postId查询点赞表，获取点赞状态
+        LambdaQueryWrapper<likepost> likePostLqw = new LambdaQueryWrapper<>();
+        likePostLqw.eq(likepost::getUid,user.getId()).eq(likepost::getPid,postId);
+        likepost likepost = likepostMapper.selectOne(likePostLqw);
+        if (likepost == null){
+            //表示该用户没有对该帖子点赞
+            //将点赞状态设为0
+            postDTO.setLikesState(0);
+        }else {
+            //表示该用户对该帖子点了赞
+            //将点赞状态设为1
+            postDTO.setLikesState(1);
+        }
+
+        //根据用户id和postId查询点赞收藏表，获取收藏状态
+        LambdaQueryWrapper<collectionpost> collectionpostLqw = new LambdaQueryWrapper<>();
+        collectionpostLqw.eq(collectionpost::getUid,user.getId()).eq(collectionpost::getPid,postId);
+        collectionpost collectionpost = collectionpostMapper.selectOne(collectionpostLqw);
+        if (collectionpost == null){
+            postDTO.setCollectionState(0);
+        }else {
+            postDTO.setCollectionState(1);
+        }
+
+        return Result.success(postDTO);
+    }
+
 
     /**
      * 登录校验
@@ -295,6 +360,34 @@ public class postServiceImpl implements postService {
         }
         //获取userDTO对象
         return BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+    }
+
+    /**
+     * 获取发布时间与当前时间之差
+     * @param releasedTime
+     * @return
+     */
+    private String getTimeStr(Long releasedTime) {
+        //获取当前时间值
+        long nowTime = new Date().getTime();
+        String timeStr = "";
+        //当前时间 - 发布时间 = 相差时间
+        long l = nowTime - releasedTime;
+        //以分钟为单位
+        long time = l / 1000 / 60;
+        //当计算出来的时间值小于1时
+        if (time == 0){
+            timeStr = 1+"分钟前";
+        }else if (time / 60 / 24 > 0){
+            //当相差的时间/60 / 24大于0，表示可以使用天为单位
+            timeStr = time / 60 / 24 + "天前";
+        }else if (time / 60 > 0){
+            //当相差的时间/60大于0，表示可以使用小时为单位
+            timeStr = time / 60+"小时前";
+        }else {
+            timeStr = time + "分钟前";
+        }
+        return timeStr;
     }
 
 }
