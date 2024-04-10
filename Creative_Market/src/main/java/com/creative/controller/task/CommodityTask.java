@@ -19,6 +19,7 @@ public class CommodityTask {
 
     @Scheduled(fixedRate = 1000) // 每秒钟检查一次
     public void checkExpiration(){
+        System.out.println(666);
         List<commodity> list = commodityService.lambdaQuery().eq(commodity::getState, 0).list();
         for (commodity commodity : list) {
             LocalDateTime releaseTime = commodity.getReleaseTime();
