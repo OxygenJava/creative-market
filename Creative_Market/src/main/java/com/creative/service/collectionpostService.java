@@ -9,5 +9,4 @@ public interface collectionpostService {
     Result ClickCollectionpost(collectionpost collectionpost, HttpServletRequest request);
     Result CancelCollectionpost(collectionpost collectionpost,HttpServletRequest request);
     Result selectCollectionpost(HttpServletRequest request);
-    Result selectAllpost(HttpServletRequest request);
 }

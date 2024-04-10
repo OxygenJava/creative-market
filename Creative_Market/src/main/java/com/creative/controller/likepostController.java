@@ -30,13 +30,6 @@ public class likepostController {
         return result;
     }
 
-    //根据用户id查询该用户点赞过和为未点赞的所有帖子
-    @GetMapping("/all")
-    public Result selectAllpost(HttpServletRequest request){
-        Result result = likepostService.selectAllpost(request);
-        return result;
-    }
-
     //根据用户id查询该用户点赞过的帖子
     @GetMapping
     public Result selectLikepost(HttpServletRequest request){

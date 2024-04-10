@@ -9,6 +9,6 @@ public interface LableService extends IService<lable> {
     Result selectLableAll();
     Result deleteLable(Integer id);
     Result updateLable(lable lable);
-    Result selectPages(Integer PageSize,Integer PageNumber);
+    Result selectPages(Integer pageSize,Integer pageNumber);
     Result selectLike(String name);
 }

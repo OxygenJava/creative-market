@@ -10,6 +10,5 @@ public interface likepostService {
     @Transactional(rollbackFor = Exception.class)
     Result ClickLikepost(Integer postId, HttpServletRequest request);
     Result CancelLikepost(likepost likepost,HttpServletRequest request);
-    Result selectAllpost(HttpServletRequest request);
     Result selectLikepost(HttpServletRequest request);
 }
