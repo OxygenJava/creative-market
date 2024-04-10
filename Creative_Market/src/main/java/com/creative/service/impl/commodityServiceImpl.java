@@ -2,16 +2,14 @@ package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
 import com.creative.dto.commodityDTO;
-import com.creative.mapper.LableMapper;
-import com.creative.mapper.commodityHomePageMapper;
-import com.creative.mapper.commodityMapper;
-import com.creative.mapper.userMapper;
+import com.creative.mapper.*;
 import com.creative.service.*;
 import com.creative.utils.beanUtil;
 import com.creative.utils.imgUtils;
@@ -62,6 +60,10 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
     @Autowired
     private commodityDetailsImageService commodityDetailsImageService;
 
+    @Autowired
+    private likecommodityMapper likecommodityMapper;
+    @Autowired
+    private collectioncommodityMapper collectioncommodityMapper;
 
     @Autowired
     private commodityHomePageMapper commodityHomePageMapper;
@@ -104,6 +106,26 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         handleLabelVisitTimeAndWeight(labelIds,userDTO);
         //添加用户历史记录(处理historical_visits表)
         handleHistoricalVisits(userDTO, one);
+
+        //设置点赞状态
+        LambdaQueryWrapper<likecommodity> likecommodityLqw = new LambdaQueryWrapper<>();
+        likecommodityLqw.eq(likecommodity::getCid,id).eq(likecommodity::getUid,userDTO.getId());
+        likecommodity likecommodity = likecommodityMapper.selectOne(likecommodityLqw);
+        if (likecommodity != null){
+            one.setLikesState(1);
+        }else {
+            one.setLikesState(0);
+        }
+
+        //设置收藏状态
+        LambdaQueryWrapper<collectioncommodity> collectioncommodityLqw = new LambdaQueryWrapper<>();
+        collectioncommodityLqw.eq(collectioncommodity::getCid,id).eq(collectioncommodity::getUid,userDTO.getId());
+        collectioncommodity collectioncommodity = collectioncommodityMapper.selectOne(collectioncommodityLqw);
+        if (collectioncommodity != null){
+            one.setCollectionState(1);
+        }else {
+            one.setCollectionState(0);
+        }
 
         File imageFile = new File(this.shopImage,one.getHomePageImage());
         if (!imageFile.exists()){
@@ -152,7 +174,8 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         commodity.setReleaseUserId(userDTO.getId());
         //注入发布时间
         commodity.setReleaseTime(LocalDateTime.now());
-
+        //注入预计众筹时间 = 现在时间 + 14天
+        commodity.setBeginCrowdfundingTime(LocalDateTime.now().plusDays(14));
         //根据label获取到响应的labelId，如果没有，则创建
         String[] labels = commodityDTO.getLabel().split(",");
         StringBuilder labelSb  = new StringBuilder();
@@ -211,6 +234,8 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
                 save(commodity);
                 //设置刚保存的商品的id到首页表中
                 commodityHomePage.setCommodityId(commodity.getId());
+                //设置状态
+                commodityHomePage.setState(0);
                 commodityHomePageMapper.insert(commodityHomePage);
 
                 //将commodityHomePage对象放进消息队列，待监听器处理
