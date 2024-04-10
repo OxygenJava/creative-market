@@ -28,9 +28,41 @@ public class concernController {
         return result;
     }
 
-    @GetMapping
-    public Result countConcern(HttpServletRequest request){
-        Result result = concernService.countConcern(request);
+    @GetMapping("/if/{uid}")
+    public Result ifconcern(@PathVariable Integer uid, HttpServletRequest request){
+        Result result = concernService.ifconcern(uid,request);
+        return result;
+    }
+
+    @GetMapping("/fans/{pageSize}/{pageNumber}")
+    public Result ObtainFans(@PathVariable Integer pageSize,@PathVariable Integer pageNumber,HttpServletRequest request){
+        Result result = concernService.ObtainFans(pageSize, pageNumber, request);
+        return result;
+    }
+
+
+    @GetMapping("/focus/{pageSize}/{pageNumber}")
+    public Result ObtainFocus(@PathVariable Integer pageSize,@PathVariable Integer pageNumber,HttpServletRequest request){
+        Result result = concernService.ObtainFocus(pageSize, pageNumber, request);
+        return result;
+    }
+
+
+    @GetMapping("/{name}")
+    public Result selectLikeUser(@PathVariable String name){
+        Result result = concernService.selectLikeUser(name);
+        return result;
+    }
+
+    @GetMapping("/fansTotal")
+    public Result selectFansTotal(HttpServletRequest request){
+        Result result = concernService.selectFansTotal(request);
+        return result;
+    }
+
+    @GetMapping("/focusTotal")
+    public Result selectFocusTotal(HttpServletRequest request){
+        Result result = concernService.selectFocusTotal(request);
         return result;
     }
 

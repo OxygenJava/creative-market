@@ -36,7 +36,12 @@ public class likepostServiceImpl implements likepostService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-
+    /**
+     * 帖子点赞
+     * @param postId
+     * @param request
+     * @return
+     */
     @Override
     public Result ClickLikepost(Integer postId, HttpServletRequest request) {
 
@@ -46,7 +51,7 @@ public class likepostServiceImpl implements likepostService {
         if (entries.isEmpty()) {
             return Result.fail(Code.INSUFFICIENT_PERMISSIONS, "请登录");
         }
-        if (!isTruePost(postId)){
+        if (!isTruePost(postId)) {
             return Result.fail(Code.SYNTAX_ERROR, "帖子不存在");
         }
 
@@ -56,11 +61,11 @@ public class likepostServiceImpl implements likepostService {
         likepost.setPid(postId);
         //查询用户是否已经对该帖子点赞
         LambdaQueryWrapper<likepost> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(com.creative.domain.likepost::getUid,user.getId())
-                .eq(com.creative.domain.likepost::getPid,likepost.getPid());
+        lqw.eq(com.creative.domain.likepost::getUid, user.getId())
+                .eq(com.creative.domain.likepost::getPid, likepost.getPid());
         likepost likepostOne = likepostMapper.selectOne(lqw);
-        if (likepostOne != null){
-            return Result.fail(Code.SYNTAX_ERROR,"已经对该帖子点过赞了");
+        if (likepostOne != null) {
+            return Result.fail(Code.SYNTAX_ERROR, "已经对该帖子点过赞了");
         }
 
         post post = postMapper.selectById(likepost.getPid());
@@ -74,101 +79,44 @@ public class likepostServiceImpl implements likepostService {
         return new Result(code, msg);
     }
 
+    /**
+     * 取消点赞
+     * @param postId
+     * @param request
+     * @return
+     */
     @Override
-    public Result CancelLikepost(likepost likepost, HttpServletRequest request) {
+    public Result CancelLikepost(Integer postId, HttpServletRequest request) {
 
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-        likepost.setUid(user.getId());
-
-        if (likepost.getUid() == null) {
+        if (entries.isEmpty()) {
             return new Result(Code.INSUFFICIENT_PERMISSIONS, "请先登录", "");
-        } else {
-            post post = postMapper.selectById(likepost.getPid());
-            post.setLikes(post.getLikes() - 1);
-            post.setLikesState(0);
-            int update = postMapper.updateById(post);
-            int delete = likepostMapper.deleteBylikepost(likepost);
-
-            Integer code = update > 0 && delete > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = update > 0 && delete > 0 ? "取消点赞成功" : "取消点赞失败";
-            return new Result(code, msg);
         }
-
-    }
-
-    @Override
-    public Result selectAllpost(HttpServletRequest request) {
-
-        String authorization = request.getHeader("Authorization");
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
 
+        post post = postMapper.selectById(postId);
+
+        //查询点赞表
         LambdaQueryWrapper<likepost> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(likepost::getUid, user.getId());
-        List<likepost> likeposts = likepostMapper.selectList(lqw);
-        ArrayList<Integer> list1 = new ArrayList<>();
-        ArrayList<Integer> list2 = new ArrayList<>();
-        ArrayList<post> list = new ArrayList<>();
-        if (likeposts == null) {
-            List<post> posts1 = postMapper.selectList(null);
-            for (int i = 0; i < posts1.size(); i++) {
-                posts1.get(i).setLikesState(0);
-            }
-            Integer code = posts1 != null ? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = posts1 != null ? "查询成功" : "查询失败";
-            return new Result(code, msg, posts1);
-        } else {
-
-            for (int i = 0; i < likeposts.size(); i++) {
-                list1.add(likeposts.get(i).getPid());
-            }
-            List<post> posts1 = new ArrayList<>();
-            for (int i = 0; i < list1.size(); i++) {
-                LambdaQueryWrapper<post> lqw1 = new LambdaQueryWrapper<>();
-                lqw1.eq(post::getId, list1.get(i));
-                post post = postMapper.selectOne(lqw1);
-                posts1.add(post);
-            }
-
-            if (posts1 != null) {
-                for (int i = 0; i < posts1.size(); i++) {
-                    posts1.get(i).setLikesState(1);
-                }
-            }
-
-
-            List<post> posts2 = postMapper.selectList(null);
-            for (int i = 0; i < posts2.size(); i++) {
-                list2.add(posts2.get(i).getId());
-            }
-
-            list2.removeAll(list1);
-
-            List<post> posts3 = new ArrayList<>();
-            for (int i = 0; i < list2.size(); i++) {
-                LambdaQueryWrapper<post> lqw2 = new LambdaQueryWrapper<>();
-                lqw2.eq(post::getId, list2.get(i));
-                post post = postMapper.selectOne(lqw2);
-                posts3.add(post);
-            }
-            if (posts3 != null) {
-                for (int i = 0; i < posts3.size(); i++) {
-                    posts3.get(i).setLikesState(0);
-                }
-            }
-            list.addAll(posts1);
-            list.addAll(posts3);
-            Collections.shuffle(list);
+        lqw.eq(likepost::getUid,user.getId()).eq(likepost::getPid,postId);
+        likepost likepost = likepostMapper.selectOne(lqw);
+        if (post == null){
+            return Result.fail(Code.SYNTAX_ERROR, "帖子不存在");
         }
-
-
-        Integer code = list != null ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = list != null ? "查询成功" : "查询失败";
-        return new Result(code, msg, list);
+        if (likepost == null){
+            return Result.fail(Code.SYNTAX_ERROR,"您还未对该帖子点赞过");
+        }
+        post.setLikes(post.getLikes() - 1);
+        post.setLikesState(0);
+        int update = postMapper.updateById(post);
+        int delete = likepostMapper.deleteBylikepost(likepost);
+        Integer code = update > 0 && delete > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = update > 0 && delete > 0 ? "取消点赞成功" : "取消点赞失败";
+        return new Result(code, msg);
     }
+
 
     @Override
     public Result selectLikepost(HttpServletRequest request) {
@@ -213,14 +161,15 @@ public class likepostServiceImpl implements likepostService {
 
     /**
      * 判断帖子是否存在
+     *
      * @param id
      * @return
      */
-    public Boolean isTruePost(Integer id){
+    public Boolean isTruePost(Integer id) {
         post post = postMapper.selectById(id);
-        if (post == null){
+        if (post == null) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }

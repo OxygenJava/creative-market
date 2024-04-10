@@ -18,25 +18,19 @@ public class collectionpostController {
     private collectionpostService collectionpostService;
 
     //收藏帖子
-    @PutMapping("/click")
-    public Result ClickLikes(@RequestBody collectionpost collectionpost, HttpServletRequest request){
-        Result result = collectionpostService.ClickCollectionpost(collectionpost,request);
+    @PutMapping("/click/{postId}")
+    public Result ClickLikes(@PathVariable Integer postId, HttpServletRequest request){
+        Result result = collectionpostService.ClickCollectionpost(postId,request);
         return result;
     }
 
     //取消收藏
-    @PutMapping("/cancel")
-    public Result CancelLikes(@RequestBody collectionpost collectionpost,HttpServletRequest request){
-        Result result = collectionpostService.CancelCollectionpost(collectionpost,request);
+    @PutMapping("/cancel/{postId}")
+    public Result CancelLikes(@PathVariable Integer postId,HttpServletRequest request){
+        Result result = collectionpostService.CancelCollectionpost(postId,request);
         return result;
     }
 
-    //根据用户id查询该用户收藏过和为未收藏的所有帖子
-    @GetMapping("/all")
-    public Result selectAllpost(HttpServletRequest request){
-        Result result = collectionpostService.selectAllpost(request);
-        return result;
-    }
 
     //根据用户id查询该用户收藏过的帖子
     @GetMapping

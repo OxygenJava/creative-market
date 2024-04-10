@@ -17,23 +17,27 @@ public class likepostController {
     @Autowired
     private likepostService likepostService;
 
+    /**
+     * 帖子点赞
+     * @param postId
+     * @param request
+     * @return
+     */
     @PutMapping("/click/{postId}")
     public Result ClickLikes(@PathVariable Integer postId, HttpServletRequest request){
         Result result = likepostService.ClickLikepost(postId,request);
         return result;
     }
 
-    //取消点赞
-    @PutMapping("/cancel")
-    public Result CancelLikes(@RequestBody likepost likepost,HttpServletRequest request){
-        Result result = likepostService.CancelLikepost(likepost,request);
-        return result;
-    }
-
-    //根据用户id查询该用户点赞过和为未点赞的所有帖子
-    @GetMapping("/all")
-    public Result selectAllpost(HttpServletRequest request){
-        Result result = likepostService.selectAllpost(request);
+    /**
+     * 取消点赞
+     * @param postId
+     * @param request
+     * @return
+     */
+    @PutMapping("/cancel/{postId}")
+    public Result CancelLikes(@PathVariable Integer postId,HttpServletRequest request){
+        Result result = likepostService.CancelLikepost(postId,request);
         return result;
     }
 
