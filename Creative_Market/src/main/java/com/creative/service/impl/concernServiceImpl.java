@@ -61,17 +61,12 @@ public class concernServiceImpl implements concernService {
         LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
         lqw.eq(com.creative.domain.concern::getUid, user.getId())
                 .eq(com.creative.domain.concern::getConcernId, concern.getConcernId());
-        com.creative.domain.concern concern1 = concernMapper.selectOne(lqw);
+        concern concern1 = concernMapper.selectOne(lqw);
 
         //排除多次关注同一个人
         if (concern1 != null) {
             return new Result(Code.SYNTAX_ERROR, "您已经关注过他了", "");
         }
-        else if(user2==null){
-            return new Result(Code.SYNTAX_ERROR,"没有该用户","");
-        }
-        else {
-
         concern.setUid(user.getId());
         LocalDateTime dateTime = LocalDateTime.now();
         concern.setConcernTime(dateTime);
@@ -87,30 +82,9 @@ public class concernServiceImpl implements concernService {
         user2.setFansCount(user2.getFansCount() + 1);
         int update2 = userMapper.updateById(user2);
 
-            //排除多次关注同一个人
-            if(concern1!=null){
-                return new Result(Code.SYNTAX_ERROR,"您已经关注过他了","");
-            }
-            else {
-                concern.setUid(user.getId());
-                LocalDateTime dateTime = LocalDateTime.now();
-                concern.setConcernTime(dateTime);
-                int insert = concernMapper.insert(concern);
-
-                com.creative.domain.user user1 = userMapper.selectById(user.getId());
-                user1.setFocusCount(user1.getFocusCount()+1);
-                int update1 = userMapper.updateById(user1);
-
-
-                user2.setFansCount(user2.getFansCount()+1);
-                int update2 = userMapper.updateById(user2);
-
-
-                Integer code = insert > 0 && update1>0 && update2>0? Code.NORMAL : Code.SYNTAX_ERROR;
-                String msg = insert > 0  && update1>0 && update2>0? "关注成功" : "关注失败";
-                return new Result(code, msg, "");
-            }
-        }
+        Integer code = insert > 0 && update1 > 0 && update2 > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = insert > 0 && update1 > 0 && update2 > 0 ? "关注成功" : "关注失败";
+        return new Result(code, msg, "");
 
     }
 
@@ -119,54 +93,43 @@ public class concernServiceImpl implements concernService {
     public Result cancelConcern(concern concern, HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
-        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-        com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
-
-        if (user.getId() == null) {
+        if (entries.isEmpty()) {
             return new Result(Code.INSUFFICIENT_PERMISSIONS, "请先登录", "");
         }
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        user user2 = userMapper.selectById(concern.getConcernId());
+        if (user2 == null) {
+            return new Result(Code.SYNTAX_ERROR, "没有该用户", "");
+        }
+
         if (user.getId().equals(concern.getConcernId())) {
             return new Result(Code.SYNTAX_ERROR, "请不要自我取关", "");
         }
+
+        //判断用户是否有关注
+        LambdaQueryWrapper<concern> concernLqw = new LambdaQueryWrapper<>();
+        concernLqw.eq(com.creative.domain.concern::getUid, user.getId())
+                .eq(com.creative.domain.concern::getConcernId, concern.getConcernId());
+        concern concern1 = concernMapper.selectOne(concernLqw);
+        if (concern1 == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "您还没有关注过他，无法取关");
+        }
+
+        //删除收藏表
         LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
         lqw.eq(com.creative.domain.concern::getUid, user.getId())
                 .eq(com.creative.domain.concern::getConcernId, concern.getConcernId());
-        concern concern1 = concernMapper.selectOne(lqw);
-        if (concern1 == null){
-            return Result.fail(Code.SYNTAX_ERROR,"您还没有关注过他，无法取关");
-        else if(user2==null){
-            return new Result(Code.SYNTAX_ERROR,"没有该用户","");
-        }
-        else {
-            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
-            lqw.eq(com.creative.domain.concern::getUid,user.getId())
-                    .eq(com.creative.domain.concern::getConcernId,concern.getConcernId());
-            int delete = concernMapper.delete(lqw);
+        int delete = concernMapper.delete(lqw);
 
-
-            com.creative.domain.user user1 = userMapper.selectById(user.getId());
-            user1.setFocusCount(user1.getFocusCount()-1);
-            int update1 = userMapper.updateById(user1);
-
-
-            user2.setFansCount(user2.getFansCount()-1);
-            int update2 = userMapper.updateById(user2);
-
-
-            Integer code = delete > 0 && update1>0 && update2>0? Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = delete > 0  && update1>0 && update2>0? "取消关注成功" : "取消关注失败";
-            return new Result(code, msg, "");
-        }
-        int delete = concernMapper.deleteById(concern1.getId());
-
-        com.creative.domain.user user1 = userMapper.selectById(user.getId());
+        //用户1添加收藏
+        user user1 = userMapper.selectById(user.getId());
         user1.setFocusCount(user1.getFocusCount() - 1);
         int update1 = userMapper.updateById(user1);
 
-        com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
+//        用户2添加粉丝
         user2.setFansCount(user2.getFansCount() - 1);
         int update2 = userMapper.updateById(user2);
-
 
         Integer code = delete > 0 && update1 > 0 && update2 > 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
         String msg = delete > 0 && update1 > 0 && update2 > 0 ? "取消关注成功" : "取消关注失败";
@@ -224,31 +187,31 @@ public class concernServiceImpl implements concernService {
                 user user1 = userMapper.selectById(uid);
                 fansDTO fansDTO = BeanUtil.copyProperties(user1, fansDTO.class);
                 try {
-                    fansDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+fansDTO.getIconImage()));
+                    fansDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + fansDTO.getIconImage()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 //查询我的关注内是否有他
                 LambdaQueryWrapper<concern> conLqw = new LambdaQueryWrapper<>();
-                conLqw.eq(com.creative.domain.concern::getConcernId,fansDTO.getId())
-                        .eq(com.creative.domain.concern::getUid,concern.getConcernId());
+                conLqw.eq(com.creative.domain.concern::getConcernId, fansDTO.getId())
+                        .eq(com.creative.domain.concern::getUid, concern.getConcernId());
                 com.creative.domain.concern concern1 = concernMapper.selectOne(conLqw);
-                if (concern1 != null){
+                if (concern1 != null) {
                     fansDTO.setIsConcern(1);
-                }else {
+                } else {
                     fansDTO.setIsConcern(0);
                 }
                 list.add(fansDTO);
             }
 
-            if(page.getRecords().size()<=0){
-                return new Result(Code.SYNTAX_ERROR,"数据已经到底","");
+            if (page.getRecords().size() <= 0) {
+                return new Result(Code.SYNTAX_ERROR, "数据已经到底", "");
             }
 
             Collections.reverse(list);
-            Integer code =  concerns.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = concerns.size()!=0? "查询粉丝成功" : "您还没有粉丝";
+            Integer code = concerns.size() != 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = concerns.size() != 0 ? "查询粉丝成功" : "您还没有粉丝";
             return new Result(code, msg, list);
         }
 
@@ -284,12 +247,12 @@ public class concernServiceImpl implements concernService {
                 list.add(userDTO);
             }
 
-            if(page.getRecords().size()<=0){
-                return new Result(Code.SYNTAX_ERROR,"数据已经到底","");
+            if (page.getRecords().size() <= 0) {
+                return new Result(Code.SYNTAX_ERROR, "数据已经到底", "");
             }
             Collections.reverse(list);
-            Integer code =  concerns.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
-            String msg = concerns.size()!=0? "查询关注成功" : "您还没有关注";
+            Integer code = concerns.size() != 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = concerns.size() != 0 ? "查询关注成功" : "您还没有关注";
             return new Result(code, msg, list);
         }
     }
@@ -297,38 +260,36 @@ public class concernServiceImpl implements concernService {
 
     //关注用户的模糊查询
     @Override
-    public Result selectLikeFocus(String name,HttpServletRequest request) {
+    public Result selectLikeFocus(String name, HttpServletRequest request) {
 
-        List<UserDTO> userDTOs=new ArrayList<>();
+        List<UserDTO> userDTOs = new ArrayList<>();
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
-        if(user.getId()==null){
-            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
-        }
-        else {
-            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
-            lqw.eq(concern::getUid,user.getId());
+        if (user.getId() == null) {
+            return new Result(Code.INSUFFICIENT_PERMISSIONS, "请先登录", "");
+        } else {
+            LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(concern::getUid, user.getId());
             List<concern> concerns = concernMapper.selectList(lqw);
-            if(concerns.size()==0){
-                return new Result(Code.SYNTAX_ERROR,"您还没有关注","");
-            }
-            else {
+            if (concerns.size() == 0) {
+                return new Result(Code.SYNTAX_ERROR, "您还没有关注", "");
+            } else {
                 for (concern concern : concerns) {
-                    LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
-                    lqw1.eq(com.creative.domain.user::getId,concern.getConcernId())
-                            .like(com.creative.domain.user::getUsername,name)
+                    LambdaQueryWrapper<user> lqw1 = new LambdaQueryWrapper<>();
+                    lqw1.eq(com.creative.domain.user::getId, concern.getConcernId())
+                            .like(com.creative.domain.user::getUsername, name)
                             .or()
-                            .eq(com.creative.domain.user::getId,concern.getConcernId())
-                            .like(com.creative.domain.user::getNickName,name);
+                            .eq(com.creative.domain.user::getId, concern.getConcernId())
+                            .like(com.creative.domain.user::getNickName, name);
                     List<com.creative.domain.user> users = userMapper.selectList(lqw1);
                     List<UserDTO> userDTOS = BeanUtil.copyToList(users, UserDTO.class);
                     userDTOs.addAll(userDTOS);
                 }
 
-                Integer code =  userDTOs.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
-                String msg = userDTOs.size()!=0? "查询关注成功" : "查询不到该用户";
+                Integer code = userDTOs.size() != 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = userDTOs.size() != 0 ? "查询关注成功" : "查询不到该用户";
                 return new Result(code, msg, userDTOs);
             }
 
@@ -341,36 +302,34 @@ public class concernServiceImpl implements concernService {
     @Override
     public Result selectLikeFans(String name, HttpServletRequest request) {
 
-        List<UserDTO> userDTOs=new ArrayList<>();
+        List<UserDTO> userDTOs = new ArrayList<>();
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
-        if(user.getId()==null){
-            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
-        }
-        else {
-            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
-            lqw.eq(concern::getConcernId,user.getId());
+        if (user.getId() == null) {
+            return new Result(Code.INSUFFICIENT_PERMISSIONS, "请先登录", "");
+        } else {
+            LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(concern::getConcernId, user.getId());
             List<concern> concerns = concernMapper.selectList(lqw);
-            if(concerns.size()==0){
-                return new Result(Code.SYNTAX_ERROR,"您还没有关注","");
-            }
-            else {
+            if (concerns.size() == 0) {
+                return new Result(Code.SYNTAX_ERROR, "您还没有关注", "");
+            } else {
                 for (concern concern : concerns) {
-                    LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
-                    lqw1.eq(com.creative.domain.user::getId,concern.getUid())
-                            .like(com.creative.domain.user::getUsername,name)
+                    LambdaQueryWrapper<user> lqw1 = new LambdaQueryWrapper<>();
+                    lqw1.eq(com.creative.domain.user::getId, concern.getUid())
+                            .like(com.creative.domain.user::getUsername, name)
                             .or()
-                            .eq(com.creative.domain.user::getId,concern.getUid())
-                            .like(com.creative.domain.user::getNickName,name);
+                            .eq(com.creative.domain.user::getId, concern.getUid())
+                            .like(com.creative.domain.user::getNickName, name);
                     List<com.creative.domain.user> users = userMapper.selectList(lqw1);
                     List<UserDTO> userDTOS = BeanUtil.copyToList(users, UserDTO.class);
                     userDTOs.addAll(userDTOS);
                 }
 
-                Integer code =   userDTOs.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
-                String msg =  userDTOs.size()!=0? "查询关注成功" : "查询不到该用户";
+                Integer code = userDTOs.size() != 0 ? Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = userDTOs.size() != 0 ? "查询关注成功" : "查询不到该用户";
                 return new Result(code, msg, userDTOs);
             }
 
@@ -390,7 +349,6 @@ public class concernServiceImpl implements concernService {
             String msg = user1 != null ? "查询成功" : "查询失败";
             return new Result(code, msg, user1.getFansCount());
         }
-
     }
 
     @Override
