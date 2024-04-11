@@ -104,37 +104,37 @@ class CreativeMarketApplicationTests {
     }
     @Autowired
     private LableMapper lableMapper;
-    @Test
-    void lableServiceTest(@Autowired LableService lableService){
-        lable lable = new lable();
-        lable.setName("13");
-        lable.setCreateTime(LocalDateTime.now());
-        int i = lableMapper.insertAll(lable);
-        System.out.println(lable.getId());
-    }
-
-    @Autowired
-    private LableService lableService;
-    @Test
-    void getImageWidth(@Autowired commodityService service, @Autowired commodityHomePageService com) throws IOException {
-        List<commodity> list = service.query().list();
-
-        int index = 1;
-        for (commodity commodity : list) {
-            String labelId = commodity.getLabelId();
-            String[] split = labelId.split(",");
-            String label = "";
-            for (String s : split) {
-                lable one = lableService.lambdaQuery().eq(lable::getId, s).one();
-                label += one.getName();
-            }
-            commodityHomePage commodityHomePage = beanUtil.copyCommodity(shopImage, commodity);
-            commodityHomePage.setLabel(label);
-            commodityHomePage.setId(index);
-            com.updateById(commodityHomePage);
-            index++;
-        }
-    }
+//    @Test
+//    void lableServiceTest(@Autowired LableService lableService){
+//        lable lable = new lable();
+//        lable.setName("13");
+//        lable.setCreateTime(LocalDateTime.now());
+//        int i = lableMapper.insertAll(lable);
+//        System.out.println(lable.getId());
+//    }
+//
+//    @Autowired
+//    private LableService lableService;
+//    @Test
+//    void getImageWidth(@Autowired commodityService service, @Autowired commodityHomePageService com) throws IOException {
+//        List<commodity> list = service.query().list();
+//
+//        int index = 1;
+//        for (commodity commodity : list) {
+//            String labelId = commodity.getLabelId();
+//            String[] split = labelId.split(",");
+//            String label = "";
+//            for (String s : split) {
+//                lable one = lableService.lambdaQuery().eq(lable::getId, s).one();
+//                label += one.getName();
+//            }
+//            commodityHomePage commodityHomePage = beanUtil.copyCommodity(shopImage, commodity);
+//            commodityHomePage.setLabel(label);
+//            commodityHomePage.setId(index);
+//            com.updateById(commodityHomePage);
+//            index++;
+//        }
+//    }
 
     @Test
     void weightTest(@Autowired recommendService recommendService){

@@ -8,6 +8,7 @@ import com.creative.mapper.buyTypeMapper;
 import com.creative.service.buyTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +33,14 @@ public class buyTypeServiceImpl implements buyTypeService {
     }
 
     @Override
+    @Transactional
     public Result buyTypeAddMore(List<buyType> buyTypes) {
         ArrayList<Integer> arrayList = new ArrayList();
         boolean flag = true;
         for (buyType buyType : buyTypes) {
+            if (buyType.getCommodityId() == null){
+                throw new RuntimeException("未传递商品id");
+            }
             int insert = buyTypeMapper.insert(buyType);
             arrayList.add(insert);
         }

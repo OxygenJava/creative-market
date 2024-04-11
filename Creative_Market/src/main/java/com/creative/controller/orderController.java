@@ -10,9 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/order")
+@CrossOrigin
 public class orderController {
     @Autowired
     private orderService orderService;
+
 
     @PostMapping("/orderAdd")
     public Result orderAdd(@RequestBody orderTable orderTable, HttpServletRequest request){
@@ -35,7 +37,17 @@ public class orderController {
     }
 
     @PutMapping("/orderPay/{orderId}")
-    public Result orderPay(@PathVariable Integer orderId){
-        return orderService.orderPay(orderId);
+    public Result orderPay(@PathVariable Integer orderId,HttpServletRequest request){
+        return orderService.orderPay(orderId,request);
+    }
+
+    @DeleteMapping("/orderDelete/{orderId}")
+    public Result orderDelete(@PathVariable Integer orderId){
+        return orderService.orderDelete(orderId);
+    }
+
+    @GetMapping("/paySelect/{commodityId}/{buyTypeId}")
+    public Result paySelect(@PathVariable Integer commodityId,@PathVariable Integer buyTypeId,HttpServletRequest request){
+        return orderService.paySelect(commodityId,buyTypeId,request);
     }
 }

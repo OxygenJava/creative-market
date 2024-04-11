@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
-import com.creative.mapper.addressInfoMapper;
-import com.creative.mapper.buyTypeMapper;
-import com.creative.mapper.commodityMapper;
-import com.creative.mapper.orderMapper;
+import com.creative.dto.payDTO;
+import com.creative.mapper.*;
 import com.creative.service.orderService;
 import com.creative.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,9 @@ public class orderServiceImpl implements orderService {
 
     @Autowired
     private buyTypeMapper buyTypeMapper;
+
+    @Autowired
+    private walletMapper walletMapper;
 
     /**
      * 创建订单
@@ -110,14 +112,80 @@ public class orderServiceImpl implements orderService {
     }
 
     @Override
-    public Result orderPay(Integer orderId) {
+    public Result orderPay(Integer orderId,HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        Integer userId = user.getId();
+        if (userId != null){
+            LambdaQueryWrapper<wallet> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(wallet::getUserId,userId);
+            wallet wallet = walletMapper.selectOne(lqw);
+            if (wallet == null){
+                return new Result(Code.NORMAL,"该用户未开启钱包功能");
+            }
+            BigDecimal balanceAccount = wallet.getBalanceAccount();
+            orderTable orderTable = orderMapper.selectById(orderId);
+            BigDecimal payMoney = BigDecimal.valueOf(orderTable.getPayMoney());
+            if (balanceAccount.compareTo(payMoney) >= 0 && balanceAccount.compareTo(BigDecimal.ZERO) >= 0){
+                wallet.setBalanceAccount(balanceAccount.subtract(payMoney));
+                orderTable.setPayState(1);
+                orderTable.setPayTime(LocalDateTime.now());
+                int i = walletMapper.updateById(wallet);
+                int i1 = orderMapper.updateById(orderTable);
+                boolean flag = i > 0 && i1 > 0;
+                return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "支付成功" : "支付失败");
+            }else {
+                return new Result(Code.NORMAL,"支付失败，账户余额不足");
+            }
+        }else {
+            return new Result(Code.SYNTAX_ERROR, "请先登录");
+        }
+    }
+
+    /**
+     * 取消订单
+     * @param orderId
+     * @return
+     */
+    @Override
+    public Result orderDelete(Integer orderId) {
+        boolean flag = false;
         orderTable orderTable = orderMapper.selectById(orderId);
-        orderTable.setPayState(1);
-        orderTable.setPayTime(LocalDateTime.now());
-        int i = orderMapper.updateById(orderTable);
-        boolean flag = i > 0;
-        return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "支付成功" : "支付失败");
+        if (orderTable.getPayState() == 0){
+            int i = orderMapper.deleteById(orderId);
+            flag = i > 0;
+        }
+        return new Result(flag?Code.NORMAL:Code.SYNTAX_ERROR,flag?"取消订单成功":"取消订单失败");
     }
 
 
+    /**
+     * 支付界面查询
+     * @param commodityId   商品id
+     * @param buyTypeId     购买类型id
+     * @param request
+     * @return
+     */
+    @Override
+    public Result paySelect(Integer commodityId,Integer buyTypeId, HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        payDTO payDTO = new payDTO();
+        if (user.getId() != null) {
+            LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(addressInfo::getState, 1);
+            addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
+            payDTO.setAddressInfo(addressInfo);
+            commodity commodity = commodityMapper.selectById(commodityId);
+            payDTO.setCommodity(commodity);
+            buyType buyType = buyTypeMapper.selectById(buyTypeId);
+            payDTO.setBuyType(buyType);
+            boolean flag = addressInfo != null && commodity != null && buyType != null;
+            return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "查询成功": "查询失败", payDTO);
+        } else {
+            return new Result(Code.SYNTAX_ERROR, "请先登录");
+        }
+    }
 }
