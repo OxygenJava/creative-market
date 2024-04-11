@@ -38,8 +38,10 @@ public class commodity{
     private String releaseAddress;
     //开启众筹后的天数
 
+    @TableField(exist = false)
     private Integer crowdfundingDay;
     //开启众筹时间
+    @TableField(exist = false)
     private LocalDateTime beginCrowdfundingTime;
     //结束众筹时间
     @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")

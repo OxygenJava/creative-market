@@ -186,14 +186,18 @@ public class walletServiceImpl implements walletService {
             LambdaQueryWrapper<wallet> lqw = new LambdaQueryWrapper<>();
             lqw.eq(wallet::getUserId,userId);
             wallet wallet = walletMapper.selectOne(lqw);
-            if (investMoney.compareTo(BigDecimal.ZERO) < 0){
-                return new Result(Code.SYNTAX_ERROR,"充值金额不能小于0");
+            if (wallet != null){
+                if (investMoney.compareTo(BigDecimal.ZERO) < 0){
+                    return new Result(Code.SYNTAX_ERROR,"充值金额不能小于0");
+                }else {
+                    BigDecimal balanceAccount = wallet.getBalanceAccount();
+                    wallet.setBalanceAccount(balanceAccount.add(investMoney));
+                    int i = walletMapper.updateById(wallet);
+                    boolean flag = i > 0;
+                    return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "充值成功" : "充值失败");
+                }
             }else {
-                BigDecimal balanceAccount = wallet.getBalanceAccount();
-                wallet.setBalanceAccount(balanceAccount.add(investMoney));
-                int i = walletMapper.updateById(wallet);
-                boolean flag = i > 0;
-                return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "充值成功" : "充值失败");
+                return new Result(Code.NORMAL,"用户未开启钱包功能");
             }
 
         }else {
