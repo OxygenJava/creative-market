@@ -14,15 +14,14 @@ import com.creative.mapper.userMapper;
 import com.creative.service.concernService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -44,7 +43,7 @@ public class concernServiceImpl implements concernService {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-
+        com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
 
         if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
@@ -52,13 +51,15 @@ public class concernServiceImpl implements concernService {
         else if(user.getId()==concern.getConcernId()){
             return new Result(Code.SYNTAX_ERROR,"请不要自我关注","");
         }
+        else if(user2==null){
+            return new Result(Code.SYNTAX_ERROR,"没有该用户","");
+        }
         else {
 
             LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
             lqw.eq(com.creative.domain.concern::getUid,user.getId())
                     .eq(com.creative.domain.concern::getConcernId,concern.getConcernId());
             com.creative.domain.concern concern1 = concernMapper.selectOne(lqw);
-
 
             //排除多次关注同一个人
             if(concern1!=null){
@@ -74,7 +75,7 @@ public class concernServiceImpl implements concernService {
                 user1.setFocusCount(user1.getFocusCount()+1);
                 int update1 = userMapper.updateById(user1);
 
-                com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
+
                 user2.setFansCount(user2.getFansCount()+1);
                 int update2 = userMapper.updateById(user2);
 
@@ -94,12 +95,16 @@ public class concernServiceImpl implements concernService {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
 
         if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
         else if(user.getId()==concern.getConcernId()){
             return new Result(Code.SYNTAX_ERROR,"请不要自我取关","");
+        }
+        else if(user2==null){
+            return new Result(Code.SYNTAX_ERROR,"没有该用户","");
         }
         else {
             LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
@@ -112,7 +117,7 @@ public class concernServiceImpl implements concernService {
             user1.setFocusCount(user1.getFocusCount()-1);
             int update1 = userMapper.updateById(user1);
 
-            com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
+
             user2.setFansCount(user2.getFansCount()-1);
             int update2 = userMapper.updateById(user2);
 
@@ -181,6 +186,11 @@ public class concernServiceImpl implements concernService {
                 list.add(userDTO);
             }
 
+            if(page.getRecords().size()<=0){
+                return new Result(Code.SYNTAX_ERROR,"数据已经到底","");
+            }
+
+            Collections.reverse(list);
             Integer code =  concerns.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = concerns.size()!=0? "查询粉丝成功" : "您还没有粉丝";
             return new Result(code, msg, list);
@@ -214,6 +224,10 @@ public class concernServiceImpl implements concernService {
                 list.add(userDTO);
             }
 
+            if(page.getRecords().size()<=0){
+                return new Result(Code.SYNTAX_ERROR,"数据已经到底","");
+            }
+            Collections.reverse(list);
             Integer code =  concerns.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = concerns.size()!=0? "查询关注成功" : "您还没有关注";
             return new Result(code, msg, list);
@@ -221,16 +235,86 @@ public class concernServiceImpl implements concernService {
     }
 
 
-    //用户模糊查询
+    //关注用户的模糊查询
     @Override
-    public Result selectLikeUser(String name) {
-        LambdaQueryWrapper<user> lqw=new LambdaQueryWrapper<>();
-        lqw.like(user::getUsername,name).or().like(user::getNickName,name);
-        List<user> users = userMapper.selectList(lqw);
-        List<UserDTO> userDTOs = BeanUtil.copyToList(users, UserDTO.class);
-        Integer code=users.size()!=0?Code.NORMAL:Code.SYNTAX_ERROR;
-        String msg=users.size()!=0?"查询成功":"查询失败";
-        return new Result(code,msg,userDTOs);
+    public Result selectLikeFocus(String name,HttpServletRequest request) {
+
+        List<UserDTO> userDTOs=new ArrayList<>();
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(concern::getUid,user.getId());
+            List<concern> concerns = concernMapper.selectList(lqw);
+            if(concerns.size()==0){
+                return new Result(Code.SYNTAX_ERROR,"您还没有关注","");
+            }
+            else {
+                for (concern concern : concerns) {
+                    LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
+                    lqw1.eq(com.creative.domain.user::getId,concern.getConcernId())
+                            .like(com.creative.domain.user::getUsername,name)
+                            .or()
+                            .eq(com.creative.domain.user::getId,concern.getConcernId())
+                            .like(com.creative.domain.user::getNickName,name);
+                    List<com.creative.domain.user> users = userMapper.selectList(lqw1);
+                    List<UserDTO> userDTOS = BeanUtil.copyToList(users, UserDTO.class);
+                    userDTOs.addAll(userDTOS);
+                }
+
+                Integer code =  userDTOs.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg = userDTOs.size()!=0? "查询关注成功" : "查询不到该用户";
+                return new Result(code, msg, userDTOs);
+            }
+
+        }
+
+
+    }
+
+    //粉丝用户的模糊查询
+    @Override
+    public Result selectLikeFans(String name, HttpServletRequest request) {
+
+        List<UserDTO> userDTOs=new ArrayList<>();
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else {
+            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(concern::getConcernId,user.getId());
+            List<concern> concerns = concernMapper.selectList(lqw);
+            if(concerns.size()==0){
+                return new Result(Code.SYNTAX_ERROR,"您还没有关注","");
+            }
+            else {
+                for (concern concern : concerns) {
+                    LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
+                    lqw1.eq(com.creative.domain.user::getId,concern.getUid())
+                            .like(com.creative.domain.user::getUsername,name)
+                            .or()
+                            .eq(com.creative.domain.user::getId,concern.getUid())
+                            .like(com.creative.domain.user::getNickName,name);
+                    List<com.creative.domain.user> users = userMapper.selectList(lqw1);
+                    List<UserDTO> userDTOS = BeanUtil.copyToList(users, UserDTO.class);
+                    userDTOs.addAll(userDTOS);
+                }
+
+                Integer code =   userDTOs.size()!=0?Code.NORMAL : Code.SYNTAX_ERROR;
+                String msg =  userDTOs.size()!=0? "查询关注成功" : "查询不到该用户";
+                return new Result(code, msg, userDTOs);
+            }
+
+        }
     }
 
     @Override
