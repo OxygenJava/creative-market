@@ -42,13 +42,13 @@ public class likecommodityServicImpl implements likecommodityService {
                 String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-        likecommodity.setUid(user.getId());
 
 
-        if(likecommodity.getUid()==null){
+        if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
         else {
+            likecommodity.setUid(user.getId());
             commodity commodity = commodityMapper.selectById(likecommodity.getCid());
             commodity.setLikesReceived(commodity.getLikesReceived()+1);
             commodity.setLikesState(1);
