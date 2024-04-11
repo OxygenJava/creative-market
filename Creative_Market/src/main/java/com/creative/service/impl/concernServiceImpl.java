@@ -367,4 +367,49 @@ public class concernServiceImpl implements concernService {
 
     }
 
+    @Override
+    public Result cancelFans(concern concern, HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        com.creative.domain.user user2 = userMapper.selectById(concern.getConcernId());
+
+        if(user.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        else if(user.getId()==concern.getConcernId()){
+            return new Result(Code.SYNTAX_ERROR,"请不要自我移除","");
+        }
+        else if(user2==null){
+            return new Result(Code.SYNTAX_ERROR,"没有该用户","");
+        }
+        else {
+            LambdaQueryWrapper<concern> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(com.creative.domain.concern::getUid,concern.getConcernId())
+                    .eq(com.creative.domain.concern::getConcernId,user.getId());
+
+            com.creative.domain.concern concern1 = concernMapper.selectOne(lqw);
+
+            if(concern1==null){
+                return new Result(Code.SYNTAX_ERROR,"他还没关注你","");
+            }
+
+            int delete = concernMapper.delete(lqw);
+
+
+            com.creative.domain.user user1 = userMapper.selectById(user.getId());
+            user1.setFansCount(user1.getFansCount()-1);
+            int update1 = userMapper.updateById(user1);
+
+
+            user2.setFocusCount(user2.getFocusCount()-1);
+            int update2 = userMapper.updateById(user2);
+
+
+            Integer code = delete > 0 && update1>0 && update2>0? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = delete > 0  && update1>0 && update2>0? "移除粉丝成功" : "移除粉丝失败";
+            return new Result(code, msg, "");
+        }
+    }
+
 }

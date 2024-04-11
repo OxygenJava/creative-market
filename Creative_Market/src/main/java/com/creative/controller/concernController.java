@@ -29,6 +29,12 @@ public class concernController {
         return result;
     }
 
+    @DeleteMapping("/fans")
+    public Result cancelFans(@RequestBody concern concern,HttpServletRequest request){
+        Result result = concernService.cancelFans(concern,request);
+        return result;
+    }
+
     @GetMapping("/if/{uid}")
     public Result ifconcern(@PathVariable Integer uid, HttpServletRequest request){
         Result result = concernService.ifconcern(uid,request);

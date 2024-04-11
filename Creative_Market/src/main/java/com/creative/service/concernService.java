@@ -18,4 +18,5 @@ public interface concernService {
     Result selectLikeFans(String name,HttpServletRequest request);
     Result selectFansTotal(HttpServletRequest request);
     Result selectFocusTotal(HttpServletRequest request);
+    Result cancelFans(concern concern,HttpServletRequest request);
 }
