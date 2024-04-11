@@ -48,9 +48,16 @@ public class concernController {
     }
 
 
-    @GetMapping("/{name}")
-    public Result selectLikeUser(@PathVariable String name){
-        Result result = concernService.selectLikeUser(name);
+    @GetMapping("/Likefocus/{name}")
+    public Result selectLikeFocus(@PathVariable String name,HttpServletRequest request){
+        Result result = concernService.selectLikeFocus(name,request);
+        return result;
+    }
+
+
+    @GetMapping("/Likefans/{name}")
+    public Result selectLikeFans(@PathVariable String name,HttpServletRequest request){
+        Result result = concernService.selectLikeFans(name,request);
         return result;
     }
 
