@@ -85,7 +85,7 @@ public class walletServiceImpl implements walletService {
             if (payPasswordForm.getOriginalPassword().equals(payPasswordForm.getConfirmNewPassword())) {
                 wallet.setPayPassword(DigestUtil.md5Hex(payPasswordForm.getConfirmNewPassword()));
                 wallet.setIsOpen(1);
-                wallet.setCreatTime(LocalDateTime.now());
+                wallet.setCreateTime(LocalDateTime.now());
                 int insert = walletMapper.insert(wallet);
                 boolean flag = insert > 0;
                 return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR, flag ? "成功开启钱包" : "开启钱包失败");

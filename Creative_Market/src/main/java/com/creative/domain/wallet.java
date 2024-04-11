@@ -24,7 +24,7 @@ public class wallet {
     private Integer isOpen;
 
     @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime creatTime;
+    private LocalDateTime createTime;
 
     @JsonFormat(pattern ="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
