@@ -299,6 +299,9 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         if (user == null){
             return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
         }
+        if ("".equals(user.getIconImage())){
+            user.setIconImage(null);
+        }
         String s = imgUtils.encodeImageToBase64(iconImage + "\\" + user.getIconImage());
         user.setIconImage(s);
 
