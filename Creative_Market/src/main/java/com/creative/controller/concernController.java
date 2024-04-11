@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/concern")
+@CrossOrigin
 public class concernController {
 
     @Autowired
