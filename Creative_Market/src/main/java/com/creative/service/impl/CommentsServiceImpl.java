@@ -123,13 +123,17 @@ public class CommentsServiceImpl implements CommentsService {
      * 分页查询评论
      * @param pageSize
      * @param pageNumber
+     * @param postId
      * @return
      */
     @Override
-    public Result getCommentByPage(Integer pageSize, Integer pageNumber) {
+    public Result getCommentByPage(Integer pageSize, Integer pageNumber,Integer postId) {
         //首先查询父级评论
         Page<fatherComments> fatherCommentsPage = new Page<>(pageSize,pageNumber);
-        IPage<fatherComments> fatherCommentsIPage = fatherCommentsMapper.selectPage(fatherCommentsPage,null);
+        LambdaQueryWrapper<fatherComments> fatherCommentsLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        fatherCommentsLambdaQueryWrapper.eq(fatherComments::getPostId,postId);
+        IPage<fatherComments> fatherCommentsIPage = fatherCommentsMapper.selectPage
+                (fatherCommentsPage,fatherCommentsLambdaQueryWrapper);
         List<fatherComments> records = fatherCommentsIPage.getRecords();
         //返回给前端的集合
         List<getCommentByPageDTO> getCommentByPageDTOList = new ArrayList<>();
@@ -189,11 +193,25 @@ public class CommentsServiceImpl implements CommentsService {
             }
             commentByPageDTO.setCreateTime(getTimeStr(record.getCreateTime()));
             commentByPageDTO.setGetCommentByPageChildDTOList(getCommentByPageChildDTOList);
-
+            commentByPageDTO.setTotal(getCommentByPageChildDTOList.size());
             getCommentByPageDTOList.add(commentByPageDTO);
         }
         System.out.println(getCommentByPageDTOList.size());
         return Result.success(getCommentByPageDTOList);
+    }
+
+    /**
+     * 获取该帖子的父级标签总数
+     *
+     * @param postId
+     * @return
+     */
+    @Override
+    public Result getTotalNumber(Integer postId) {
+        LambdaQueryWrapper<fatherComments> fatherCommentsLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        fatherCommentsLambdaQueryWrapper.eq(fatherComments::getPostId,postId);
+        List<fatherComments> fatherComments = fatherCommentsMapper.selectList(fatherCommentsLambdaQueryWrapper);
+        return Result.success(fatherComments.size());
     }
 
     /**

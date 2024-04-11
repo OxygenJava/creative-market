@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/concern")
+@CrossOrigin
 public class concernController {
 
     @Autowired
@@ -25,6 +26,12 @@ public class concernController {
     @DeleteMapping
     public Result cancelConcern(@RequestBody concern concern,HttpServletRequest request){
         Result result = concernService.cancelConcern(concern,request);
+        return result;
+    }
+
+    @DeleteMapping("/fans")
+    public Result cancelFans(@RequestBody concern concern,HttpServletRequest request){
+        Result result = concernService.cancelFans(concern,request);
         return result;
     }
 
@@ -48,9 +55,16 @@ public class concernController {
     }
 
 
-    @GetMapping("/{name}")
-    public Result selectLikeUser(@PathVariable String name){
-        Result result = concernService.selectLikeUser(name);
+    @GetMapping("/Likefocus/{name}")
+    public Result selectLikeFocus(@PathVariable String name,HttpServletRequest request){
+        Result result = concernService.selectLikeFocus(name,request);
+        return result;
+    }
+
+
+    @GetMapping("/Likefans/{name}")
+    public Result selectLikeFans(@PathVariable String name,HttpServletRequest request){
+        Result result = concernService.selectLikeFans(name,request);
         return result;
     }
 

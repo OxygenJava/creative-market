@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/controller")
+@CrossOrigin
 public class CommentsController {
 
     @Autowired
@@ -40,8 +41,19 @@ public class CommentsController {
      * @param pageNumber
      * @return
      */
-    @GetMapping("/getCommentByPage/{pageSize}/{pageNumber}")
-    public Result getCommentByPage(@PathVariable Integer pageSize,@PathVariable Integer pageNumber){
-        return commentsService.getCommentByPage(pageSize,pageNumber);
+    @GetMapping("/getCommentByPage/{pageSize}/{pageNumber}/{postId}")
+    public Result getCommentByPage(@PathVariable Integer pageSize,@PathVariable Integer pageNumber,
+                                   @PathVariable Integer postId){
+        return commentsService.getCommentByPage(pageSize,pageNumber,postId);
+    }
+
+    /**
+     * 获取该帖子的父级标签总数
+     * @param postId
+     * @return
+     */
+    @GetMapping("/getTotalNumber/{postId}")
+    public Result getTotalNumber(@PathVariable Integer postId){
+        return commentsService.getTotalNumber(postId);
     }
 }
