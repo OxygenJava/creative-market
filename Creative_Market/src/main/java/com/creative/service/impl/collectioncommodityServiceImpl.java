@@ -10,13 +10,16 @@ import com.creative.mapper.commodityMapper;
 import com.creative.mapper.likecommodityMapper;
 import com.creative.service.collectioncommodityService;
 import com.creative.service.collectionpostService;
+import com.creative.utils.imgUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -33,8 +36,8 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-
-
+    @Value("${creativeMarket.shopImage}")
+    private String shopImage;
 
     @Override
     public Result ClickCollectioncommodity(collectioncommodity collectioncommodity, HttpServletRequest request) {
@@ -119,6 +122,12 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
                 if(commodities2!=null){
                     for (int i = 0; i < commodities2.size(); i++) {
                         commodities2.get(i).setCollectionState(1);
+                        try {
+                            commodities2.get(i).setHomePageImage(imgUtils.encodeImageToBase64
+                                    (shopImage+"\\"+commodities2.get(i).getHomePageImage()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 

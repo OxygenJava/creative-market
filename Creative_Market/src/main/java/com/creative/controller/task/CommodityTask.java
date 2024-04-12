@@ -25,6 +25,10 @@ public class CommodityTask {
             LocalDateTime releaseTime = commodity.getReleaseTime();
             //查询现在时间是否在预计众筹时间之后
             if (LocalDateTime.now().isAfter(releaseTime.plusDays(14))){
+                if (commodity.getBeginCrowdfundingTime() == null){
+                    LocalDateTime localDateTime = releaseTime.plusDays(14);
+                    commodity.setBeginCrowdfundingTime(localDateTime);
+                }
                 commodity.setState(1);
                 commodityService.updateById(commodity);
             }
