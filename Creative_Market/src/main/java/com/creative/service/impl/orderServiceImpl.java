@@ -126,6 +126,8 @@ public class orderServiceImpl implements orderService {
             }
             BigDecimal balanceAccount = wallet.getBalanceAccount();
             orderTable orderTable = orderMapper.selectById(orderId);
+            Integer payState = orderTable.getPayState();
+            if (payState == 1) return new Result(Code.NORMAL,"订单已支付");
             BigDecimal payMoney = BigDecimal.valueOf(orderTable.getPayMoney());
             if (balanceAccount.compareTo(payMoney) >= 0 && balanceAccount.compareTo(BigDecimal.ZERO) >= 0){
                 wallet.setBalanceAccount(balanceAccount.subtract(payMoney));

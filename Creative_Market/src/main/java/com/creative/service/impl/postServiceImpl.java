@@ -2,6 +2,7 @@ package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creative.domain.*;
 import com.creative.dto.*;
@@ -343,6 +344,24 @@ public class postServiceImpl implements postService {
         }
 
         return Result.success(postDTO);
+    }
+
+    //分页模糊查询所有帖子
+    @Override
+    public Result selectLikePost(Integer pageSize, Integer pageNumber, String body) {
+
+        IPage page=new Page(pageNumber,pageSize);
+        LambdaQueryWrapper<post> lqw=new LambdaQueryWrapper<>();
+        lqw.like(post::getBody,body).or().like(post::getTitle,body);
+        postMapper.selectPage(page,lqw);
+        List<post> records = page.getRecords();
+        if (records.size() <= 0){
+            return Result.success("数据已经到底了");
+        }
+        Integer code = records != null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = records != null ? "查询成功" : "查询失败";
+        return new Result(code, msg, records);
+
     }
 
 
