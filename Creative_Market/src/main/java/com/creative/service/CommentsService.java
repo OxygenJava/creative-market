@@ -25,7 +25,15 @@ public interface CommentsService {
      * 分页查询评论
      * @param pageSize
      * @param pageNumber
+     * @param postId
      * @return
      */
-    Result getCommentByPage(Integer pageSize, Integer pageNumber);
+    Result getCommentByPage(Integer pageSize, Integer pageNumber,Integer postId);
+
+    /**
+     * 获取该帖子的父级标签总数
+     * @param postId
+     * @return
+     */
+    Result getTotalNumber(Integer postId);
 }

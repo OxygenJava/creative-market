@@ -285,6 +285,16 @@ public class concernServiceImpl implements concernService {
                             .like(com.creative.domain.user::getNickName, name);
                     List<com.creative.domain.user> users = userMapper.selectList(lqw1);
                     List<UserDTO> userDTOS = BeanUtil.copyToList(users, UserDTO.class);
+                    for (int i = 0; i < userDTOS.size(); i++) {
+                        try {
+                            userDTOS.get(i)
+                                    .setIconImage(
+                                            imgUtils.encodeImageToBase64(
+                                                    iconImage+"\\"+userDTOS.get(i).getIconImage()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     userDTOs.addAll(userDTOS);
                 }
 
@@ -324,6 +334,16 @@ public class concernServiceImpl implements concernService {
                             .eq(com.creative.domain.user::getId, concern.getUid())
                             .like(com.creative.domain.user::getNickName, name);
                     List<com.creative.domain.user> users = userMapper.selectList(lqw1);
+                    for (int i = 0; i < users.size(); i++) {
+                        try {
+                            users.get(i)
+                                    .setIconImage(
+                                            imgUtils.encodeImageToBase64(
+                                                    iconImage+"\\"+users.get(i).getIconImage()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     List<UserDTO> userDTOS = BeanUtil.copyToList(users, UserDTO.class);
                     userDTOs.addAll(userDTOS);
                 }

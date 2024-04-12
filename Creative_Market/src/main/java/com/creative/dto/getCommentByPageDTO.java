@@ -16,6 +16,9 @@ public class getCommentByPageDTO {
     //现在的时间和回复的时间差
     private String createTime;
 
+    //存放总条数
+    private Integer total;
+
     //存放子级评论的集合
     List<getCommentByPageChildDTO> getCommentByPageChildDTOList;
 }
