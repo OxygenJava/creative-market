@@ -42,4 +42,6 @@ public interface postService {
      * @return
      */
     Result getPostDetail(Integer postId);
+
+    Result selectLikePost(Integer pageSize, Integer pageNumber,String body);
 }
