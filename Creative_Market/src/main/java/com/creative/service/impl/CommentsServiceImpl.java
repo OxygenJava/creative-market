@@ -142,6 +142,7 @@ public class CommentsServiceImpl implements CommentsService {
             getCommentByPageDTO commentByPageDTO = new getCommentByPageDTO();
             //获取父级评论者的信息
             user fatherUser = userService.getById(record.getUserId());
+            commentByPageDTO.setFatherUserId(record.getUserId());
             //设置父级评论id
             commentByPageDTO.setFatherId(record.getId());
             //设置回复正文
@@ -170,6 +171,7 @@ public class CommentsServiceImpl implements CommentsService {
             for (childComments childComment : childComments) {
                 getCommentByPageChildDTO getByPageChildDTO = new getCommentByPageChildDTO();
                 getByPageChildDTO.setId(childComment.getId());
+                getByPageChildDTO.setChildUserId(childComment.getUserId());
                 getByPageChildDTO.setContent(childComment.getContent());
                 //获取发布者信息
                 user faBuUser = userService.lambdaQuery().eq(user::getId, childComment.getUserId()).one();

@@ -7,6 +7,7 @@ import java.util.List;
 @Data
 public class getCommentByPageDTO {
     private Integer fatherId;
+    private Integer fatherUserId;
     private String userNickName;
     private String userIconImage;
     //回复正文
