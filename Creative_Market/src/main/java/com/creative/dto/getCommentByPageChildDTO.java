@@ -9,6 +9,7 @@ import lombok.Data;
  */
 public class getCommentByPageChildDTO {
     private Integer id;
+    private Integer childUserId;
     private String userNickName;
     private String userIconImage;
     //回复正文
