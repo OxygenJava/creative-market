@@ -8,15 +8,19 @@ import com.creative.dto.Result;
 import com.creative.mapper.collectioncommodityMapper;
 import com.creative.mapper.commodityMapper;
 import com.creative.mapper.likecommodityMapper;
+import com.creative.mapper.userMapper;
 import com.creative.service.collectioncommodityService;
 import com.creative.service.collectionpostService;
+import com.creative.utils.imgUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -32,6 +36,12 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private userMapper userMapper;
+
+    @Value("${creativeMarket.iconImage}")
+    private String iconImage;
 
 
 
@@ -86,7 +96,7 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
 
 
     @Override
-    public Result selectCollectioncommodity(HttpServletRequest request) {
+    public Result selectCollectioncommodity(HttpServletRequest request)  {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
@@ -100,7 +110,7 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
             lqw.eq(collectioncommodity::getUid,user.getId());
             List<collectioncommodity> collectioncommodities = collectioncommodityMapper.selectList(lqw);
             ArrayList<Integer> list1=new ArrayList<>();
-            ArrayList<commodity> list=new ArrayList<>();
+            ArrayList<collectionCommodityUser> list=new ArrayList<>();
 
             if(collectioncommodities==null){
                 return new Result(Code.SYNTAX_ERROR, "", "");
@@ -122,7 +132,18 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
                     }
                 }
 
-                list.addAll(commodities2);
+                List<collectionCommodityUser> collectionCommodityUsers = BeanUtil.copyToList(commodities2, collectionCommodityUser.class);
+                list.addAll(collectionCommodityUsers);
+                for (collectionCommodityUser collectionCommodityUser : list) {
+                    com.creative.domain.user user1 = userMapper.selectById(collectionCommodityUser.getReleaseUserId());
+                    collectionCommodityUser.setNickName(user1.getNickName());
+                    try {
+                        collectionCommodityUser.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
 
             }
             Integer code = list !=null ? Code.NORMAL : Code.SYNTAX_ERROR;
