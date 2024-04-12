@@ -75,7 +75,7 @@ public class postController {
 
     //分页模糊查询所有帖子
     @GetMapping("/{pageSize}/{pageNumber}/{body}")
-    public Result getAllDiscover(@PathVariable Integer pageSize,@PathVariable Integer pageNumber,@PathVariable String body){
+    public Result selectLikePost(@PathVariable Integer pageSize,@PathVariable Integer pageNumber,@PathVariable String body){
         return postService.selectLikePost(pageSize, pageNumber, body);
 
 
