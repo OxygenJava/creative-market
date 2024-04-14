@@ -15,14 +15,17 @@ import com.creative.mapper.chatMessageMapper;
 import com.creative.mapper.chatUserLinkMapper;
 import com.creative.mapper.userMapper;
 import com.creative.service.chatService;
+import com.creative.utils.imgUtils;
 import com.creative.utils.websocketgetHeader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +51,9 @@ public class chatServiceImpl implements chatService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Value("${creativeMarket.iconImage}")
+    private String iconImage;
 
     @Override
     public Integer selectAssociation(String fromUser, String toUser) {
@@ -253,6 +259,11 @@ public class chatServiceImpl implements chatService {
             LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
             lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser());
             com.creative.domain.user user1 = userMapper.selectOne(lqw1);
+            try {
+                user1.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             list.add(user1);
         }
 
