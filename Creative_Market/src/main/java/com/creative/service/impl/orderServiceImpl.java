@@ -9,13 +9,17 @@ import com.creative.dto.payDTO;
 import com.creative.mapper.*;
 import com.creative.service.orderService;
 import com.creative.utils.RandomUtil;
+import com.creative.utils.imgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +42,9 @@ public class orderServiceImpl implements orderService {
 
     @Autowired
     private walletMapper walletMapper;
+
+    @Value("${creativeMarket.shopImage}")
+    private String imgAddress;
 
     /**
      * 创建订单
@@ -182,6 +189,14 @@ public class orderServiceImpl implements orderService {
             addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
             payDTO.setAddressInfo(addressInfo);
             commodity commodity = commodityMapper.selectById(commodityId);
+            String homePageImage = imgAddress +"\\" + commodity.getHomePageImage();
+            String Base64homePageImage = null;
+            try {
+                Base64homePageImage = imgUtils.encodeImageToBase64(homePageImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            commodity.setHomePageImage(Base64homePageImage);
             payDTO.setCommodity(commodity);
             buyType buyType = buyTypeMapper.selectById(buyTypeId);
             payDTO.setBuyType(buyType);

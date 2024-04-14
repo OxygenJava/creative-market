@@ -348,11 +348,11 @@ public class postServiceImpl implements postService {
 
     //分页模糊查询所有帖子
     @Override
-    public Result selectLikePost(Integer pageSize, Integer pageNumber, String body) {
+    public Result selectLikePost(Integer pageSize, Integer pageNumber, post post) {
 
         IPage page=new Page(pageNumber,pageSize);
         LambdaQueryWrapper<post> lqw=new LambdaQueryWrapper<>();
-        lqw.like(post::getBody,body).or().like(post::getTitle,body);
+        lqw.like(com.creative.domain.post::getBody,post.getBody()).or().like(com.creative.domain.post::getTitle,post.getBody());
         postMapper.selectPage(page,lqw);
         List<post> records = page.getRecords();
         if (records.size() <= 0){

@@ -30,5 +30,10 @@ public class chatController {
         return result;
     }
 
+    @GetMapping("/token")
+    public Result selectToken(HttpServletRequest request){
+        Result result = chatService.selectToken(request);
+        return result;
+    }
 
 }
