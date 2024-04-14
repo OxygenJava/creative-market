@@ -25,12 +25,14 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@ServerEndpoint(value = "/websocket",configurator = websocketConfig.class)
+@ServerEndpoint("/websocket/{username}")
 @Component
 @CrossOrigin
 public class websocketServer {
@@ -49,47 +51,36 @@ public class websocketServer {
 
     private static final ArrayList<String> list=new ArrayList<>();
 
-    private static  boolean flag;
 
-    static {
-        flag=true;
-    }
+
+
 
 
     //连接建立成功调用的方法
     @OnOpen
-    public void onOpen(Session session) throws Exception{
-        StringRedisTemplate redisTemplate = SpringUtil.getBean(StringRedisTemplate.class);
-        userMapper userMapper = SpringUtil.getBean(userMapper.class);
-        concernMapper concernMapper = SpringUtil.getBean(concernMapper.class);
+    public void onOpen(Session session,@PathParam("username") String username) throws Exception{
+//        StringRedisTemplate redisTemplate = SpringUtil.getBean(StringRedisTemplate.class);
+//        userMapper userMapper = SpringUtil.getBean(userMapper.class);
+//        concernMapper concernMapper = SpringUtil.getBean(concernMapper.class);
 
-        String authorization = websocketgetHeader.getHeader(session,"Authorization");
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
-        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
-        if(userDTO.getId()==null || authorization==null){
-            session.close();
-        }
 
-        else {
-//            if(flag) {
-//                LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
-//                lqw.eq(concern::getUid, userDTO.getId());
-//                List<concern> concerns = concernMapper.selectList(lqw);
-//                for (int i = 0; i < concerns.size(); i++) {
-//                    Integer concernId = concerns.get(i).getConcernId();
-//                    user user = userMapper.selectById(concernId);
-//                    sessionMap1.put(user.getUsername(), session);
-//                }
-//                flag=false;
-//            }
+//        String authorization = websocketgetHeader.getHeader(session,"Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
+//        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
 
-            user user = userMapper.selectById(userDTO.getId());
+//        if(userDTO.getId()==null){
+//            session.close();
+//        }
 
-            sessionMap.put(user.getUsername(),session);
+//        else {
+
+//            user user = userMapper.selectById(userDTO.getId());
+
+            sessionMap.put(username,session);
 
 
 
-            log.info("有新用户加入，username={}，当前在线人数为：{}",user.getUsername(),sessionMap.size());
+            log.info("有新用户加入，username={}，当前在线人数为：{}",username,sessionMap.size());
             JSONObject result=new JSONObject();
             JSONArray array=new JSONArray();
             JSONObject result1=new JSONObject();
@@ -116,7 +107,7 @@ public class websocketServer {
             sessionMap2.clear();
             list.clear();
 
-            sessionMap1.remove(user.getUsername());
+            sessionMap1.remove(username);
 
             for (String s : sessionMap1.keySet()) {
                 JSONObject jsonObject2=new JSONObject();
@@ -130,29 +121,29 @@ public class websocketServer {
         }
 
 
-    }
+//    }
 
     //连接关闭调用的方法
     @OnClose
-    public void onClose(Session session){
+    public void onClose(Session session,@PathParam("username") String username){
 
-        StringRedisTemplate redisTemplate = SpringUtil.getBean(StringRedisTemplate.class);
-        userMapper userMapper = SpringUtil.getBean(userMapper.class);
+//        StringRedisTemplate redisTemplate = SpringUtil.getBean(StringRedisTemplate.class);
+//        userMapper userMapper = SpringUtil.getBean(userMapper.class);
         chatService chatService= SpringUtil.getBean(chatServiceImpl.class);
-        String authorization = websocketgetHeader.getHeader(session,"Authorization");
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
-        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
-        user user = userMapper.selectById(userDTO.getId());
-
-        if(userDTO.getId()==null || authorization==null){
-            return;
-        }
-        else {
-            chatService.resetWindows(user.getUsername());
-            sessionMap1.put(user.getUsername(),session);
-            sessionMap.remove(user.getUsername());
-            log.info("有一连接关闭，移除username={}的用户session，当前在线人数为：{}",userDTO.getUsername(),sessionMap.size());
-        }
+//        String authorization = websocketgetHeader.getHeader(session,"Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
+//        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+//        user user = userMapper.selectById(userDTO.getId());
+//
+//        if(userDTO.getId()==null || authorization==null){
+//            return;
+//        }
+//        else {
+            chatService.resetWindows(username);
+            sessionMap1.put(username,session);
+            sessionMap.remove(username);
+            log.info("有一连接关闭，移除username={}的用户session，当前在线人数为：{}",username,sessionMap.size());
+//        }
 
     }
 
@@ -163,17 +154,17 @@ public class websocketServer {
     //onMessage是一个小希的中转站
 
     @OnMessage
-    public void onMessage(String message,Session session){
-        StringRedisTemplate redisTemplate = SpringUtil.getBean(StringRedisTemplate.class);
-        userMapper userMapper = SpringUtil.getBean(userMapper.class);
+    public void onMessage(String message,Session session,@PathParam("username") String username){
+//        StringRedisTemplate redisTemplate = SpringUtil.getBean(StringRedisTemplate.class);
+//        userMapper userMapper = SpringUtil.getBean(userMapper.class);
         chatService chatService= SpringUtil.getBean(chatServiceImpl.class);
-        String authorization = websocketgetHeader.getHeader(session,"Authorization");
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
-        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
-        user user = userMapper.selectById(userDTO.getId());
+//        String authorization = websocketgetHeader.getHeader(session,"Authorization");
+//        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
+//        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+//        user user = userMapper.selectById(userDTO.getId());
 
 
-        log.info("服务端收到用户username={}的消息：{}",user.getUsername(),message);
+        log.info("服务端收到用户username={}的消息：{}",username,message);
 
         chatMessage chatMessage = new chatMessage();
 
@@ -185,35 +176,35 @@ public class websocketServer {
 
         if(toSession!=null){
             JSONObject jsonObject1=new JSONObject();
-            jsonObject1.set("from",user.getUsername());
+            jsonObject1.set("from",username);
             jsonObject1.set("text",text);
-            Integer linkId = chatService.selectAssociation(user.getUsername(), toUsername);
+            Integer linkId = chatService.selectAssociation(username, toUsername);
             chatService.addUnread(linkId);
             this.sendMessage(jsonObject1.toString(),toSession);
             log.info("发送给用户username={}，消息：{}",toUsername,jsonObject1.toString());
-            chatMessage.setFromUser(user.getUsername());
+            chatMessage.setFromUser(username);
             chatMessage.setToUser(toUsername);
             chatMessage.setLinkId(linkId);
             chatMessage.setContent(text);
-            chatService.updateend(user.getUsername(),toUsername);
+            chatService.updateend(username,toUsername);
             chatService.saveMessage(chatMessage);
 
         }
         else {
             JSONObject jsonObject1=new JSONObject();
-            jsonObject1.set("from",user.getUsername());
+            jsonObject1.set("from",username);
             jsonObject1.set("text",text);
             sessionMap2.put(jsonObject1.toString(),session);
             list.add(toUsername);
             log.info("发送给用户username={}，消息：{}",toUsername,jsonObject1.toString()+""+list);
 
-            Integer linkId = chatService.selectAssociation(user.getUsername(), toUsername);
-            chatService.addUnread(linkId);
-            chatMessage.setFromUser(user.getUsername());
+            Integer linkId = chatService.selectAssociation(username, toUsername);
+                chatMessage.setLinkId(linkId);
+                chatService.addUnread(linkId);
+            chatMessage.setFromUser(username);
             chatMessage.setToUser(toUsername);
-            chatMessage.setLinkId(linkId);
             chatMessage.setContent(text);
-            chatService.updateend(user.getUsername(),toUsername);
+            chatService.updateend(username,toUsername);
             chatService.saveMessage(chatMessage);
 
         }

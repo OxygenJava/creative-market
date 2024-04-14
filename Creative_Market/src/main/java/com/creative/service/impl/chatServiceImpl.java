@@ -82,7 +82,7 @@ public class chatServiceImpl implements chatService {
             return new Result(Code.SYNTAX_ERROR,"请不要给自己发消息","");
         }
         else {
-            chatList chatList=new chatList();
+
             chatUserLink chatUserLink1=new chatUserLink();
 
             Integer linkId = selectAssociation(user.getUsername(), toUser);
@@ -106,6 +106,8 @@ public class chatServiceImpl implements chatService {
 
 
             if(chatuserLink==null){
+                chatList chatList=new chatList();
+
                 chatUserLink1.setFromUser(user.getUsername());
                 chatUserLink1.setToUser(toUser);
                 chatUserLink1.setCreateTime(nowTime);
@@ -121,7 +123,6 @@ public class chatServiceImpl implements chatService {
                             if(list.getFromWindow()==1){
                                 chatList.setToWindow(1);
                             }
-
                     }
                     }
                     else {
@@ -218,9 +219,11 @@ public class chatServiceImpl implements chatService {
         LambdaQueryWrapper<chatList> lqw=new LambdaQueryWrapper<>();
         lqw.eq(chatList::getLinkId,linkId);
         chatList chatList = chatLMapper.selectOne(lqw);
+        if(chatList!=null){
         if(chatList.getToWindow()==0){
             chatList.setUnread(chatList.getUnread()+1);
             chatLMapper.updateById(chatList);
+        }
         }
     }
 
@@ -272,6 +275,21 @@ public class chatServiceImpl implements chatService {
         Integer code = chatUserLinks!=null? Code.NORMAL : Code.SYNTAX_ERROR;
         String msg = chatUserLinks!=null? "查询成功" : "查询失败";
         return new Result(code, msg, userDTOS);
+
+    }
+
+    @Override
+    public Result selectToken(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        if(userDTO.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+        user user = userMapper.selectById(userDTO.getId());
+        Integer code = user!=null? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = user!=null? "查询成功" : "查询失败";
+        return new Result(code, msg, user.getUsername());
 
     }
 

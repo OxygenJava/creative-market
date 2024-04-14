@@ -25,7 +25,8 @@ public class websocketConfig extends ServerEndpointConfig.Configurator {
         final Map<String, Object> userProperties = sec.getUserProperties();
         Map<String, List<String>> headers = request.getHeaders();
         List<String> authorization = headers.get("Authorization");
-        userProperties.put("Authorization", authorization.get(0));
+         userProperties.put("Authorization", authorization.get(0));
+
     }
 
     /**
