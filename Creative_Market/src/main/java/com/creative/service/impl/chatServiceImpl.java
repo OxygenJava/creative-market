@@ -15,14 +15,19 @@ import com.creative.mapper.chatMessageMapper;
 import com.creative.mapper.chatUserLinkMapper;
 import com.creative.mapper.userMapper;
 import com.creative.service.chatService;
+import com.creative.utils.imgUtils;
 import com.creative.utils.websocketgetHeader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +52,9 @@ public class chatServiceImpl implements chatService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Value("${creativeMarket.iconImage}")
+    private String iconImage;
+
     @Override
     public Integer selectAssociation(String fromUser, String toUser) {
       LambdaQueryWrapper<chatUserLink> lqw=new LambdaQueryWrapper<>();
@@ -70,7 +78,10 @@ public class chatServiceImpl implements chatService {
         user user = userMapper.selectById(userDTO.getId());
         if(userDTO.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
-        }else {
+        }else if(user.getUsername().equals(toUser)){
+            return new Result(Code.SYNTAX_ERROR,"请不要给自己发消息","");
+        }
+        else {
             chatList chatList=new chatList();
             chatUserLink chatUserLink1=new chatUserLink();
 
@@ -226,7 +237,43 @@ public class chatServiceImpl implements chatService {
         }
     }
 
+    @Override
+    public Result selectChatUser(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(String.valueOf(authorization));
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
 
+        if(userDTO.getId()==null){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
+        }
+
+        user user = userMapper.selectById(userDTO.getId());
+        ArrayList<user> list=new ArrayList();
+
+        LambdaQueryWrapper<chatUserLink> lqw=new LambdaQueryWrapper<>();
+        lqw.eq(chatUserLink::getFromUser,user.getUsername());
+        List<chatUserLink> chatUserLinks = chatuserMapper.selectList(lqw);
+
+
+        for (chatUserLink chatUserLink : chatUserLinks) {
+            LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
+            lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser());
+            com.creative.domain.user user1 = userMapper.selectOne(lqw1);
+            try {
+                user1.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            list.add(user1);
+        }
+
+        List<UserDTO> userDTOS = BeanUtil.copyToList(list, UserDTO.class);
+
+        Integer code = chatUserLinks!=null? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = chatUserLinks!=null? "查询成功" : "查询失败";
+        return new Result(code, msg, userDTOS);
+
+    }
 
 
 }
