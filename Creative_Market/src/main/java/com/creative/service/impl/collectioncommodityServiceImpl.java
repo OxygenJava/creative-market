@@ -37,6 +37,8 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Value("${creativeMarket.shopImage}")
+    private String shopImage;
     @Autowired
     private userMapper userMapper;
 
@@ -129,6 +131,12 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
                 if(commodities2!=null){
                     for (int i = 0; i < commodities2.size(); i++) {
                         commodities2.get(i).setCollectionState(1);
+                        try {
+                            commodities2.get(i).setHomePageImage(imgUtils.encodeImageToBase64
+                                    (shopImage+"\\"+commodities2.get(i).getHomePageImage()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
