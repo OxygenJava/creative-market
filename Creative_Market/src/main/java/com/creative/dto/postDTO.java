@@ -36,6 +36,7 @@ public class postDTO {
 
     //帖子发布者头像
     private String iconImage;
+    private Integer uid;
     //帖子图片路径
     private List<String> image;
 }
