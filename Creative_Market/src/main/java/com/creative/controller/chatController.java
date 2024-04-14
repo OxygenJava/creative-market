@@ -24,5 +24,11 @@ public class chatController {
     }
 
 
+    @GetMapping
+    public Result selectChatUser(HttpServletRequest request){
+        Result result = chatService.selectChatUser(request);
+        return result;
+    }
+
 
 }

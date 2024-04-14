@@ -21,6 +21,9 @@ public interface chatService {
 
     void updateend(String fromUser,String toUser);
 
+    //获取聊天用户的信息
+    Result selectChatUser(HttpServletRequest request);
+
 
 
 

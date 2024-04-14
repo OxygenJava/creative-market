@@ -71,17 +71,17 @@ public class websocketServer {
         }
 
         else {
-            if(flag) {
-                LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
-                lqw.eq(concern::getUid, userDTO.getId());
-                List<concern> concerns = concernMapper.selectList(lqw);
-                for (int i = 0; i < concerns.size(); i++) {
-                    Integer concernId = concerns.get(i).getConcernId();
-                    user user = userMapper.selectById(concernId);
-                    sessionMap1.put(user.getUsername(), session);
-                }
-                flag=false;
-            }
+//            if(flag) {
+//                LambdaQueryWrapper<concern> lqw = new LambdaQueryWrapper<>();
+//                lqw.eq(concern::getUid, userDTO.getId());
+//                List<concern> concerns = concernMapper.selectList(lqw);
+//                for (int i = 0; i < concerns.size(); i++) {
+//                    Integer concernId = concerns.get(i).getConcernId();
+//                    user user = userMapper.selectById(concernId);
+//                    sessionMap1.put(user.getUsername(), session);
+//                }
+//                flag=false;
+//            }
 
             user user = userMapper.selectById(userDTO.getId());
 
@@ -105,11 +105,11 @@ public class websocketServer {
 
 
             for (String s : list) {
-                if(sessionMap1.containsKey(s)){
+//                if(sessionMap1.containsKey(s)){
                     if(sessionMap.get(s)!=null){
                         sendMessage(sessionMap2.keySet().toString(),sessionMap.get(s));
                     }
-                }
+//                }
             }
 
 
@@ -124,8 +124,8 @@ public class websocketServer {
                 array1.add(jsonObject2);
             }
 
-            sendAllMessage(JSONUtil.toJsonStr(result));//后台发送消息给所有的客户端
-            sendAllMessage(JSONUtil.toJsonStr(result1));
+//            sendAllMessage(JSONUtil.toJsonStr(result));//后台发送消息给所有的客户端
+//            sendAllMessage(JSONUtil.toJsonStr(result1));
 
         }
 
