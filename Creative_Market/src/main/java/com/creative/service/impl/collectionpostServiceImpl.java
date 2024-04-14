@@ -9,16 +9,21 @@ import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
+import com.creative.dto.postDTO;
 import com.creative.mapper.collectionpostMapper;
 import com.creative.mapper.likepostMapper;
 import com.creative.mapper.postMapper;
 import com.creative.service.collectionpostService;
+import com.creative.service.userService;
+import com.creative.utils.imgUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +36,19 @@ public class collectionpostServiceImpl implements collectionpostService {
 
     @Autowired
     private postMapper postMapper;
-
+    @Autowired
+    private likepostMapper likepostMapper;
     @Autowired
     private collectionpostMapper collectionpostMapper;
-
+    @Autowired
+    private userService userService;
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Value("${creativeMarket.discoverImage}")
+    private String discoverImage;
+    @Value("${creativeMarket.iconImage}")
+    private String iconImage;
 
 
     @Override
@@ -123,7 +135,7 @@ public class collectionpostServiceImpl implements collectionpostService {
         List<collectionpost> collectionposts = collectionpostMapper.selectList(lqw);
         ArrayList<Integer> list1 = new ArrayList<>();
 
-        ArrayList<post> list = new ArrayList<>();
+        ArrayList<postDTO> list = new ArrayList<>();
 
         if (collectionposts == null) {
 
@@ -132,12 +144,41 @@ public class collectionpostServiceImpl implements collectionpostService {
             for (int i = 0; i < collectionposts.size(); i++) {
                 list1.add(collectionposts.get(i).getPid());
             }
-            List<post> posts2 = new ArrayList<>();
+            List<postDTO> posts2 = new ArrayList<>();
             for (int i = 0; i < list1.size(); i++) {
                 LambdaQueryWrapper<post> lqw1 = new LambdaQueryWrapper<>();
                 lqw1.eq(post::getId, list1.get(i));
                 post post = postMapper.selectOne(lqw1);
-                posts2.add(post);
+                postDTO postDTO = BeanUtil.copyProperties(post, postDTO.class);
+                //设置点赞状态，查询帖子点赞表
+                LambdaQueryWrapper<likepost> likepostLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                likepostLambdaQueryWrapper.eq(likepost::getUid,user.getId()).eq(likepost::getPid,post.getId());
+                likepost likepost = likepostMapper.selectOne(likepostLambdaQueryWrapper);
+                if (likepost == null){
+                    postDTO.setLikesState(0);
+                }else {
+                    postDTO.setLikesState(1);
+                }
+
+                List<String> image = postDTO.getImage();
+                for (int i1 = 0; i1 < image.size(); i1++) {
+                    try {
+                        image.set(i1, imgUtils.encodeImageToBase64(discoverImage+"\\"+image.get(i1)));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                postDTO.setImage(image);
+
+                Integer uid = postDTO.getUid();
+                user userOne = userService.lambdaQuery().eq(com.creative.domain.user::getId, uid).one();
+                postDTO.setPostUserNickName(userOne.getNickName());
+                try {
+                    postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+userOne.getIconImage()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                posts2.add(postDTO);
             }
             if (posts2 != null) {
                 for (int i = 0; i < posts2.size(); i++) {
