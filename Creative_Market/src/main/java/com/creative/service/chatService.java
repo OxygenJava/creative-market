@@ -2,6 +2,7 @@ package com.creative.service;
 
 import com.creative.domain.chatMessage;
 import com.creative.dto.Result;
+import org.w3c.dom.html.HTMLTableCaptionElement;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.http.HttpRequest;
@@ -23,6 +24,10 @@ public interface chatService {
 
     //获取聊天用户的信息
     Result selectChatUser(HttpServletRequest request);
+
+    //获取token的username
+    Result selectToken(HttpServletRequest request);
+
 
 
 
