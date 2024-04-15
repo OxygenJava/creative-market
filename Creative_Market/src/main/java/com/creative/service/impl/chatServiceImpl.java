@@ -93,16 +93,7 @@ public class chatServiceImpl implements chatService {
             lqw1.eq(com.creative.domain.chatList::getFromUser,toUser);
             List<com.creative.domain.chatList> chatLists1 = chatLMapper.selectList(lqw1);
 
-            if(chatLists1.size()!=0 ){
-                for (com.creative.domain.chatList list : chatLists1) {
-                    if(list.getFromWindow()==1){
-                    list.setUnread(0);
-                    chatLMapper.updateById(list);
-                    break;
-                    }
-                }
 
-            }
 
 
             if(chatuserLink==null){
@@ -123,10 +114,14 @@ public class chatServiceImpl implements chatService {
                             if(list.getFromWindow()==1){
                                 chatList.setToWindow(1);
                             }
+                            else {
+                                chatList.setToWindow(0);
+                            }
                     }
                     }
                     else {
                         chatList.setToWindow(0);
+
                     }
                     chatList.setLinkId(chatuserLink2.getLinkId());
                     chatList.setFromUser(user.getUsername());
@@ -163,6 +158,20 @@ public class chatServiceImpl implements chatService {
                         chatLMapper.updateById(list);
                     }
                 }
+                LambdaQueryWrapper<chatList> lqw2=new LambdaQueryWrapper<>();
+                lqw2.eq(com.creative.domain.chatList::getToUser,user.getUsername())
+                        .eq(com.creative.domain.chatList::getFromUser,toUser);
+                chatList chatList1 = chatLMapper.selectOne(lqw2);
+
+
+                if(chatList1!=null){
+                        chatList1.setUnread(0);
+                        chatLMapper.updateById(chatList1);
+                }
+                else {
+                    return new Result(Code.SYNTAX_ERROR,toUser+"还没回复您信息","");
+                }
+
                 List<chatMessage> selectsocket = chatMMapper.selectsocket(user.getUsername(), toUser);
                 Collections.reverse(selectsocket);
 

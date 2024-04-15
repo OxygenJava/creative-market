@@ -140,7 +140,7 @@ public class websocketServer {
 //        }
 //        else {
             chatService.resetWindows(username);
-            sessionMap1.put(username,session);
+//            sessionMap1.put(username,session);
             sessionMap.remove(username);
             log.info("有一连接关闭，移除username={}的用户session，当前在线人数为：{}",username,sessionMap.size());
 //        }
@@ -171,41 +171,51 @@ public class websocketServer {
         JSONObject jsonObject = JSONUtil.parseObj(message);
         String toUsername = jsonObject.getStr("to");//to表示发送给哪个用户，比如 admin
         String text = jsonObject.getStr("text");//表示发送的消息文本
-        Session toSession = sessionMap.get(toUsername.toString());//根据to（用户名）来获取session，再通过session发送消息文本
-
+        Session toSession = sessionMap.get(toUsername);//根据to（用户名）来获取session，再通过session发送消息文本
+        Integer linkId = chatService.selectAssociation(username, toUsername);
 
         if(toSession!=null){
-            JSONObject jsonObject1=new JSONObject();
-            jsonObject1.set("from",username);
-            jsonObject1.set("text",text);
-            Integer linkId = chatService.selectAssociation(username, toUsername);
-            chatService.addUnread(linkId);
-            this.sendMessage(jsonObject1.toString(),toSession);
-            log.info("发送给用户username={}，消息：{}",toUsername,jsonObject1.toString());
-            chatMessage.setFromUser(username);
-            chatMessage.setToUser(toUsername);
-            chatMessage.setLinkId(linkId);
-            chatMessage.setContent(text);
-            chatService.updateend(username,toUsername);
-            chatService.saveMessage(chatMessage);
+            if(linkId==null){
+                onClose(null,username);
+            }
+
+            else {
+                JSONObject jsonObject1=new JSONObject();
+                jsonObject1.set("from",username);
+                jsonObject1.set("text",text);
+                chatService.addUnread(linkId);
+                this.sendMessage(jsonObject1.toString(),toSession);
+                log.info("发送给用户username={}，消息：{}",toUsername,jsonObject1.toString());
+                chatMessage.setFromUser(username);
+                chatMessage.setToUser(toUsername);
+                chatMessage.setLinkId(linkId);
+                chatMessage.setContent(text);
+                chatService.updateend(username,toUsername);
+                chatService.saveMessage(chatMessage);
+            }
 
         }
         else {
-            JSONObject jsonObject1=new JSONObject();
-            jsonObject1.set("from",username);
-            jsonObject1.set("text",text);
-            sessionMap2.put(jsonObject1.toString(),session);
-            list.add(toUsername);
-            log.info("发送给用户username={}，消息：{}",toUsername,jsonObject1.toString()+""+list);
 
-            Integer linkId = chatService.selectAssociation(username, toUsername);
+            if(linkId==null){
+                onClose(null,username);
+            }
+
+            else {
+                JSONObject jsonObject1=new JSONObject();
+                jsonObject1.set("from",username);
+                jsonObject1.set("text",text);
+                sessionMap2.put(jsonObject1.toString(),session);
+                list.add(toUsername);
+                log.info("发送给用户username={}，消息：{}",toUsername,jsonObject1.toString()+""+list);
                 chatMessage.setLinkId(linkId);
                 chatService.addUnread(linkId);
-            chatMessage.setFromUser(username);
-            chatMessage.setToUser(toUsername);
-            chatMessage.setContent(text);
-            chatService.updateend(username,toUsername);
-            chatService.saveMessage(chatMessage);
+                chatMessage.setFromUser(username);
+                chatMessage.setToUser(toUsername);
+                chatMessage.setContent(text);
+                chatService.updateend(username,toUsername);
+                chatService.saveMessage(chatMessage);
+            }
 
         }
 
