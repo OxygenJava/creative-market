@@ -125,4 +125,23 @@ public class addressInfoServiceImpl implements addressInfoService {
         boolean flag = i > 0 && i1 > 0;
         return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "修改成功" : "修改失败");
     }
+
+    @Override
+    public Result addressInfoCancelState(Integer cancelId, HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        if (user.getId() != null){
+            LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(addressInfo::getUserId,user.getId()).eq(addressInfo::getState,1);
+            addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
+            addressInfo.setState(0);
+            int i = addressInfoMapper.updateById(addressInfo);
+            boolean flag = i > 0;
+            return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "取消默认成功" : "取消默认失败");
+        }else {
+            return new Result(Code.SYNTAX_ERROR, "请先登录");
+
+        }
+    }
 }
