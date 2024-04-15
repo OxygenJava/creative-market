@@ -19,4 +19,5 @@ public interface orderService {
     Result orderDelete(Integer orderId);
 
     Result paySelect(Integer commodityId,Integer buyTypeId,HttpServletRequest request);
+
 }
