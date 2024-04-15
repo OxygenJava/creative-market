@@ -6,13 +6,16 @@ import com.creative.domain.addressInfo;
 import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
+import com.creative.dto.UserDTO;
 import com.creative.mapper.addressInfoMapper;
 import com.creative.service.addressInfoService;
+import com.creative.utils.userHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +62,7 @@ public class addressInfoServiceImpl implements addressInfoService {
             LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
             lqw.eq(addressInfo::getUserId,user.getId());
             List<addressInfo> addressInfos = addressInfoMapper.selectList(lqw);
+            addressInfos.sort((o1, o2) -> o2.getState() - o1.getState());
             boolean flag = addressInfos != null;
             return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "查询成功" : "查询失败",addressInfos);
         }else {
@@ -109,8 +113,9 @@ public class addressInfoServiceImpl implements addressInfoService {
      */
     @Override
     public Result addressInfoUpdateState(Integer updateId) {
+        UserDTO user = userHolder.getUser();
         LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(addressInfo::getState,1);
+        lqw.eq(addressInfo::getState,1).eq(addressInfo::getUserId,user.getId());
         addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
         addressInfo.setState(0);
         int i = addressInfoMapper.updateById(addressInfo);
