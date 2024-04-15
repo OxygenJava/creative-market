@@ -43,4 +43,9 @@ public class addressInfoController {
     public Result addressInfoUpdateState(@PathVariable Integer updateId){
         return addressInfoService.addressInfoUpdateState(updateId);
     }
+
+    @PutMapping("/addressInfoCancelState/{cancelId}")
+    public Result addressInfoCancelState(@PathVariable Integer cancelId,HttpServletRequest request){
+        return addressInfoService.addressInfoCancelState(cancelId,request);
+    }
 }

@@ -184,7 +184,8 @@ public class orderServiceImpl implements orderService {
         payDTO payDTO = new payDTO();
         if (user.getId() != null) {
             LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
-            lqw.eq(addressInfo::getState, 1);
+            lqw.eq(addressInfo::getState, 1)
+                .eq(addressInfo::getUserId,user.getId());
             addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
             payDTO.setAddressInfo(addressInfo);
             commodity commodity = commodityMapper.selectById(commodityId);
