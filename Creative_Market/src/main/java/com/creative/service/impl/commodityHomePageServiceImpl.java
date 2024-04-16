@@ -95,6 +95,7 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
 
                 pageList.addAll(pageList2);
             }
+            changeImageToBase64(pageList);
 
             //对打乱后的集合进行分页处理
             List<commodityHomePage> pageInformation =
