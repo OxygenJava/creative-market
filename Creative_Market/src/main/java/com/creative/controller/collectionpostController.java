@@ -38,4 +38,11 @@ public class collectionpostController {
         Result result = collectionpostService.selectCollectionpost(request);
         return result;
     }
+
+    //获取收藏的帖子和商品的收藏总数
+    @GetMapping("/total")
+    public Result selectCollectionTotal(HttpServletRequest request){
+        Result result = collectionpostService.selectCollectionTotal(request);
+        return result;
+    }
 }
