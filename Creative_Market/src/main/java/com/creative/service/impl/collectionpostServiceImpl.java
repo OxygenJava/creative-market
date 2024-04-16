@@ -2,17 +2,12 @@ package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.creative.domain.collectionpost;
-import com.creative.domain.likepost;
-import com.creative.domain.post;
-import com.creative.domain.user;
+import com.creative.domain.*;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
 import com.creative.dto.UserDTO;
 import com.creative.dto.postDTO;
-import com.creative.mapper.collectionpostMapper;
-import com.creative.mapper.likepostMapper;
-import com.creative.mapper.postMapper;
+import com.creative.mapper.*;
 import com.creative.service.collectionpostService;
 import com.creative.service.userService;
 import com.creative.utils.imgUtils;
@@ -44,6 +39,12 @@ public class collectionpostServiceImpl implements collectionpostService {
     private userService userService;
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private collectioncommodityMapper collectioncommodityMapper;
+
+    @Autowired
+    private commodityMapper commodityMapper;
 
     @Value("${creativeMarket.discoverImage}")
     private String discoverImage;
@@ -191,5 +192,43 @@ public class collectionpostServiceImpl implements collectionpostService {
         String msg = list != null ? "查询成功" : "查询失败";
         return new Result(code, msg, list);
 
+    }
+
+    @Override
+    public Result selectCollectionTotal(HttpServletRequest request) {
+        Integer collectionPostTotal=0;
+        Integer collectioncommodityTotal=0;
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        if (entries.isEmpty()) {
+            return new Result(Code.INSUFFICIENT_PERMISSIONS, "请先登录", "");
+        }
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        //帖子收藏总数
+        LambdaQueryWrapper<collectionpost> lqw=new LambdaQueryWrapper<>();
+        lqw.eq(collectionpost::getUid,userDTO.getId());
+        List<collectionpost> collectionposts = collectionpostMapper.selectList(lqw);
+        if(collectionposts!=null){
+
+                collectionPostTotal+=collectionposts.size();
+
+        }
+        else {
+            collectionPostTotal+=0;
+        }
+        //商品收藏总数
+        LambdaQueryWrapper<collectioncommodity> lqw1=new LambdaQueryWrapper<>();
+        lqw1.eq(collectioncommodity::getUid,userDTO.getId());
+        List<collectioncommodity> collectioncommodities = collectioncommodityMapper.selectList(lqw1);
+        if(collectioncommodities!=null){
+
+                collectioncommodityTotal+=collectioncommodities.size();
+
+        }
+        else {
+            collectioncommodityTotal+=0;
+        }
+
+        return new Result(Code.NORMAL, "", collectioncommodityTotal+collectionPostTotal);
     }
 }

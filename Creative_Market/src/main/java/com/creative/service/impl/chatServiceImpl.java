@@ -260,30 +260,38 @@ public class chatServiceImpl implements chatService {
         }
 
         user user = userMapper.selectById(userDTO.getId());
-        ArrayList<user> list=new ArrayList();
-
-        LambdaQueryWrapper<chatUserLink> lqw=new LambdaQueryWrapper<>();
-        lqw.eq(chatUserLink::getFromUser,user.getUsername());
-        List<chatUserLink> chatUserLinks = chatuserMapper.selectList(lqw);
-
-
-        for (chatUserLink chatUserLink : chatUserLinks) {
-            LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
-            lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser());
-            com.creative.domain.user user1 = userMapper.selectOne(lqw1);
-            try {
-                user1.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            list.add(user1);
+        if(user==null){
+            return new Result(Code.SYNTAX_ERROR, "没有查询到用户", "");
         }
+        else {
 
-        List<UserDTO> userDTOS = BeanUtil.copyToList(list, UserDTO.class);
+            ArrayList<user> list=new ArrayList();
 
-        Integer code = chatUserLinks!=null? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = chatUserLinks!=null? "查询成功" : "查询失败";
-        return new Result(code, msg, userDTOS);
+            LambdaQueryWrapper<chatUserLink> lqw=new LambdaQueryWrapper<>();
+            lqw.eq(chatUserLink::getFromUser,user.getUsername());
+            List<chatUserLink> chatUserLinks = chatuserMapper.selectList(lqw);
+
+
+            for (chatUserLink chatUserLink : chatUserLinks) {
+                LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
+                lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser());
+                com.creative.domain.user user1 = userMapper.selectOne(lqw1);
+                if(user1!=null){
+                try {
+                    user1.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                }
+                list.add(user1);
+            }
+
+            List<UserDTO> userDTOS = BeanUtil.copyToList(list, UserDTO.class);
+
+            Integer code = chatUserLinks!=null? Code.NORMAL : Code.SYNTAX_ERROR;
+            String msg = chatUserLinks!=null? "查询成功" : "查询失败";
+            return new Result(code, msg, userDTOS);
+        }
 
     }
 
