@@ -103,6 +103,7 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
             List<commodityHomePage> pageInformation =
                     getPageInformation(pageList, homePageDTO.getPageSize(), homePageDTO.getPageNumber());
             System.out.println(pageInformation.size());
+
             return Result.success(pageInformation);
         }
         //用户已经登录，并按照权重获取到商品列表
@@ -111,21 +112,23 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
 
         //当前面跳过的元素+要访问的元素数量 大于 商品的集合长度
         //拼接
-        while (returnCommodityHomePage.size() < (pageNumber - 1) * pageSize + pageSize) {
-            ExecutorService executor = Executors.newFixedThreadPool(4);
-            List<Future<List<commodityHomePage>>> futures = new ArrayList<>();
+        if (returnCommodityHomePage.size() > 0){
+            while (returnCommodityHomePage.size() < (pageNumber - 1) * pageSize + pageSize) {
+                ExecutorService executor = Executors.newFixedThreadPool(4);
+                List<Future<List<commodityHomePage>>> futures = new ArrayList<>();
 
-            for (int i = 0; i < 4; i++) {
-                Future<List<commodityHomePage>> future = executor.submit(() -> getReturnCommodityHomePageList(userMap));
-                futures.add(future);
-            }
+                for (int i = 0; i < 4; i++) {
+                    Future<List<commodityHomePage>> future = executor.submit(() -> getReturnCommodityHomePageList(userMap));
+                    futures.add(future);
+                }
 
-            executor.shutdown();
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                executor.shutdown();
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
-            for (Future<List<commodityHomePage>> future : futures) {
-                List<commodityHomePage> CommodityHomePage = future.get();
-                returnCommodityHomePage.addAll(CommodityHomePage);
+                for (Future<List<commodityHomePage>> future : futures) {
+                    List<commodityHomePage> CommodityHomePage = future.get();
+                    returnCommodityHomePage.addAll(CommodityHomePage);
+                }
             }
         }
 

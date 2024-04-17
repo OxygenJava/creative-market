@@ -169,7 +169,8 @@ public class chatServiceImpl implements chatService {
                         chatLMapper.updateById(chatList1);
                 }
                 else {
-                    return new Result(Code.SYNTAX_ERROR,toUser+"还没回复您信息","");
+                    List<chatMessage> selectsocket = chatMMapper.selectsocket(user.getUsername(), toUser);
+                    return new Result(Code.SYNTAX_ERROR,toUser+"还没回复您信息",selectsocket);
                 }
 
                 List<chatMessage> selectsocket = chatMMapper.selectsocket(user.getUsername(), toUser);

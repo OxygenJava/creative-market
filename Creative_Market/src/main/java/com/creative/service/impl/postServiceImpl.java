@@ -1,4 +1,3 @@
-package com.creative.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -157,7 +156,7 @@ public class postServiceImpl implements postService {
         List<getAllDiscoverDTO> list = new ArrayList<>();
 
         UserDTO userDTO = userHolder.getUser();
-
+//        user byId = userService.getById(userDTO.getId());
         //判断是否登录
         boolean isLogin = userDTO != null;
         Integer userId = userDTO == null ? null : userDTO.getId();
@@ -353,7 +352,7 @@ public class postServiceImpl implements postService {
     //分页模糊查询所有帖子
     @Override
     public Result selectLikePost(Integer pageSize, Integer pageNumber, post post,HttpServletRequest request) {
-        ArrayList<String> Image=new ArrayList<>();
+
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
@@ -376,6 +375,7 @@ public class postServiceImpl implements postService {
         LambdaQueryWrapper<collectionpost> lqw2=new LambdaQueryWrapper<>();
 
         for (postDTO postDTO : postDTOS) {
+            ArrayList<String> Image=new ArrayList<>();
             user user = userMapper.selectById(postDTO.getUid());
             if(user==null){
                 return Result.fail(Code.SYNTAX_ERROR,"该用户不存在");
@@ -385,11 +385,12 @@ public class postServiceImpl implements postService {
                 postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
                 List<String> image = postDTO.getImage();
                 for (String s : image) {
+                    System.out.println(s);
                     String s1 = imgUtils.encodeImageToBase64(discoverImage + "\\" + s);
                     Image.add(s1);
                 }
                 postDTO.setImage(Image);
-                Image.clear();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
