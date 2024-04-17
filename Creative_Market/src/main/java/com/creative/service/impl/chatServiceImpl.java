@@ -175,6 +175,7 @@ public class chatServiceImpl implements chatService {
 
                 List<chatMessage> selectsocket = chatMMapper.selectsocket(user.getUsername(), toUser);
                 Collections.reverse(selectsocket);
+                
 
                 return new Result(Code.SYNTAX_ERROR,"No First",selectsocket);
             }
