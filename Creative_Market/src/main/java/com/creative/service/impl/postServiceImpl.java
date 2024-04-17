@@ -353,7 +353,7 @@ public class postServiceImpl implements postService {
     //分页模糊查询所有帖子
     @Override
     public Result selectLikePost(Integer pageSize, Integer pageNumber, post post,HttpServletRequest request) {
-        ArrayList<String> Image=new ArrayList<>();
+
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
@@ -376,6 +376,7 @@ public class postServiceImpl implements postService {
         LambdaQueryWrapper<collectionpost> lqw2=new LambdaQueryWrapper<>();
 
         for (postDTO postDTO : postDTOS) {
+            ArrayList<String> Image=new ArrayList<>();
             user user = userMapper.selectById(postDTO.getUid());
             if(user==null){
                 return Result.fail(Code.SYNTAX_ERROR,"该用户不存在");
@@ -389,7 +390,7 @@ public class postServiceImpl implements postService {
                     Image.add(s1);
                 }
                 postDTO.setImage(Image);
-                Image.clear();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
