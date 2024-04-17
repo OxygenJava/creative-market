@@ -39,4 +39,9 @@ public class walletController {
     public Result investMoney(@PathVariable BigDecimal investMoney,HttpServletRequest request){
         return walletService.investMoney(investMoney,request);
     }
+
+    @GetMapping("/checkPassword/{payPassword}")
+    public Result checkPassword(@PathVariable String payPassword,HttpServletRequest request){
+        return walletService.checkPassword(payPassword,request);
+    }
 }

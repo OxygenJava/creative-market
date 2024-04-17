@@ -205,5 +205,33 @@ public class walletServiceImpl implements walletService {
         }
     }
 
+    /**
+     * 校验支付密码是否正确
+     * @param payPassword
+     * @param request
+     * @return
+     */
+    @Override
+    public Result checkPassword(String payPassword, HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
+        if (user.getId() != null){
+            LambdaQueryWrapper<wallet> lqw = new LambdaQueryWrapper<>();
+            lqw.eq(wallet::getUserId,user.getId());
+            wallet wallet = walletMapper.selectOne(lqw);
+            if (!RegexUtils.payPasswordMatches(payPassword)) {
+                return Result.fail(Code.SYNTAX_ERROR, "支付密码格式为6位0-9数字");
+            }
+            String md5Password = DigestUtil.md5Hex(payPassword);
+            if (!wallet.getPayPassword().equals(md5Password)){
+                return new Result(Code.SYNTAX_ERROR,"密码错误");
+            }
+            return new Result(Code.NORMAL,"密码正确");
+        }else {
+            return new Result(Code.SYNTAX_ERROR, "请先登录");
+        }
+    }
+
 
 }
