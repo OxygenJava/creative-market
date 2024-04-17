@@ -441,6 +441,8 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         stringObjectMap.put("id", userDTO.getId().toString());
         stringObjectMap.put("createTime", userDTO.getCreateTime().toString());
         stringObjectMap.put("lastLoginTime", userDTO.getLastLoginTime().toString());
+        stringObjectMap.put("fansCount",userDTO.getFansCount());
+        stringObjectMap.put("FocusCount",userDTO.getFocusCount());
         return stringObjectMap;
     }
 
