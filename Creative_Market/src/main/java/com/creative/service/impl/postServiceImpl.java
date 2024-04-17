@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creative.domain.*;
 import com.creative.dto.*;
-import com.creative.mapper.LableMapper;
-import com.creative.mapper.collectionpostMapper;
-import com.creative.mapper.likepostMapper;
-import com.creative.mapper.postMapper;
+import com.creative.mapper.*;
 import com.creative.service.LableService;
 import com.creative.service.postService;
 import com.creative.service.userService;
@@ -50,6 +47,11 @@ public class postServiceImpl implements postService {
     private likepostMapper likepostMapper;
     @Autowired
     private collectionpostMapper collectionpostMapper;
+
+    @Autowired
+    private com.creative.mapper.userMapper userMapper;
+
+
 
 
     /**
@@ -254,7 +256,9 @@ public class postServiceImpl implements postService {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-
+        if(user==null){
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        }
         LambdaQueryWrapper<post> lqw=new LambdaQueryWrapper<>();
         lqw.eq(post::getUid,user.getId());
         List<post> posts = postMapper.selectList(lqw);
@@ -348,7 +352,15 @@ public class postServiceImpl implements postService {
 
     //分页模糊查询所有帖子
     @Override
-    public Result selectLikePost(Integer pageSize, Integer pageNumber, post post) {
+    public Result selectLikePost(Integer pageSize, Integer pageNumber, post post,HttpServletRequest request) {
+        ArrayList<String> Image=new ArrayList<>();
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+
+        if(userDTO.getId()==null){
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        }
 
         IPage page=new Page(pageNumber,pageSize);
         LambdaQueryWrapper<post> lqw=new LambdaQueryWrapper<>();
@@ -358,9 +370,55 @@ public class postServiceImpl implements postService {
         if (records.size() <= 0){
             return Result.success("数据已经到底了");
         }
-        Integer code = records != null ? Code.NORMAL : Code.SYNTAX_ERROR;
-        String msg = records != null ? "查询成功" : "查询失败";
-        return new Result(code, msg, records);
+        List<postDTO> postDTOS = BeanUtil.copyToList(records, postDTO.class);
+
+        LambdaQueryWrapper<likepost> lqw1=new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<collectionpost> lqw2=new LambdaQueryWrapper<>();
+
+        for (postDTO postDTO : postDTOS) {
+            user user = userMapper.selectById(postDTO.getUid());
+            if(user==null){
+                return Result.fail(Code.SYNTAX_ERROR,"该用户不存在");
+            }
+            postDTO.setPostUserNickName(user.getNickName());
+            try {
+                postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
+                List<String> image = postDTO.getImage();
+                for (String s : image) {
+                    String s1 = imgUtils.encodeImageToBase64(discoverImage + "\\" + s);
+                    Image.add(s1);
+                }
+                postDTO.setImage(Image);
+                Image.clear();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            lqw1.eq(likepost::getPid,postDTO.getId())
+                    .eq(likepost::getUid,userDTO.getId());
+            likepost likepost = likepostMapper.selectOne(lqw1);
+            if(likepost!=null){
+                postDTO.setLikesState(1);
+            }
+            else {
+                postDTO.setLikesState(0);
+            }
+
+            lqw2.eq(collectionpost::getPid,postDTO.getId())
+                    .eq(collectionpost::getUid,userDTO.getId());
+            collectionpost collectionpost = collectionpostMapper.selectOne(lqw2);
+            if(collectionpost!=null){
+                postDTO.setCollectionState(1);
+            }
+            else {
+                postDTO.setCollectionState(0);
+            }
+
+        }
+
+        Integer code = postDTOS != null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = postDTOS != null ? "查询成功" : "查询失败";
+        return new Result(code, msg, postDTOS);
 
     }
 
