@@ -37,7 +37,10 @@ public class commonController {
         if (originalFilename == null){
             return Result.fail(Code.SYNTAX_ERROR,"传输的照片不能为空");
         }
+
         //图片后缀
+        String contentType = file.getContentType();
+        System.out.println(contentType);
         String lastName = originalFilename.substring(originalFilename.lastIndexOf("."));
         File baseFile = new File(basePath);
         if (!baseFile.exists()){

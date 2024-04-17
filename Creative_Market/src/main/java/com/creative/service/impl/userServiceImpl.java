@@ -302,6 +302,8 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         if ("".equals(user.getIconImage())){
             user.setIconImage(null);
         }
+        com.creative.domain.user one = lambdaQuery().eq(com.creative.domain.user::getId, user.getId()).one();
+        user = BeanUtil.copyProperties(one,UserDTO.class);
         String s = imgUtils.encodeImageToBase64(iconImage + "\\" + user.getIconImage());
         user.setIconImage(s);
 
@@ -324,27 +326,32 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
             return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"上传图片不能为空");
         }
         //获取图片后缀
-        String originalFilename = file.getOriginalFilename();
-        String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
-        //校验格式
-        if (!imageLastName.equals(".jpg") && !imageLastName.equals(".png")){
-            return Result.fail(Code.SYNTAX_ERROR,"图片格式必须为 jgp 或 png 格式");
-        }
+        String contentType = file.getContentType();
+        String lastName = getExtensionFromContentType(contentType);
 
         File base  = new File(iconImage);
         if (!base.exists()){
             base.mkdirs();
         }
         String imageName = UUID.randomUUID().toString();
+        if (lastName == null || lastName.isEmpty()) {
+            lastName = ".jpg"; // 或其他你认为适合的默认扩展名
+        }
         //把照片村在数据库中
         user userById = getById(user.getId());
-        userById.setIconImage(imageName+imageLastName);
+
+        //删除原来的头像
+        String iconImage = userById.getIconImage();
+        File f = new File(this.iconImage,iconImage);
+        f.delete();
+
+        userById.setIconImage(imageName+lastName);
         boolean b = updateById(userById);
         if (!b){
             return Result.fail(Code.SYNTAX_ERROR,"插入数据库失败");
         }
         //下载照片
-        file.transferTo(new File(base,imageName+imageLastName));
+        file.transferTo(new File(base,imageName+lastName));
         return Result.success();
     }
 
@@ -462,6 +469,24 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
                 userDTObyNickName.setIconImage(getIconImageToBase64(userDTObyNickName.getIconImage()));
                 treeSet.add(userDTObyNickName);
             }
+        }
+    }
+
+    private String getExtensionFromContentType(String contentType) {
+        if (contentType == null) {
+            return null;
+        }
+        // 根据 MIME 类型返回对应的文件扩展名
+        switch (contentType) {
+            case "image/jpeg":
+                return ".jpg";
+            case "image/png":
+                return ".png";
+            case "image/gif":
+                return ".gif";
+            // 其他常见的图片格式可以继续添加
+            default:
+                return null; // 如果无法识别 MIME 类型，则返回空
         }
     }
 }
