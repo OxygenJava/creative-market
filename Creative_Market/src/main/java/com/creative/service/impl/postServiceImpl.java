@@ -390,7 +390,7 @@ public class postServiceImpl implements postService {
                     Image.add(s1);
                 }
                 postDTO.setImage(Image);
-                
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

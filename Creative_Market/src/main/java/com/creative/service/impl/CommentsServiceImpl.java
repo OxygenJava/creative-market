@@ -153,14 +153,14 @@ public class CommentsServiceImpl implements CommentsService {
             //处理用户信息
             //设置用户名
             commentByPageDTO.setUserNickName(fatherUser.getNickName());
-//            //设置头像
-//            try {
-//                commentByPageDTO.setUserIconImage(
-//                        imgUtils.encodeImageToBase64(iconImage+"\\"+fatherUser.getIconImage())
-//                );
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            //设置头像
+            try {
+                commentByPageDTO.setUserIconImage(
+                        imgUtils.encodeImageToBase64(iconImage+"\\"+fatherUser.getIconImage())
+                );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             List<getCommentByPageChildDTO> getCommentByPageChildDTOList = new ArrayList<>();
             //查询该父级评论下的子级评论
@@ -176,14 +176,14 @@ public class CommentsServiceImpl implements CommentsService {
                 //获取发布者信息
                 user faBuUser = userService.lambdaQuery().eq(user::getId, childComment.getUserId()).one();
                 getByPageChildDTO.setUserNickName(faBuUser.getNickName());
-                //设置头像
-//                try {
-//                    getByPageChildDTO.setUserIconImage(
-//                            imgUtils.encodeImageToBase64(iconImage+"\\"+faBuUser.getIconImage())
-//                    );
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+//                设置头像
+                try {
+                    getByPageChildDTO.setUserIconImage(
+                            imgUtils.encodeImageToBase64(iconImage+"\\"+faBuUser.getIconImage())
+                    );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 if (childComment.getTarget() != null){
                     //获取目标回复者信息
