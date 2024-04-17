@@ -76,4 +76,12 @@ public class commodityController {
         Result result = commodityService.selectComTeam(id);
         return result;
     }
+
+    //根据用户id查询该用户发布过的商品
+    @GetMapping("/insert")
+    public Result selectByUidAllCommodity(HttpServletRequest request){
+        Result result = commodityService.selectByUidAllCommodity(request);
+        return result;
+    }
+
 }
