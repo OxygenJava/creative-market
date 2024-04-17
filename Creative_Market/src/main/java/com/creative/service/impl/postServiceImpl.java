@@ -353,6 +353,7 @@ public class postServiceImpl implements postService {
     //分页模糊查询所有帖子
     @Override
     public Result selectLikePost(Integer pageSize, Integer pageNumber, post post,HttpServletRequest request) {
+        ArrayList<String> Image=new ArrayList<>();
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
@@ -382,6 +383,13 @@ public class postServiceImpl implements postService {
             postDTO.setPostUserNickName(user.getNickName());
             try {
                 postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
+                List<String> image = postDTO.getImage();
+                for (String s : image) {
+                    String s1 = imgUtils.encodeImageToBase64(discoverImage + "\\" + s);
+                    Image.add(s1);
+                }
+                postDTO.setImage(Image);
+                Image.clear();
             } catch (IOException e) {
                 e.printStackTrace();
             }

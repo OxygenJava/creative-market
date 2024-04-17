@@ -40,8 +40,12 @@ public class test {
     }
 
     public static void main(String[] args) {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        LocalDateTime localDateTime1 = localDateTime.plusDays(14);
-        System.out.println(localDateTime1);
+//        LocalDateTime localDateTime = LocalDateTime.now();
+//        LocalDateTime localDateTime1 = localDateTime.plusDays(14);
+//        System.out.println(localDateTime1);
+        ArrayList<Integer> list=new ArrayList();
+        list.add(1);
+        list.add(2);
+
     }
 }
