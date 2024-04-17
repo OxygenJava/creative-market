@@ -12,4 +12,5 @@ public interface walletService {
     Result updatePayPassword(payPasswordForm payPasswordForm,HttpServletRequest request);
     Result selectWallet(HttpServletRequest request);
     Result investMoney(BigDecimal investMoney,HttpServletRequest request);
+    Result checkPassword(String payPassword,HttpServletRequest request);
 }
