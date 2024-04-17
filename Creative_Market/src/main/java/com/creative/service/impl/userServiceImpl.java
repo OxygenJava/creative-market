@@ -46,41 +46,42 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     @Value("${creativeMarket.iconImage}")
     private String iconImage;
+
     @Override
     public Result sendCode(String phone) {
 
-        if (!RegexUtils.phoneMatches(phone)){
-            return Result.fail(Code.SYNTAX_ERROR,"手机号填写有误");
+        if (!RegexUtils.phoneMatches(phone)) {
+            return Result.fail(Code.SYNTAX_ERROR, "手机号填写有误");
         }
 
         String code = RandomUtil.randomNumbers(6);
-        System.out.println("发送的验证码: "+code);
+        System.out.println("发送的验证码: " + code);
 
         //将验证码放入缓存
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        ops.set("login:code"+phone,code,1, TimeUnit.MINUTES);
+        ops.set("login:code" + phone, code, 1, TimeUnit.MINUTES);
         return Result.success();
     }
 
     @Override
     public loginResult loginByCode(loginByCodeFormDTO loginForm) {
         //校验手机号
-        if (!RegexUtils.phoneMatches(loginForm.getPhoneNumber())){
-            return loginResult.fail(Code.SYNTAX_ERROR,"手机号填写有误");
+        if (!RegexUtils.phoneMatches(loginForm.getPhoneNumber())) {
+            return loginResult.fail(Code.SYNTAX_ERROR, "手机号填写有误");
         }
         //缓存中取出验证码
         String code = redisTemplate.opsForValue().get("login:code" + loginForm.getPhoneNumber());
         System.out.println(code);
-        if (code == null){
-            return loginResult.fail(Code.SYNTAX_ERROR,"请重新获取验证码");
+        if (code == null) {
+            return loginResult.fail(Code.SYNTAX_ERROR, "请重新获取验证码");
         }
-        if (!code.equals(loginForm.getCode())){
-            return loginResult.fail(Code.SYNTAX_ERROR,"验证码填写有误");
+        if (!code.equals(loginForm.getCode())) {
+            return loginResult.fail(Code.SYNTAX_ERROR, "验证码填写有误");
         }
         //判断账号是否存在
         user one = lambdaQuery().eq(user::getPhoneNumber, loginForm.getPhoneNumber()).one();
         //当账号不存在，自动创建账号
-        if (one == null){
+        if (one == null) {
             one = new user();
             one.setUsername(loginForm.getPhoneNumber());
             one.setPhoneNumber(loginForm.getPhoneNumber());
@@ -90,10 +91,10 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
             //设置随机昵称
             one.setNickName(getRandomString());
             save(one);
-        }else {
+        } else {
             //当账号存在，但是状态为0
-            if (one.getState() == 0){
-                return loginResult.fail(Code.SYNTAX_ERROR,"账号已被封禁");
+            if (one.getState() == 0) {
+                return loginResult.fail(Code.SYNTAX_ERROR, "账号已被封禁");
             }
         }
 
@@ -106,8 +107,8 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         Map<String, Object> stringObjectMap = getUserDTOMap(one);
 
         String token = UUID.randomUUID().toString();
-        redisTemplate.opsForHash().putAll(token,stringObjectMap);
-        redisTemplate.expire(token,30,TimeUnit.MINUTES);
+        redisTemplate.opsForHash().putAll(token, stringObjectMap);
+        redisTemplate.expire(token, 30, TimeUnit.MINUTES);
         return loginResult.successLogin(token);
     }
 
@@ -121,15 +122,15 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
         user user2 = lambdaQuery().eq(user::getPhoneNumber, usernameForm).one();
 
-        if (user1 == null && user2 == null){
-            return loginResult.fail(Code.SYNTAX_ERROR,"账号不存在");
+        if (user1 == null && user2 == null) {
+            return loginResult.fail(Code.SYNTAX_ERROR, "账号不存在");
         }
 
         //校验密码
-        if (user1 != null){
-            return checkPassword(login,user1);
-        }else {
-            return checkPassword(login,user2);
+        if (user1 != null) {
+            return checkPassword(login, user1);
+        } else {
+            return checkPassword(login, user2);
         }
 
     }
@@ -139,36 +140,36 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         String userRegisterFormUsername = userRegisterForm.getUsername();
         user one = lambdaQuery().eq(user::getUsername, userRegisterFormUsername).one();
         //判断注册的用户名是否已经存在
-        if (one != null){
-            return Result.fail(Code.SYNTAX_ERROR,"用户名已存在");
+        if (one != null) {
+            return Result.fail(Code.SYNTAX_ERROR, "用户名已存在");
         }
         //判断注册的用户名是否符合规定
-        if (!RegexUtils.usernameMatches(userRegisterFormUsername)){
-            return Result.fail(Code.SYNTAX_ERROR,"用户名格式为8-16位字符或是电子邮箱");
+        if (!RegexUtils.usernameMatches(userRegisterFormUsername)) {
+            return Result.fail(Code.SYNTAX_ERROR, "用户名格式为8-16位字符或是电子邮箱");
         }
         //判断输入的密码是否符合规定
-        if (!RegexUtils.passwordMatches(userRegisterForm.getPassword())){
-            return Result.fail(Code.SYNTAX_ERROR,"密码格式为8-16位字符");
+        if (!RegexUtils.passwordMatches(userRegisterForm.getPassword())) {
+            return Result.fail(Code.SYNTAX_ERROR, "密码格式为8-16位字符");
         }
         //校验电子邮箱是否符合规定
         String e_mail = userRegisterForm.getE_mail();
-        if (e_mail != null && !"".equals(e_mail)){
-            if (!RegexUtils.emailMatches(e_mail)){
-                return Result.fail(Code.SYNTAX_ERROR,"电子邮箱格式有误");
+        if (e_mail != null && !"".equals(e_mail)) {
+            if (!RegexUtils.emailMatches(e_mail)) {
+                return Result.fail(Code.SYNTAX_ERROR, "电子邮箱格式有误");
             }
         }
         //校验电话号码是否符合规定
-        if (!RegexUtils.phoneMatches(userRegisterForm.getPhoneNumber())){
-            return Result.fail(Code.SYNTAX_ERROR,"手机号码格式有误");
+        if (!RegexUtils.phoneMatches(userRegisterForm.getPhoneNumber())) {
+            return Result.fail(Code.SYNTAX_ERROR, "手机号码格式有误");
         }
         //判断手机号是否注册过
         user one1 = lambdaQuery().eq(user::getPhoneNumber, userRegisterForm.getPhoneNumber()).one();
-        if (one1 != null){
-            return Result.fail(Code.SYNTAX_ERROR,"该手机号已被注册");
+        if (one1 != null) {
+            return Result.fail(Code.SYNTAX_ERROR, "该手机号已被注册");
         }
         //判断用户是否自行设置了名字
         String nickName = userRegisterForm.getNickName();
-        if (nickName == null || "".equals(nickName)){
+        if (nickName == null || "".equals(nickName)) {
             userRegisterForm.setNickName(getRandomString());
         }
         //所有数据校验完成，数据入库
@@ -192,28 +193,28 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         //使用糊涂包把map集合转换为储存的对象
         UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
         user updateUser = lambdaQuery().eq(user::getId, userDTO.getId()).one();
-        if (updateUser == null){
-            return Result.fail(Code.SYNTAX_ERROR,"查找不到该用户");
+        if (updateUser == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "查找不到该用户");
         }
         //该账号是否有密码
-        if (updateUser.getPassword() == null){
-            return Result.fail(Code.SYNTAX_ERROR,"该账号暂无设置密码");
+        if (updateUser.getPassword() == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "该账号暂无设置密码");
         }
         //比对原始密码是否正确
         String originalPassword = updateForm.getOriginalPassword();
         originalPassword = DigestUtil.md5Hex(originalPassword);
-        if (!updateUser.getPassword().equals(originalPassword)){
-            return Result.fail(Code.SYNTAX_ERROR,"原密码错误");
+        if (!updateUser.getPassword().equals(originalPassword)) {
+            return Result.fail(Code.SYNTAX_ERROR, "原密码错误");
         }
         //比对输入的密码是否符合规则
         String newPassword = updateForm.getNewPassword();
-        if (!RegexUtils.passwordMatches(newPassword)){
-            return Result.fail(Code.SYNTAX_ERROR,"密码格式为8-16位字符");
+        if (!RegexUtils.passwordMatches(newPassword)) {
+            return Result.fail(Code.SYNTAX_ERROR, "密码格式为8-16位字符");
         }
 
         //比对第二次输入的密码是否与第一次相同
-        if (!newPassword.equals(updateForm.getConfirmNewPassword())){
-            return Result.fail(Code.SYNTAX_ERROR,"两次输入的密码不相同");
+        if (!newPassword.equals(updateForm.getConfirmNewPassword())) {
+            return Result.fail(Code.SYNTAX_ERROR, "两次输入的密码不相同");
         }
         //设置新密码
         updateUser.setPassword(DigestUtil.md5Hex(updateForm.getConfirmNewPassword()));
@@ -226,41 +227,41 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     @Override
     public Result forgetPasswordSendCode(String phone) {
-        if (phone == null || "".equals(phone)){
-            return Result.fail(Code.SYNTAX_ERROR,"手机号不能为空");
+        if (phone == null || "".equals(phone)) {
+            return Result.fail(Code.SYNTAX_ERROR, "手机号不能为空");
         }
         //校验手机号
-        if (!RegexUtils.phoneMatches(phone)){
-            return Result.fail(Code.SYNTAX_ERROR,"手机号填写有误");
+        if (!RegexUtils.phoneMatches(phone)) {
+            return Result.fail(Code.SYNTAX_ERROR, "手机号填写有误");
         }
         //查看该手机号是否有账号
         user forgetPassword = lambdaQuery().eq(user::getPhoneNumber, phone).one();
-        if (forgetPassword == null){
-            return Result.fail(Code.SYNTAX_ERROR,"该手机号下无账号");
+        if (forgetPassword == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "该手机号下无账号");
         }
-        if (forgetPassword.getPassword() == null){
-            return Result.fail(Code.SYNTAX_ERROR,"该账号无密码,请进行登录后设置");
+        if (forgetPassword.getPassword() == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "该账号无密码,请进行登录后设置");
         }
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         String code = RandomUtil.randomNumbers(6);
-        ops.set("forget:code"+phone,code,1,TimeUnit.MINUTES);
-        System.out.println("忘记密码：code: "+code);
+        ops.set("forget:code" + phone, code, 1, TimeUnit.MINUTES);
+        System.out.println("忘记密码：code: " + code);
         return Result.success();
     }
 
     @Override
     public Result forgetPasswordCheckCode(loginByCodeFormDTO formDTO) {
         //校验手机号
-        if (!RegexUtils.phoneMatches(formDTO.getPhoneNumber())){
-            return Result.fail(Code.SYNTAX_ERROR,"手机号填写有误");
+        if (!RegexUtils.phoneMatches(formDTO.getPhoneNumber())) {
+            return Result.fail(Code.SYNTAX_ERROR, "手机号填写有误");
         }
         //缓存中取出验证码
         String code = redisTemplate.opsForValue().get("forget:code" + formDTO.getPhoneNumber());
-        if (code == null){
-            return Result.fail(Code.SYNTAX_ERROR,"请重新获取验证码");
+        if (code == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "请重新获取验证码");
         }
-        if (!code.equals(formDTO.getCode())){
-            return Result.fail(Code.SYNTAX_ERROR,"验证码填写有误");
+        if (!code.equals(formDTO.getCode())) {
+            return Result.fail(Code.SYNTAX_ERROR, "验证码填写有误");
         }
         return Result.success("验证码正确");
     }
@@ -269,12 +270,12 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     public Result forgetPasswordResetPassword(resetPasswordFrom passwordFrom) {
         String password = passwordFrom.getPassword();
         //校验密码
-        if(!RegexUtils.passwordMatches(password)){
-            return Result.fail(Code.SYNTAX_ERROR,"密码格式为8-16位字符");
+        if (!RegexUtils.passwordMatches(password)) {
+            return Result.fail(Code.SYNTAX_ERROR, "密码格式为8-16位字符");
         }
         //校验第二次输入的密码是否与第一次相同
-        if (!password.equals(passwordFrom.getConfirmPassword())){
-            return Result.fail(Code.SYNTAX_ERROR,"两次输入的密码不一致");
+        if (!password.equals(passwordFrom.getConfirmPassword())) {
+            return Result.fail(Code.SYNTAX_ERROR, "两次输入的密码不一致");
         }
         String phoneNumber = passwordFrom.getPhoneNumber();
         user one = lambdaQuery().eq(user::getPhoneNumber, phoneNumber).one();
@@ -296,14 +297,14 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     @Override
     public Result getUserInfo() throws IOException {
         UserDTO user = userHolder.getUser();
-        if (user == null){
-            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        if (user == null) {
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS, "您尚未登录");
         }
-        if ("".equals(user.getIconImage())){
+        if ("".equals(user.getIconImage())) {
             user.setIconImage(null);
         }
         com.creative.domain.user one = lambdaQuery().eq(com.creative.domain.user::getId, user.getId()).one();
-        user = BeanUtil.copyProperties(one,UserDTO.class);
+        user = BeanUtil.copyProperties(one, UserDTO.class);
         String s = imgUtils.encodeImageToBase64(iconImage + "\\" + user.getIconImage());
         user.setIconImage(s);
 
@@ -319,18 +320,18 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     @Override
     public Result uploadUserIcon(MultipartFile file) throws IOException {
         UserDTO user = userHolder.getUser();
-        if (user == null){
-            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"您尚未登录");
+        if (user == null) {
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS, "您尚未登录");
         }
-        if (file == null){
-            return Result.fail(Code.INSUFFICIENT_PERMISSIONS,"上传图片不能为空");
+        if (file == null) {
+            return Result.fail(Code.INSUFFICIENT_PERMISSIONS, "上传图片不能为空");
         }
         //获取图片后缀
         String contentType = file.getContentType();
         String lastName = getExtensionFromContentType(contentType);
 
-        File base  = new File(iconImage);
-        if (!base.exists()){
+        File base = new File(iconImage);
+        if (!base.exists()) {
             base.mkdirs();
         }
         String imageName = UUID.randomUUID().toString();
@@ -341,19 +342,22 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         user userById = getById(user.getId());
 
         //删除原来的头像
-       if (user.getIconImage() != null){
-           String iconImage = userById.getIconImage();
-           File f = new File(this.iconImage,iconImage);
-           f.delete();
-       }
+        String iconImage = userById.getIconImage();
+        if (iconImage != null){
+            File f = new File(this.iconImage, iconImage);
+            if (f.exists()){
+                f.delete();
+            }
+        }
 
-        userById.setIconImage(imageName+lastName);
+
+        userById.setIconImage(imageName + lastName);
         boolean b = updateById(userById);
-        if (!b){
-            return Result.fail(Code.SYNTAX_ERROR,"插入数据库失败");
+        if (!b) {
+            return Result.fail(Code.SYNTAX_ERROR, "插入数据库失败");
         }
         //下载照片
-        file.transferTo(new File(base,imageName+lastName));
+        file.transferTo(new File(base, imageName + lastName));
         return Result.success();
     }
 
@@ -369,7 +373,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         HashSet<UserDTO> treeSet = new HashSet<>();
         //假设前端传过来的是一个用户id
         user byId = getById(id);
-        if (byId != null){
+        if (byId != null) {
             UserDTO userDTObyId = BeanUtil.copyProperties(byId, UserDTO.class);
             userDTObyId.setIconImage(getIconImageToBase64(userDTObyId.getIconImage()));
             treeSet.add(userDTObyId);
@@ -386,18 +390,17 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
     }
 
 
-
-
     /******************************  userService内部方法  **********************************/
     /**
      * 检测密码是否正确
+     *
      * @param login
      * @param user
      * @return
      */
-    public loginResult checkPassword(loginByPasswordFormDTO login,user user){
-        if (user.getState() == 0){
-            return loginResult.fail(Code.SYNTAX_ERROR,"账号已被封禁");
+    public loginResult checkPassword(loginByPasswordFormDTO login, user user) {
+        if (user.getState() == 0) {
+            return loginResult.fail(Code.SYNTAX_ERROR, "账号已被封禁");
         }
         //数据库密码
         String password = user.getPassword();
@@ -406,10 +409,10 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         //给传回来的密码进行md5加密
         String passwordFromLoginMd5 = DigestUtil.md5Hex(passwordFromLogin);
         //加密后与数据库的密码做比对
-        if (!passwordFromLoginMd5.equals(password)){
+        if (!passwordFromLoginMd5.equals(password)) {
             //比对错误
-            return loginResult.fail(Code.SYNTAX_ERROR,"密码错误");
-        }else {
+            return loginResult.fail(Code.SYNTAX_ERROR, "密码错误");
+        } else {
             //获取token
             String token = UUID.randomUUID().toString();
             //重新设置最后一次登录时间
@@ -417,42 +420,44 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
             updateById(user);
             //获取一个map集合，用于放入缓存
             Map<String, Object> stringObjectMap = getUserDTOMap(user);
-            stringObjectMap.put("fansCount",String.valueOf(stringObjectMap.get("fansCount")));
-            stringObjectMap.put("FocusCount",String.valueOf(stringObjectMap.get("FocusCount")));
+            stringObjectMap.put("fansCount", String.valueOf(stringObjectMap.get("fansCount")));
+            stringObjectMap.put("FocusCount", String.valueOf(stringObjectMap.get("FocusCount")));
             System.out.println(stringObjectMap);
-            redisTemplate.opsForHash().putAll(token,stringObjectMap);
-            redisTemplate.expire(token,30,TimeUnit.MINUTES);
+            redisTemplate.opsForHash().putAll(token, stringObjectMap);
+            redisTemplate.expire(token, 30, TimeUnit.MINUTES);
             return loginResult.successLogin(token);
         }
     }
 
     /**
      * 返回一个集合存入缓存
+     *
      * @param user
      * @return
      */
-    public Map<String, Object> getUserDTOMap(user user){
+    public Map<String, Object> getUserDTOMap(user user) {
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         Map<String, Object> stringObjectMap = BeanUtil.beanToMap(userDTO);
-        stringObjectMap.put("id",userDTO.getId().toString());
-        stringObjectMap.put("createTime",userDTO.getCreateTime().toString());
-        stringObjectMap.put("lastLoginTime",userDTO.getLastLoginTime().toString());
+        stringObjectMap.put("id", userDTO.getId().toString());
+        stringObjectMap.put("createTime", userDTO.getCreateTime().toString());
+        stringObjectMap.put("lastLoginTime", userDTO.getLastLoginTime().toString());
         return stringObjectMap;
     }
 
-    public String getRandomString(){
-        return "user_"+RandomUtil.randomString(15);
+    public String getRandomString() {
+        return "user_" + RandomUtil.randomString(15);
     }
 
     /**
      * 将头像路径设置为base64格式
+     *
      * @param iconImage
      * @return
      */
-    public String getIconImageToBase64(String iconImage){
+    public String getIconImageToBase64(String iconImage) {
         String image = "";
         try {
-            image = imgUtils.encodeImageToBase64(this.iconImage+"\\"+iconImage);
+            image = imgUtils.encodeImageToBase64(this.iconImage + "\\" + iconImage);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -461,6 +466,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
 
     /**
      * 将查询到的结果添加到Set集合中
+     *
      * @param treeSet
      * @param list1
      */
