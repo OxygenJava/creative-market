@@ -341,9 +341,11 @@ public class userServiceImpl extends ServiceImpl<userMapper, user> implements us
         user userById = getById(user.getId());
 
         //删除原来的头像
-        String iconImage = userById.getIconImage();
-        File f = new File(this.iconImage,iconImage);
-        f.delete();
+       if (user.getIconImage() != null){
+           String iconImage = userById.getIconImage();
+           File f = new File(this.iconImage,iconImage);
+           f.delete();
+       }
 
         userById.setIconImage(imageName+lastName);
         boolean b = updateById(userById);
