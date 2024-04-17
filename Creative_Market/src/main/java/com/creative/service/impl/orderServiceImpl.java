@@ -88,6 +88,13 @@ public class orderServiceImpl implements orderService {
                 addressInfo addressInfo = addressInfoMapper.selectById(orderTable.getAddresseeId());
                 orderTable.setAddressInfo(addressInfo);
                 commodity commodity = commodityMapper.selectById(orderTable.getCommodityId());
+                String homePageImage = imgAddress + "\\" + commodity.getHomePageImage();
+                try {
+                    homePageImage = imgUtils.encodeImageToBase64(homePageImage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                commodity.setHomePageImage(homePageImage);
                 orderTable.setCommodity(commodity);
                 buyType buyType = buyTypeMapper.selectById(orderTable.getBuyTypeId());
                 orderTable.setBuyType(buyType);
