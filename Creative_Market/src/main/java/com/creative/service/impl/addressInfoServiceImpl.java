@@ -129,6 +129,12 @@ public class addressInfoServiceImpl implements addressInfoService {
         return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "修改成功" : "修改失败");
     }
 
+    /**
+     * 取消默认地址
+     * @param cancelId
+     * @param request
+     * @return
+     */
     @Override
     public Result addressInfoCancelState(Integer cancelId, HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
