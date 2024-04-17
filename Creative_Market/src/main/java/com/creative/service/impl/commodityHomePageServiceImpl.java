@@ -89,11 +89,13 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
 
             //当前面跳过的元素+要访问的元素数量 大于 商品的集合长度
             //拼接
-            while (pageList.size() < (pageNumber - 1) * pageSize + pageSize) {
-                List<commodityHomePage> pageList2 = query().list();
-                Collections.shuffle(pageList2);
+            if (pageList.size() > 0){
+                while (pageList.size() < (pageNumber - 1) * pageSize + pageSize) {
+                    List<commodityHomePage> pageList2 = query().list();
+                    Collections.shuffle(pageList2);
 
-                pageList.addAll(pageList2);
+                    pageList.addAll(pageList2);
+                }
             }
             changeImageToBase64(pageList);
 
@@ -131,6 +133,7 @@ public class commodityHomePageServiceImpl extends ServiceImpl<commodityHomePageM
         List<commodityHomePage> pageInformation = getPageInformation(returnCommodityHomePage, pageSize, pageNumber);
 
         System.out.println("total: " + pageInformation.size());
+
         return Result.success(pageInformation);
     }
 
