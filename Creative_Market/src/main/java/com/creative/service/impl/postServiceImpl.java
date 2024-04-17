@@ -376,6 +376,9 @@ public class postServiceImpl implements postService {
 
         for (postDTO postDTO : postDTOS) {
             user user = userMapper.selectById(postDTO.getUid());
+            if(user==null){
+                return Result.fail(Code.SYNTAX_ERROR,"该用户不存在");
+            }
             postDTO.setPostUserNickName(user.getNickName());
             try {
                 postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
