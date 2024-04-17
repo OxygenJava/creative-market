@@ -21,6 +21,6 @@ public interface commodityService extends IService<commodity> {
     Result selectComAll();
     Result selectComLable(Integer id);
     Result selectComTeam(Integer id);
-
+    Result selectByUidAllCommodity(HttpServletRequest request);
 
 }
