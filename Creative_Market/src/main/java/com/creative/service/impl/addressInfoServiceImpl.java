@@ -117,12 +117,15 @@ public class addressInfoServiceImpl implements addressInfoService {
         LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
         lqw.eq(addressInfo::getState,1).eq(addressInfo::getUserId,user.getId());
         addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
-        addressInfo.setState(0);
-        int i = addressInfoMapper.updateById(addressInfo);
+        if (addressInfo != null){
+            addressInfo.setState(0);
+            addressInfoMapper.updateById(addressInfo);
+        }
+
         addressInfo addressInfoUpdate = addressInfoMapper.selectById(updateId);
         addressInfoUpdate.setState(1);
         int i1 = addressInfoMapper.updateById(addressInfoUpdate);
-        boolean flag = i > 0 && i1 > 0;
+        boolean flag = i1 > 0;
         return new Result(flag ? Code.NORMAL : Code.SYNTAX_ERROR,flag ? "修改成功" : "修改失败");
     }
 
@@ -135,6 +138,9 @@ public class addressInfoServiceImpl implements addressInfoService {
             LambdaQueryWrapper<addressInfo> lqw = new LambdaQueryWrapper<>();
             lqw.eq(addressInfo::getUserId,user.getId()).eq(addressInfo::getState,1);
             addressInfo addressInfo = addressInfoMapper.selectOne(lqw);
+            if (addressInfo == null){
+                return Result.fail(Code.SYNTAX_ERROR,"必须要有一个默认地址");
+            }
             addressInfo.setState(0);
             int i = addressInfoMapper.updateById(addressInfo);
             boolean flag = i > 0;
