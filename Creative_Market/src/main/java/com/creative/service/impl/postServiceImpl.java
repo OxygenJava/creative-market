@@ -157,7 +157,7 @@ public class postServiceImpl implements postService {
         List<getAllDiscoverDTO> list = new ArrayList<>();
 
         UserDTO userDTO = userHolder.getUser();
-
+//        user byId = userService.getById(userDTO.getId());
         //判断是否登录
         boolean isLogin = userDTO != null;
         Integer userId = userDTO == null ? null : userDTO.getId();
@@ -385,11 +385,12 @@ public class postServiceImpl implements postService {
                 postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
                 List<String> image = postDTO.getImage();
                 for (String s : image) {
+                    System.out.println(s);
                     String s1 = imgUtils.encodeImageToBase64(discoverImage + "\\" + s);
                     Image.add(s1);
                 }
                 postDTO.setImage(Image);
-                Image.clear();
+                
             } catch (IOException e) {
                 e.printStackTrace();
             }
