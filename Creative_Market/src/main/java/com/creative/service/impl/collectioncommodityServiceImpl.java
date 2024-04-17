@@ -53,22 +53,32 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-        collectioncommodity.setUid(user.getId());
 
-
-        if(collectioncommodity.getUid()==null){
+        if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
-        else {
             commodity commodity = commodityMapper.selectById(collectioncommodity.getCid());
+        if(commodity==null){
+            return Result.fail(Code.SYNTAX_ERROR, "商品不存在");
+        }
             commodity.setCollection(commodity.getCollection()+1);
             commodity.setCollectionState(1);
+
+        LambdaQueryWrapper<collectioncommodity> lqw = new LambdaQueryWrapper<>();
+       lqw.eq(com.creative.domain.collectioncommodity::getUid,user.getId())
+               .eq(com.creative.domain.collectioncommodity::getCid,collectioncommodity.getCid());
+        com.creative.domain.collectioncommodity collectioncommodity1 = collectioncommodityMapper.selectOne(lqw);
+        if (collectioncommodity1 != null) {
+            return Result.fail(Code.SYNTAX_ERROR, "该商品您已经收藏过了");
+        }
+
+            collectioncommodity.setUid(user.getId());
             int update = commodityMapper.updateById(commodity);
             int insert = collectioncommodityMapper.insert(collectioncommodity);
             Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update > 0 && insert>0? "收藏成功" : "收藏失败";
             return new Result(code, msg, "");
-        }
+
 
 
     }
@@ -78,21 +88,31 @@ public class collectioncommodityServiceImpl implements collectioncommodityServic
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-        collectioncommodity.setUid(user.getId());
 
-        if(collectioncommodity.getUid()==null){
+
+        if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
-        else {
             commodity commodity = commodityMapper.selectById(collectioncommodity.getCid());
+        if(commodity==null){
+            return Result.fail(Code.SYNTAX_ERROR, "商品不存在");
+        }
             commodity.setCollection(commodity.getCollection()-1);
             commodity.setCollectionState(0);
+        LambdaQueryWrapper<collectioncommodity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(com.creative.domain.collectioncommodity::getUid,user.getId())
+                .eq(com.creative.domain.collectioncommodity::getCid,collectioncommodity.getCid());
+        com.creative.domain.collectioncommodity collectioncommodity1 = collectioncommodityMapper.selectOne(lqw);
+        if (collectioncommodity1 == null) {
+            return Result.fail(Code.SYNTAX_ERROR, "该商品您还没有收藏,无法取消");
+        }
+            collectioncommodity.setUid(user.getId());
             int update = commodityMapper.updateById(commodity);
             int insert = collectioncommodityMapper.deleteBycollectioncommodity(collectioncommodity);
             Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update > 0 && insert>0? "取消收藏成功" : "取消收藏失败";
             return new Result(code, msg, "");
-        }
+
 
     }
 

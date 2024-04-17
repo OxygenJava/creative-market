@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.creative.domain.commodity;
 import com.creative.domain.likecommodity;
+import com.creative.domain.likepost;
 import com.creative.domain.user;
 import com.creative.dto.Code;
 import com.creative.dto.Result;
@@ -47,17 +48,30 @@ public class likecommodityServicImpl implements likecommodityService {
         if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
-        else {
-            likecommodity.setUid(user.getId());
-            commodity commodity = commodityMapper.selectById(likecommodity.getCid());
+        commodity commodity = commodityMapper.selectById(likecommodity.getCid());
+
+        if(commodity==null){
+            return Result.fail(Code.SYNTAX_ERROR, "商品不存在");
+        }
+
+
             commodity.setLikesReceived(commodity.getLikesReceived()+1);
             commodity.setLikesState(1);
+
+        LambdaQueryWrapper<likecommodity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(com.creative.domain.likecommodity::getUid,user.getId())
+                .eq(com.creative.domain.likecommodity::getCid,likecommodity.getCid());
+        com.creative.domain.likecommodity likecommodity1 = likecommodityMapper.selectOne(lqw);
+        if(likecommodity1!=null){
+            return Result.fail(Code.SYNTAX_ERROR, "已经对该商品点过赞了");
+        }
+            likecommodity.setUid(user.getId());
             int update = commodityMapper.updateById(commodity);
             int insert = likecommodityMapper.insert(likecommodity);
             Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update > 0 && insert>0? "点赞成功" : "点赞失败";
             return new Result(code, msg, "");
-        }
+
 
     }
 
@@ -66,22 +80,32 @@ public class likecommodityServicImpl implements likecommodityService {
         String authorization = request.getHeader("Authorization");
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
-        likecommodity.setUid(user.getId());
+
 
 
         if(likecommodity.getUid()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
-        else {
             commodity commodity = commodityMapper.selectById(likecommodity.getCid());
+        if(commodity==null){
+            return Result.fail(Code.SYNTAX_ERROR, "商品不存在");
+        }
             commodity.setLikesReceived(commodity.getLikesReceived()-1);
             commodity.setLikesState(0);
+        LambdaQueryWrapper<likecommodity> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(com.creative.domain.likecommodity::getUid,user.getId())
+                .eq(com.creative.domain.likecommodity::getCid,likecommodity.getCid());
+        com.creative.domain.likecommodity likecommodity1 = likecommodityMapper.selectOne(lqw);
+        if (likecommodity1 == null){
+            return Result.fail(Code.SYNTAX_ERROR,"您还未对该商品点赞过");
+        }
+            likecommodity.setUid(user.getId());
             int update = commodityMapper.updateById(commodity);
             int insert = likecommodityMapper.deleteBylikecommodity(likecommodity);
             Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update > 0 && insert>0? "取消点赞成功" : "取消点赞失败";
             return new Result(code, msg, "");
-        }
+
 
 
     }
