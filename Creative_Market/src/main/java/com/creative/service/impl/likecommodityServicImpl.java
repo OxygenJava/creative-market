@@ -83,7 +83,7 @@ public class likecommodityServicImpl implements likecommodityService {
 
 
 
-        if(likecommodity.getUid()==null){
+        if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
             commodity commodity = commodityMapper.selectById(likecommodity.getCid());

@@ -23,4 +23,9 @@ public class projectExceptionAdvice {
     public Result handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         return Result.fail(Code.INSUFFICIENT_PERMISSIONS, ex.getMessage());
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public Result handleRuntimeException(RuntimeException runtimeException){
+        return Result.fail(Code.SYNTAX_ERROR,runtimeException.getMessage());
+    }
 }
