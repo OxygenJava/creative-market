@@ -25,6 +25,10 @@ public class postDTO {
 
     //帖子的发布时间
     private String createTime;
+
+    //帖子发布的时间年月日
+    private String releasedTime;
+
     //帖子的点赞数
     private Integer likes;
     //帖子的点赞状态
@@ -39,4 +43,6 @@ public class postDTO {
     private Integer uid;
     //帖子图片路径
     private List<String> image;
+
+
 }
