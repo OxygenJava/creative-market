@@ -113,6 +113,7 @@ public class postServiceImpl implements postService {
         //处理图片
         for (MultipartFile multipartFile : file) {
             String originalFilename = multipartFile.getOriginalFilename();
+            
             //获取图片后缀
             String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
             //校验图片的格式
