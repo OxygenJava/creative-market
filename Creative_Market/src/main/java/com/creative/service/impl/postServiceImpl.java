@@ -411,6 +411,7 @@ public class postServiceImpl implements postService {
                 return Result.fail(Code.SYNTAX_ERROR,"该用户不存在");
             }
             postDTO.setPostUserNickName(user.getNickName());
+
             try {
                 postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
                 List<String> image = postDTO.getImage();
