@@ -106,8 +106,6 @@ public class likecommodityServicImpl implements likecommodityService {
             String msg = update > 0 && insert>0? "取消点赞成功" : "取消点赞失败";
             return new Result(code, msg, "");
 
-
-
     }
     
 
