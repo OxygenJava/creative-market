@@ -80,6 +80,7 @@ public class postServiceImpl implements postService {
         if (file == null || file.length <= 0){
             return Result.fail(Code.SYNTAX_ERROR,"上传的图片不能为空");
         }
+
         //设置用户id
         post.setUid(userDTO.getId());
         //设置发布时间
@@ -113,11 +114,11 @@ public class postServiceImpl implements postService {
         //处理图片
         for (MultipartFile multipartFile : file) {
             String originalFilename = multipartFile.getOriginalFilename();
-            
+
             //获取图片后缀
             String contentType = multipartFile.getContentType();
             String imageLastName = getExtensionFromContentType(contentType);
-            
+
             File discoverImageFile = new File(discoverImage);
             System.out.println(discoverImageFile);
             if (!discoverImageFile.exists()){
