@@ -152,6 +152,10 @@ public class orderServiceImpl implements orderService {
             BigDecimal payMoney = BigDecimal.valueOf(orderTable.getPayMoney());
             if (balanceAccount.compareTo(payMoney) >= 0 && balanceAccount.compareTo(BigDecimal.ZERO) >= 0){
                 wallet.setBalanceAccount(balanceAccount.subtract(payMoney));
+                Integer commodityId = orderTable.getCommodityId();
+                commodity commodity = commodityMapper.selectById(commodityId);
+                commodity.setCrowdfundedAmount(commodity.getCrowdfundedAmount() + payMoney.doubleValue());
+                commodityMapper.updateById(commodity);
                 orderTable.setPayState(1);
                 orderTable.setPayTime(LocalDateTime.now());
                 int i = walletMapper.updateById(wallet);
