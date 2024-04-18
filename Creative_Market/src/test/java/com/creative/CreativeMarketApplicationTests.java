@@ -153,6 +153,7 @@ class CreativeMarketApplicationTests {
     @Test
     void esInit(@Autowired commodityHomePageService homePageService, @Autowired RestHighLevelClient restHighLevelClient) throws IOException {
         List<commodityHomePage> list = homePageService.query().list();
+        System.out.println(list.size());
         for (commodityHomePage commodityHomePage : list) {
             commodityHomePage.setHomePageImage(imgUtils.encodeImageToBase64(shopImage+"//"+commodityHomePage.getHomePageImage()));
         }

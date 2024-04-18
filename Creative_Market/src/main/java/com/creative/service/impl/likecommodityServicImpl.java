@@ -81,6 +81,8 @@ public class likecommodityServicImpl implements likecommodityService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
+
+
         if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }

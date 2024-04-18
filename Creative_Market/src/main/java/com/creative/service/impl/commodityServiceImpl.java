@@ -210,7 +210,8 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
             String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
             //校验图片的格式
             if (!imageLastName.equals(".jpg") && !imageLastName.equals(".png")){
-                return Result.fail(Code.SYNTAX_ERROR,"图片格式必须为 jgp 或 png 格式");
+                throw new RuntimeException("图片格式必须为 jgp 或 png 格式");
+//                return Result.fail(Code.SYNTAX_ERROR,"图片格式必须为 jgp 或 png 格式");
             }
             File baseFile = new File(detailsImage);
             File homePageImageFile = new File(shopImage);

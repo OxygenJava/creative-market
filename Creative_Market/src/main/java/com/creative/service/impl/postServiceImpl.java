@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -400,7 +401,6 @@ public class postServiceImpl implements postService {
             return Result.success("数据已经到底了");
         }
         List<postDTO> postDTOS = BeanUtil.copyToList(records, postDTO.class);
-
         LambdaQueryWrapper<likepost> lqw1=new LambdaQueryWrapper<>();
         LambdaQueryWrapper<collectionpost> lqw2=new LambdaQueryWrapper<>();
 
@@ -412,11 +412,23 @@ public class postServiceImpl implements postService {
             }
             postDTO.setPostUserNickName(user.getNickName());
 
+            //转换时间格式
+            String createTime = postDTO.getCreateTime();
+
+            LocalDateTime dateTime = LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochMilli(Long.parseLong(createTime)),
+                    java.time.ZoneId.systemDefault()
+            );
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            // 使用format()方法将LocalDateTime对象转换为指定格式的字符串
+            String formattedDateTime = dateTime.format(formatter);
+            postDTO.setReleasedTime(formattedDateTime);
+
             try {
                 postDTO.setIconImage(imgUtils.encodeImageToBase64(iconImage+"\\"+user.getIconImage()));
                 List<String> image = postDTO.getImage();
                 for (String s : image) {
-                    System.out.println(s);
                     String s1 = imgUtils.encodeImageToBase64(discoverImage + "\\" + s);
                     Image.add(s1);
                 }
@@ -445,7 +457,6 @@ public class postServiceImpl implements postService {
             else {
                 postDTO.setCollectionState(0);
             }
-
         }
 
         Integer code = postDTOS != null ? Code.NORMAL : Code.SYNTAX_ERROR;
