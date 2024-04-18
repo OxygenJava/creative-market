@@ -326,6 +326,11 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
             LambdaQueryWrapper<likecommodity> lqw1=new LambdaQueryWrapper<>();
             LambdaQueryWrapper<collectioncommodity> lqw2=new LambdaQueryWrapper<>();
 
+            try {
+                commodity.setHomePageImage(imgUtils.encodeImageToBase64(shopImage+"\\"+commodity.getHomePageImage()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             lqw1.eq(likecommodity::getUid, userDTO.getId())
                     .eq(likecommodity::getCid,commodity.getId());
             likecommodity likecommodity = likecommodityMapper.selectOne(lqw1);
