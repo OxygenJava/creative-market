@@ -81,9 +81,7 @@ public class likecommodityServicImpl implements likecommodityService {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
         user user = BeanUtil.fillBeanWithMap(entries, new user(), true);
 
-
-
-        if(likecommodity.getUid()==null){
+        if(user.getId()==null){
             return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录","");
         }
             commodity commodity = commodityMapper.selectById(likecommodity.getCid());
@@ -105,8 +103,6 @@ public class likecommodityServicImpl implements likecommodityService {
             Integer code = update > 0 && insert>0? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = update > 0 && insert>0? "取消点赞成功" : "取消点赞失败";
             return new Result(code, msg, "");
-
-
 
     }
     

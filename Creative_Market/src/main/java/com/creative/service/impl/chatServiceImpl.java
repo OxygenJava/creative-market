@@ -131,7 +131,6 @@ public class chatServiceImpl implements chatService {
                     chatList.setUnread(0);
                     chatLMapper.insert(chatList);
 
-
                 }
 
                 LambdaQueryWrapper<chatList> lqw=new LambdaQueryWrapper<>();
@@ -144,7 +143,8 @@ public class chatServiceImpl implements chatService {
                     }
                 }
 
-                return new Result(Code.SYNTAX_ERROR,"First","");
+                List<chatMessage> selectsocket = chatMMapper.selectsocket(user.getUsername(), toUser);
+                return new Result(Code.SYNTAX_ERROR,"First",selectsocket);
             }
 
             else {
