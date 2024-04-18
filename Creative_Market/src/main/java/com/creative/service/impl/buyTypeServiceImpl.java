@@ -38,6 +38,7 @@ public class buyTypeServiceImpl implements buyTypeService {
         ArrayList<Integer> arrayList = new ArrayList();
         boolean flag = true;
         for (buyType buyType : buyTypes) {
+            System.out.println(buyType);
             if (buyType.getCommodityId() == null){
                 throw new RuntimeException("未传递商品id");
             }

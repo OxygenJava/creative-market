@@ -263,6 +263,35 @@ public class postServiceImpl implements postService {
         LambdaQueryWrapper<post> lqw=new LambdaQueryWrapper<>();
         lqw.eq(post::getUid,user.getId());
         List<post> posts = postMapper.selectList(lqw);
+        for (post post : posts) {
+            LambdaQueryWrapper<likepost> lqw1=new LambdaQueryWrapper<>();
+            LambdaQueryWrapper<collectionpost> lqw2=new LambdaQueryWrapper<>();
+
+            try {
+                post.setImage(imgUtils.encodeImageToBase64(discoverImage+"\\"+post.getImage()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            lqw1.eq(likepost::getUid,user.getId())
+                    .eq(likepost::getPid,post.getId());
+            likepost likepost = likepostMapper.selectOne(lqw1);
+            if(likepost!=null){
+                post.setLikesState(1);
+            }
+            else {
+                post.setLikesState(0);
+            }
+
+            lqw2.eq(collectionpost::getUid,user.getId())
+                    .eq(collectionpost::getPid,post.getId());
+            collectionpost collectionpost = collectionpostMapper.selectOne(lqw2);
+            if(collectionpost!=null){
+                post.setCollectionState(1);
+            }
+            else {
+                post.setCollectionState(0);
+            }
+        }
         Integer code = posts != null ? Code.NORMAL : Code.SYNTAX_ERROR;
         String msg = posts != null ? "查询成功" : "查询失败";
         return new Result(code, msg, posts);

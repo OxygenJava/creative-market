@@ -307,6 +307,57 @@ public class commodityServiceImpl extends ServiceImpl<commodityMapper, commodity
         return new Result(code, msg, users);
     }
 
+    //根据用户id查询该用户发布过的商品
+    @Override
+    public Result selectByUidAllCommodity(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(authorization);
+        //判断用户是否登录
+        if(entries.isEmpty()){
+            return new Result(Code.INSUFFICIENT_PERMISSIONS,"请先登录");
+        }
+        UserDTO userDTO = BeanUtil.fillBeanWithMap(entries, new UserDTO(), true);
+        LambdaQueryWrapper<commodity> lqw=new LambdaQueryWrapper<>();
+
+
+        lqw.eq(commodity::getReleaseUserId,userDTO.getId());
+        List<commodity> commodities = commodityMapper.selectList(lqw);
+        for (commodity commodity : commodities) {
+            LambdaQueryWrapper<likecommodity> lqw1=new LambdaQueryWrapper<>();
+            LambdaQueryWrapper<collectioncommodity> lqw2=new LambdaQueryWrapper<>();
+
+            try {
+                commodity.setHomePageImage(imgUtils.encodeImageToBase64(shopImage+"\\"+commodity.getHomePageImage()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            lqw1.eq(likecommodity::getUid, userDTO.getId())
+                    .eq(likecommodity::getCid,commodity.getId());
+            likecommodity likecommodity = likecommodityMapper.selectOne(lqw1);
+            if(likecommodity!=null){
+                commodity.setLikesState(1);
+            }
+            else {
+                commodity.setLikesState(0);
+            }
+
+            lqw2.eq(collectioncommodity::getUid,userDTO.getId())
+                    .eq(collectioncommodity::getCid,commodity.getId());
+            collectioncommodity collectioncommodity = collectioncommodityMapper.selectOne(lqw2);
+            if(collectioncommodity!=null){
+                commodity.setCollectionState(1);
+            }
+            else {
+                commodity.setCollectionState(0);
+            }
+
+        }
+
+        Integer code = commodities != null ? Code.NORMAL : Code.SYNTAX_ERROR;
+        String msg = commodities != null ? "查询成功" : "查询失败";
+        return new Result(code, msg, commodities);
+    }
+
 
     /*************************  commodityServiceImpl内部方法   ******************************/
 
