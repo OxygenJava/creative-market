@@ -14,6 +14,8 @@ import com.creative.utils.RegexUtils;
 import com.creative.utils.beanUtil;
 import com.creative.utils.imgUtils;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -174,5 +176,13 @@ class CreativeMarketApplicationTests {
         char[] chars = s1.toCharArray();
         int i = s.indexOf(s1);
         System.out.println(i);
+    }
+
+    @Test
+    void showEs(@Autowired RestHighLevelClient restHighLevelClient) throws IOException {
+        GetRequest getRequest = new GetRequest("app_seacher","16");
+        GetResponse documentFields = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
+        String sourceAsString = documentFields.getSourceAsString();
+        System.out.println(sourceAsString);
     }
 }

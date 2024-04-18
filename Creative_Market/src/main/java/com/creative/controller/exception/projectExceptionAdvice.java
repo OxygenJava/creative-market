@@ -21,11 +21,13 @@ public class projectExceptionAdvice {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public Result handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        ex.printStackTrace();
         return Result.fail(Code.INSUFFICIENT_PERMISSIONS, ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public Result handleRuntimeException(RuntimeException runtimeException){
+        runtimeException.printStackTrace();
         return Result.fail(Code.SYNTAX_ERROR,runtimeException.getMessage());
     }
 }
