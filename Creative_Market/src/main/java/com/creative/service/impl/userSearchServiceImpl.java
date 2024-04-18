@@ -116,7 +116,20 @@ public class userSearchServiceImpl implements userSearchService {
             String description1 = stringObjectMap.get("description").toString();
             //设置高亮
             StringBuilder sb = new StringBuilder();
+
             int index = description1.indexOf(userSearch.getSearchInfo());
+            if (index == -1){
+                String lowerCase = userSearch.getSearchInfo().toLowerCase();
+                int i = description1.indexOf(lowerCase);
+                if (i != -1){
+                    index = i;
+                }else {
+                    String upperCase = userSearch.getSearchInfo().toUpperCase();
+                    index = description1.indexOf(upperCase);
+                }
+
+            }
+
             try {
                 String substring = description1.substring(0, index);
                 sb.append(substring);
