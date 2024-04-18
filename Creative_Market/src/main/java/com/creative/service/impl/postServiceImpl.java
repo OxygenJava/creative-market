@@ -266,6 +266,11 @@ public class postServiceImpl implements postService {
             LambdaQueryWrapper<likepost> lqw1=new LambdaQueryWrapper<>();
             LambdaQueryWrapper<collectionpost> lqw2=new LambdaQueryWrapper<>();
 
+            try {
+                post.setImage(imgUtils.encodeImageToBase64(discoverImage+"\\"+post.getImage()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             lqw1.eq(likepost::getUid,user.getId())
                     .eq(likepost::getPid,post.getId());
             likepost likepost = likepostMapper.selectOne(lqw1);
