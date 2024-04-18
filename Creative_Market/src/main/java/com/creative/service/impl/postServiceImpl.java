@@ -113,12 +113,11 @@ public class postServiceImpl implements postService {
         //处理图片
         for (MultipartFile multipartFile : file) {
             String originalFilename = multipartFile.getOriginalFilename();
+            
             //获取图片后缀
-            String imageLastName = originalFilename.substring(originalFilename.lastIndexOf("."));
-            //校验图片的格式
-            if (!imageLastName.equals(".jpg") && !imageLastName.equals(".png")){
-                return Result.fail(Code.SYNTAX_ERROR,"图片格式必须为 jgp 或 png 格式");
-            }
+            String contentType = multipartFile.getContentType();
+            String imageLastName = getExtensionFromContentType(contentType);
+            
             File discoverImageFile = new File(discoverImage);
             System.out.println(discoverImageFile);
             if (!discoverImageFile.exists()){
@@ -127,6 +126,9 @@ public class postServiceImpl implements postService {
 
             //生成图片名字
             String imageName = UUID.randomUUID().toString();
+            if (imageLastName == null || imageLastName.isEmpty()) {
+                imageLastName = ".jpg"; // 或其他你认为适合的默认扩展名
+            }
             //拼接图片字符串
             image += imageName+imageLastName+",";
             //下载图片
@@ -510,4 +512,21 @@ public class postServiceImpl implements postService {
         return timeStr;
     }
 
+    private String getExtensionFromContentType(String contentType) {
+        if (contentType == null) {
+            return null;
+        }
+        // 根据 MIME 类型返回对应的文件扩展名
+        switch (contentType) {
+            case "image/jpeg":
+                return ".jpg";
+            case "image/png":
+                return ".png";
+            case "image/gif":
+                return ".gif";
+            // 其他常见的图片格式可以继续添加
+            default:
+                return null; // 如果无法识别 MIME 类型，则返回空
+        }
+    }
 }
