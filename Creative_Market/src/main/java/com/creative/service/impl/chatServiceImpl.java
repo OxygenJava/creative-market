@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -270,25 +271,32 @@ public class chatServiceImpl implements chatService {
             ArrayList<user> list=new ArrayList();
 
             LambdaQueryWrapper<chatUserLink> lqw=new LambdaQueryWrapper<>();
-            lqw.eq(chatUserLink::getFromUser,user.getUsername());
+            lqw.eq(chatUserLink::getFromUser,user.getUsername())
+                    .or()
+                    .eq(chatUserLink::getToUser,user.getUsername());
             List<chatUserLink> chatUserLinks = chatuserMapper.selectList(lqw);
-
 
             for (chatUserLink chatUserLink : chatUserLinks) {
                 LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
-                lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser());
-                com.creative.domain.user user1 = userMapper.selectOne(lqw1);
-                if(user1!=null){
+                lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser())
+                        .or()
+                        .eq(com.creative.domain.user::getUsername,chatUserLink.getFromUser());
+                List<com.creative.domain.user> users = userMapper.selectList(lqw1);
+                if(users.size()!=0){
                 try {
-                    user1.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
+                    for (com.creative.domain.user user1 : users) {
+                        user1.setIconImage(imgUtils.encodeImageToBase64(iconImage + "\\" + user1.getIconImage()));
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 }
-                list.add(user1);
+                list.addAll(users);
             }
 
             List<UserDTO> userDTOS = BeanUtil.copyToList(list, UserDTO.class);
+            userDTOS=userDTOS.stream().filter(userDTO1 -> !userDTO1.getUsername().equals(user.getUsername()))
+                    .collect(Collectors.toList());
 
             Integer code = chatUserLinks!=null? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = chatUserLinks!=null? "查询成功" : "查询失败";
