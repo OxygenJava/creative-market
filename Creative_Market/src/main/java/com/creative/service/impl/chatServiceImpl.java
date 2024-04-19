@@ -276,6 +276,7 @@ public class chatServiceImpl implements chatService {
                     .eq(chatUserLink::getToUser,user.getUsername());
             List<chatUserLink> chatUserLinks = chatuserMapper.selectList(lqw);
 
+
             for (chatUserLink chatUserLink : chatUserLinks) {
                 LambdaQueryWrapper<user> lqw1=new LambdaQueryWrapper<>();
                 lqw1.eq(com.creative.domain.user::getUsername,chatUserLink.getToUser())
@@ -297,10 +298,11 @@ public class chatServiceImpl implements chatService {
             List<UserDTO> userDTOS = BeanUtil.copyToList(list, UserDTO.class);
             userDTOS=userDTOS.stream().filter(userDTO1 -> !userDTO1.getUsername().equals(user.getUsername()))
                     .collect(Collectors.toList());
+            List<UserDTO> collect = userDTOS.stream().distinct().collect(Collectors.toList());
 
             Integer code = chatUserLinks!=null? Code.NORMAL : Code.SYNTAX_ERROR;
             String msg = chatUserLinks!=null? "查询成功" : "查询失败";
-            return new Result(code, msg, userDTOS);
+            return new Result(code, msg, collect);
         }
 
     }
